@@ -15,18 +15,12 @@ export function setupEventListeners() {
     link.addEventListener('click', (e) => {
       const target = e.currentTarget.getAttribute('data-target');
       switchView(target);
-      
-      // Update active nav button styling
-      navLinks.forEach(l => l.classList.remove('active'));
-      e.currentTarget.classList.add('active');
     });
   });
 
   // Logo button returns to dashboard
   document.getElementById('logo-btn').addEventListener('click', () => {
     switchView('dashboard-view');
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    document.getElementById('nav-dashboard').classList.add('active');
   });
 
   // Custom Search Form Submit
@@ -279,9 +273,6 @@ export function setupEventListeners() {
 
       // Switch view & generate
       switchView('prompt-hub-view');
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      const navPrompts = document.getElementById('nav-prompts');
-      if (navPrompts) navPrompts.classList.add('active');
 
       renderPromptHubOutput();
       showToast("Prompts maestros generados para " + pName, "success");

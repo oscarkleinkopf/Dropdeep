@@ -2,6 +2,14 @@ import { state } from '../state.js';
 import { renderPortfolioList } from './portfolio.js';
 import { renderMetaHiddenInterests } from './spy.js';
 
+const NAV_VIEW_MAP = {
+  'dashboard-view': 'nav-dashboard',
+  'scanner-view': 'nav-scanner',
+  'portfolio-view': 'nav-portfolio',
+  'prompt-hub-view': 'nav-prompts',
+  'spy-intelligence-view': 'nav-spy',
+};
+
 export function switchView(viewId) {
   state.activeView = viewId;
   
@@ -13,6 +21,16 @@ export function switchView(viewId) {
   const targetSec = document.getElementById(viewId);
   if (targetSec) {
     targetSec.classList.add('active');
+  }
+
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const navId = NAV_VIEW_MAP[viewId];
+  if (navId) {
+    document.getElementById(navId)?.classList.add('active');
+  }
+
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
   }
 
   // View specific setups
