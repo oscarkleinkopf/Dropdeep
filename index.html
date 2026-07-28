@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropDeep | Dropshipping & Marketing Intelligence Hub</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Encuentra productos ganadores para Dropshipping y realiza investigaciones profundas de mercado para copywriting y marketing digital con DropDeep.">
+  <meta name="keywords" content="dropshipping, product research, marketing digital, copywriting, e-commerce, hot products">
+  <meta name="author" content="DropDeep team">
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/src/style.css">
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="theme-color" content="#070a13">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="main-header">
+      <div class="logo-container" id="logo-btn">
+        <div class="logo-icon-pulse">
+          <i data-lucide="shield-alert" class="logo-icon"></i>
+        </div>
+        <span class="logo-text">DROP<span class="accent-text">DEEP</span></span>
+        <span class="beta-badge">INTELLIGENCE</span>
+      </div>
+      
+      <nav class="nav-links">
+        <button class="nav-link active" data-target="dashboard-view" id="nav-dashboard">
+          <i data-lucide="layout-dashboard" class="nav-icon"></i> Dashboard
+        </button>
+        <button class="nav-link" data-target="scanner-view" id="nav-scanner">
+          <i data-lucide="radar" class="nav-icon"></i> Trend Scanner
+        </button>
+        <button class="nav-link" data-target="portfolio-view" id="nav-portfolio">
+          <i data-lucide="folder-heart" class="nav-icon"></i> My Portfolio
+          <span class="portfolio-badge hidden" id="portfolio-count">0</span>
+        </button>
+        <button class="nav-link" data-target="prompt-hub-view" id="nav-prompts">
+          <i data-lucide="sparkles" class="nav-icon"></i> Prompt Hub (Sin API)
+        </button>
+        <button class="nav-link" data-target="spy-intelligence-view" id="nav-spy">
+          <i data-lucide="eye" class="nav-icon"></i> Espionaje Competitivo
+        </button>
+      </nav>
+      
+      <div class="header-actions" style="display:flex; gap:0.75rem; align-items:center">
+        <span class="server-status">
+          <span class="status-dot green"></span> Active Scraper
+        </span>
+        <button class="btn btn-secondary" id="settings-btn" title="Configurar API Key" style="padding:0.4rem 0.6rem; display:inline-flex; align-items:center; justify-content:center">
+          <i data-lucide="settings" style="width:16px; height:16px"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- VIEW: DASHBOARD & SEARCH -->
+      <section id="dashboard-view" class="view-section active">
+        <!-- Hero Section -->
+        <div class="hero-section">
+          <h1 class="hero-title">Deep Research de Productos para <span class="gradient-text">Dropshipping & Marketing</span></h1>
+          <p class="hero-subtitle">Ingresa un producto para compilar perfiles demográficos, objeciones reales, historias de terror, ganchos de ad y copys persuasivos basados en la psicología profunda del comprador.</p>
+          
+          <!-- Search Bar Container -->
+          <div class="search-container">
+            <form id="search-form" class="search-form">
+              <div class="search-wrapper">
+                <i data-lucide="search" class="search-input-icon"></i>
+                <input type="text" id="search-input" placeholder="Ingresa el nombre del producto a investigar (ej: Posture Corrector, Smart Water Bottle...)" required autocomplete="off">
+                <button type="submit" class="search-btn">
+                  <span>Ejecutar Deep Research</span>
+                  <i data-lucide="zap" class="btn-icon"></i>
+                </button>
+                <button type="button" id="quick-prompt-btn" class="search-btn prompt-quick-btn" title="Genera secuencias de prompts para ChatGPT/Claude sin consumir tokens de API">
+                  <span>Generar Prompts (Sin API)</span>
+                  <i data-lucide="sparkles" class="btn-icon"></i>
+                </button>
+              </div>
+              <div class="competitor-url-wrapper" style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.75rem 0.2rem 0.75rem; border-top: 1px solid var(--border-color)">
+                <i data-lucide="link-2" style="width: 16px; height: 16px; color: var(--accent-cyan)"></i>
+                <input type="url" id="competitor-input" placeholder="URL de Competidor (Opcional - ej: https://tienda-competidor.com/producto)" style="flex: 1; font-size: 0.85rem; padding: 0.25rem 0; background: none; border: none; outline: none; color: var(--text-secondary)">
+              </div>
+            </form>
+            <div class="search-tags">
+              <span class="tag-label">Sugerencias:</span>
+              <button class="suggestion-tag">Smart Pet Feeder</button>
+              <button class="suggestion-tag">Aroma Diffuser</button>
+              <button class="suggestion-tag">Skincare Massager</button>
+              <button class="suggestion-tag">Heated Mug</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-dashboard">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Nicho Más Caliente</span>
+              <i data-lucide="flame" class="metric-icon red-icon"></i>
+            </div>
+            <div class="metric-value">Salud & Bienestar</div>
+            <div class="metric-sub">Velocidad media de tendencia +142%</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Margen Neto Promedio</span>
+              <i data-lucide="percent" class="metric-icon green-icon"></i>
+            </div>
+            <div class="metric-value">71.8%</div>
+            <div class="metric-sub">Costo medio de adquisición $8.40</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Competencia Global</span>
+              <i data-lucide="line-chart" class="metric-icon blue-icon"></i>
+            </div>
+            <div class="metric-value">Moderada</div>
+            <div class="metric-sub">Baja saturación en mercados latinos</div>
+          </div>
+        </div>
+
+        <!-- Section Title: Discovery Feed -->
+        <div class="section-title-bar">
+          <div class="title-left">
+            <h2>Productos Ganadores Descubiertos <span class="badge-new">Live Feed</span></h2>
+            <p>Monitoreo automático de alta rentabilidad basado en volumen de anuncios y baja saturación.</p>
+          </div>
+        </div>
+
+        <!-- Winning Products Feed Grid -->
+        <div class="products-grid" id="automated-feed">
+          <!-- Dynamically populated from JS -->
+        </div>
+      </section>
+
+      <!-- VIEW: TREND SCANNER (SIMULATION FEED) -->
+      <section id="scanner-view" class="view-section">
+        <div class="scanner-hero">
+          <div class="scanner-status-panel">
+            <div class="radar-box">
+              <div class="radar-circle">
+                <div class="radar-sweep"></div>
+                <div class="radar-dot" style="top:30%; left:60%"></div>
+                <div class="radar-dot" style="top:70%; left:20%"></div>
+                <div class="radar-dot" style="top:40%; left:30%"></div>
+              </div>
+            </div>
+            <div class="scanner-log-panel">
+              <h3>Consola de Monitoreo Global</h3>
+              <div class="scanner-console-logs" id="scanner-logs-container">
+                <!-- Log lines populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Scan Grid -->
+        <div class="section-title-bar">
+          <div class="title-left">
+            <h2>Productos Escaneados Recientemente</h2>
+            <p>Análisis automáticos en cola listos para investigación profunda.</p>
+          </div>
+        </div>
+        <div class="products-grid" id="scanned-feed">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- VIEW: MY PORTFOLIO -->
+      <section id="portfolio-view" class="view-section">
+        <div class="portfolio-header-bar">
+          <div class="title-left">
+            <h2>Mi Portafolio de Productos Investigados</h2>
+            <p>Administra los productos guardados, edita tus notas y exporta reportes consolidados.</p>
+          </div>
+          <div class="portfolio-actions" style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-secondary hidden" id="compare-btn" style="border-color: var(--accent-cyan); color: var(--accent-cyan)">
+              <i data-lucide="columns"></i> Comparar
+            </button>
+            <button class="btn btn-secondary" id="export-portfolio-btn">
+              <i data-lucide="download"></i> Exportar Portafolio
+            </button>
+          </div>
+        </div>
+
+        <div class="portfolio-container" id="portfolio-container">
+          <!-- Empty State by default, populated dynamically -->
+          <div class="empty-portfolio" id="empty-portfolio-view">
+            <i data-lucide="folder-open" class="empty-icon"></i>
+            <h3>Tu portafolio está vacío</h3>
+            <p>Realiza una investigación profunda en el buscador o en el feed y guarda los productos para verlos aquí.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('nav-dashboard').click()">Ir a Buscar</button>
+          </div>
+          <div class="portfolio-layout hidden" id="portfolio-layout">
+            <div class="portfolio-sidebar" style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 250px;">
+              <div class="portfolio-search-container" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
+                <input type="text" id="portfolio-search-input" placeholder="Buscar producto..." style="width: 100%; padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size: 0.8rem;">
+                <select id="portfolio-category-filter" style="width: 100%; padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size: 0.8rem;">
+                  <option value="">Todas las categorías</option>
+                  <option value="beauty">Belleza / Cuidado Personal</option>
+                  <option value="pet">Mascotas</option>
+                  <option value="health">Salud / Bienestar</option>
+                  <option value="home">Hogar / Decoración</option>
+                  <option value="tech">Tecnología / Gadgets</option>
+                  <option value="general">General / Otros</option>
+                </select>
+              </div>
+              <div id="portfolio-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- List of saved products -->
+              </div>
+            </div>
+            <div class="portfolio-detail" id="portfolio-active-detail">
+              <!-- Active saved product notes and quick stats -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: PRODUCT COMPARATOR -->
+      <section id="comparator-view" class="view-section">
+        <div class="portfolio-header-bar">
+          <div class="title-left">
+            <h2>Comparador de Productos</h2>
+            <p>Comparativa lado a lado de tus productos guardados para tomar mejores decisiones.</p>
+          </div>
+          <div class="portfolio-actions">
+            <button class="btn btn-secondary" id="close-comparator-btn">
+              <i data-lucide="arrow-left"></i> Volver a Portafolio
+            </button>
+          </div>
+        </div>
+        
+        <div class="comparator-container" id="comparator-grid-container" style="padding: 1.5rem; overflow-x: auto;">
+          <!-- Dynamically populated side-by-side comparison table/cards -->
+        </div>
+      </section>
+
+      <!-- VIEW: DEEP RESEARCH REPORT (FULL SIDEBAR DESIGN) -->
+      <section id="report-view" class="view-section report-view-container">
+        
+        <!-- Report Header Bar -->
+        <div class="report-header-nav">
+          <button class="btn btn-back" id="close-report-btn">
+            <i data-lucide="arrow-left"></i> Volver
+          </button>
+          <div class="report-header-title">
+            <h2 id="report-product-name">Product Name Deep Research</h2>
+            <span class="report-badge-status">Informe Completo (8 Páginas)</span>
+          </div>
+          <div class="report-header-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn btn-secondary hidden" id="refresh-cache-btn" title="Refrescar Investigación de la API" style="border-color: var(--accent-cyan); color: var(--accent-cyan)">
+              <i data-lucide="refresh-cw"></i> Refrescar
+            </button>
+            <button class="btn btn-save" id="save-report-btn">
+              <i data-lucide="heart" id="save-heart-icon"></i> <span id="save-btn-text">Guardar en Portafolio</span>
+            </button>
+            <button class="btn btn-secondary" id="export-csv-btn" title="Exportar reporte a CSV">
+              <i data-lucide="table"></i> Exportar CSV
+            </button>
+            <button class="btn btn-secondary" id="export-markdown-btn" title="Exportar reporte a Markdown/Notion">
+              <i data-lucide="file-text"></i> Exportar MD
+            </button>
+            <button class="btn btn-primary btn-glow" id="export-pdf-btn">
+              <i data-lucide="file-down"></i> Exportar PDF Reporte
+            </button>
+          </div>
+        </div>
+
+        <!-- Product Snapshot Bar -->
+        <div class="product-snapshot-bar" id="product-snapshot">
+          <!-- Dynamically populated metrics: cost, retail, margin, ROI, shipping, trends -->
+        </div>
+
+        <!-- Report Dashboard Grid -->
+        <div class="report-body-grid">
+          <!-- Left Navigation Sidebar -->
+          <aside class="report-sidebar">
+            <nav class="report-sidebar-nav">
+              <button class="sidebar-tab-btn active" data-section="section-demographics">
+                <span class="tab-num">01</span>
+                <span class="tab-label">Demografía y Psicografía</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-solutions">
+                <span class="tab-num">02</span>
+                <span class="tab-label">Soluciones y Reseñas</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-secrets">
+                <span class="tab-num">03</span>
+                <span class="tab-label">Curiosidades y Mecanismos</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-eden">
+                <span class="tab-num">04</span>
+                <span class="tab-label">La Caída del Edén</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-verbatims">
+                <span class="tab-num">05</span>
+                <span class="tab-label">Swipe File (Textuales)</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-angles">
+                <span class="tab-num">06</span>
+                <span class="tab-label">Ángulos y Ganchos de Copy</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <div class="sidebar-separator" style="height:1px; background:var(--border-color); margin:0.5rem 0"></div>
+              <button class="sidebar-tab-btn" data-section="section-avatar-brief">
+                <span class="tab-num">07</span>
+                <span class="tab-label">Avatar Brief</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-offer-brief">
+                <span class="tab-num">08</span>
+                <span class="tab-label">Offer Brief</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <div class="sidebar-separator" style="height:1px; background:var(--border-color); margin:0.5rem 0"></div>
+              <button class="sidebar-tab-btn" data-section="section-ugc-scripts">
+                <span class="tab-num">09</span>
+                <span class="tab-label">Scripts de Video (UGC)</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-landing-generator">
+                <span class="tab-num">10</span>
+                <span class="tab-label">Generador de Landing</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-ab-testing">
+                <span class="tab-num">11</span>
+                <span class="tab-label">Simulador A/B Testing</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-competitor-analysis">
+                <span class="tab-num">12</span>
+                <span class="tab-label">Análisis de Competencia</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-suppliers">
+                <span class="tab-num">13</span>
+                <span class="tab-label">Proveedores Dropshipping</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <div class="sidebar-separator" style="height:1px; background:var(--border-color); margin:0.5rem 0"></div>
+              <button class="sidebar-tab-btn" data-section="section-email-sequence">
+                <span class="tab-num">14</span>
+                <span class="tab-label">Secuencias de Email</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-ad-copy">
+                <span class="tab-num">15</span>
+                <span class="tab-label">Anuncios Meta & TikTok</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-shopify-description">
+                <span class="tab-num">16</span>
+                <span class="tab-label">Ficha de Shopify</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <div class="sidebar-separator" style="height:1px; background:var(--border-color); margin:0.5rem 0"></div>
+              <button class="sidebar-tab-btn" data-section="section-customer-journey">
+                <span class="tab-num">17</span>
+                <span class="tab-label">Customer Journey Map</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-mockup-prompts">
+                <span class="tab-num">18</span>
+                <span class="tab-label">Prompts para Mockups</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+              <button class="sidebar-tab-btn" data-section="section-master-prompts">
+                <span class="tab-num">19</span>
+                <span class="tab-label">Prompts para Chatbot</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
+            </nav>
+          </aside>
+
+          <!-- Right Content Panel -->
+          <article class="report-content-panel" id="report-content-container">
+            <!-- Sections rendered dynamically by JS -->
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW: PROMPT HUB (ZERO-TOKEN CHATBOT GENERATOR) -->
+      <section id="prompt-hub-view" class="view-section">
+        <div class="prompt-hub-container">
+          <div class="prompt-hub-header">
+            <div class="hub-title-badge">
+              <i data-lucide="sparkles" style="color: var(--accent-violet)"></i>
+              <span>MODO ZERO-TOKEN & FREE LLM</span>
+            </div>
+            <h2>Generador de Prompts Maestros para <span class="gradient-text">Chatbots Exteriores</span></h2>
+            <p>Obtén secuencias de prompts hiper-específicas de 5 fases para copiar y pegar directamente en **ChatGPT, Claude 3.5, Gemini o DeepSeek** sin gastar tokens ni pagar suscripciones de API.</p>
+          </div>
+
+          <!-- Configuration Panel -->
+          <div class="prompt-config-card">
+            <div class="config-inputs-grid">
+              <div class="input-field-group">
+                <label for="prompt-product-input"><i data-lucide="package"></i> Nombre del Producto</label>
+                <input type="text" id="prompt-product-input" placeholder="Ej: Posture Corrector, Smart Pet Feeder..." autocomplete="off">
+              </div>
+              <div class="input-field-group">
+                <label for="prompt-competitor-input"><i data-lucide="link"></i> URL de Competidor (Opcional)</label>
+                <input type="url" id="prompt-competitor-input" placeholder="Ej: https://tienda-competidor.com/producto">
+              </div>
+              <div class="input-field-group">
+                <label for="prompt-price-input"><i data-lucide="dollar-sign"></i> Precio Objetivo ($)</label>
+                <input type="number" id="prompt-price-input" placeholder="39.90" step="0.10">
+              </div>
+              <div class="input-field-group">
+                <label for="prompt-chatbot-select"><i data-lucide="bot"></i> Chatbot Objetivo</label>
+                <select id="prompt-chatbot-select" class="custom-select">
+                  <option value="chatgpt" selected>ChatGPT (4o / o3-mini)</option>
+                  <option value="claude">Claude 3.5 Sonnet</option>
+                  <option value="gemini">Gemini 1.5 / 2.0 Web</option>
+                  <option value="deepseek">DeepSeek R1 / V3</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="config-actions">
+              <button type="button" id="generate-prompts-btn" class="btn btn-primary btn-glow">
+                <i data-lucide="cpu"></i> Generar Secuencia de Prompts
+              </button>
+              <button type="button" id="copy-all-prompts-btn" class="btn btn-secondary">
+                <i data-lucide="copy"></i> Copiar Cadena Completa (All-in-One)
+              </button>
+            </div>
+          </div>
+
+          <!-- Fast Launch Web Buttons -->
+          <div class="fast-launch-bar">
+            <span class="launch-label">Abrir Chatbot Web:</span>
+            <a href="https://chatgpt.com" target="_blank" rel="noopener" class="launch-btn brand-chatgpt">
+              <i data-lucide="external-link"></i> ChatGPT Web
+            </a>
+            <a href="https://claude.ai" target="_blank" rel="noopener" class="launch-btn brand-claude">
+              <i data-lucide="external-link"></i> Claude.ai
+            </a>
+            <a href="https://gemini.google.com" target="_blank" rel="noopener" class="launch-btn brand-gemini">
+              <i data-lucide="external-link"></i> Gemini Web
+            </a>
+            <a href="https://chat.deepseek.com" target="_blank" rel="noopener" class="launch-btn brand-deepseek">
+              <i data-lucide="external-link"></i> DeepSeek Chat
+            </a>
+          </div>
+
+          <!-- Prompts Output Tabs & Display -->
+          <div class="prompt-display-container">
+            <div class="prompt-tabs-nav" id="prompt-tabs-nav">
+              <button class="prompt-tab-btn active" data-prompt-step="1">
+                <span>1. Investigación Psicográfica</span>
+              </button>
+              <button class="prompt-tab-btn" data-prompt-step="2">
+                <span>2. Avatar Brief</span>
+              </button>
+              <button class="prompt-tab-btn" data-prompt-step="3">
+                <span>3. Offer Brief</span>
+              </button>
+              <button class="prompt-tab-btn" data-prompt-step="4">
+                <span>4. Guiones UGC & Ad Copy</span>
+              </button>
+              <button class="prompt-tab-btn" data-prompt-step="5">
+                <span>5. Landing Page & Shopify</span>
+              </button>
+            </div>
+
+            <div class="prompt-box-wrapper">
+              <div class="prompt-box-header">
+                <div class="prompt-step-info">
+                  <span class="prompt-step-badge" id="prompt-step-badge">FASE 1 DE 5</span>
+                  <h4 id="prompt-step-title">Investigación Profunda de Mercado y Psicología del Comprador</h4>
+                </div>
+                <button type="button" id="copy-single-prompt-btn" class="btn btn-secondary btn-sm">
+                  <i data-lucide="copy"></i> Copiar Este Prompt
+                </button>
+              </div>
+              <div class="prompt-code-body">
+                <pre><code id="prompt-code-content">Selecciona o ingresa un producto y presiona 'Generar Secuencia de Prompts' para visualizar el prompt formateado listo para copiar...</code></pre>
+              </div>
+              <div class="prompt-box-footer">
+                <i data-lucide="info" style="width: 14px; height: 14px; color: var(--accent-cyan)"></i>
+                <span>Consejo: Copia este prompt y pégalo directamente en tu chatbot. Luego de recibir la respuesta, copia el Prompt 2 en el mismo hilo.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: ESPIONAJE COMPETITIVO & INTERESES OCULTOS -->
+      <section id="spy-intelligence-view" class="view-section">
+        <div class="prompt-hub-container">
+          <div class="prompt-hub-header">
+            <div class="hub-title-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: var(--accent-violet)">
+              <i data-lucide="eye"></i>
+              <span>INTELIGENCIA DE MERCADO & ESPIONAJE</span>
+            </div>
+            <h2>Suite de Espionaje Competitivo y <span class="gradient-text">Audiencias Ocultas</span></h2>
+            <p>Analiza tiendas de competidores por URL para extraer su pila tecnológica, ganchos y quejas de clientes, o explora intereses ocultos de Meta Ads que tu competencia ignora.</p>
+          </div>
+
+          <!-- Sub-navigation Tabs -->
+          <div class="subtabs-bar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <button type="button" id="subtab-competitor-btn" class="btn btn-secondary active-subtab" style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="shopping-bag"></i> Scraper & Analizador de Tiendas (URL)
+            </button>
+            <button type="button" id="subtab-meta-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="target"></i> Intereses Ocultos de Meta Ads
+            </button>
+          </div>
+
+          <!-- SUBTAB 1: STORE ANALYZER -->
+          <div id="subtab-competitor-panel">
+            <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
+              <div class="input-field-group">
+                <label for="competitor-url-analysis-input"><i data-lucide="link"></i> URL de la Tienda o Producto Competidor</label>
+                <div style="display: flex; gap: 0.75rem;">
+                  <input type="url" id="competitor-url-analysis-input" placeholder="Ej: https://tienda-competidor.com/products/corrector-postura" style="flex: 1;" autocomplete="off">
+                  <button type="button" id="run-competitor-analysis-btn" class="btn btn-primary btn-glow">
+                    <i data-lucide="search"></i> Escanear Tienda
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analysis Output Container -->
+            <div id="competitor-analysis-results">
+              <div style="text-align: center; padding: 3rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--border-radius-md); color: var(--text-muted);">
+                <i data-lucide="globe" style="width: 48px; height: 48px; opacity: 0.5; margin-bottom: 1rem;"></i>
+                <h3>Ingresa una URL de competidor para extraer su inteligencia</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">La app analizará su tecnología, precios, ganchos de copy y principales quejas de sus clientes.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBTAB 2: META HIDDEN INTERESTS -->
+          <div id="subtab-meta-panel" class="hidden">
+            <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
+              <div class="config-inputs-grid" style="grid-template-columns: 1fr auto;">
+                <div class="input-field-group">
+                  <label for="meta-interest-search-input"><i data-lucide="search"></i> Buscar por Nicho o Palabra Clave</label>
+                  <input type="text" id="meta-interest-search-input" placeholder="Ej: Posture, Skincare, Pets, Yoga, Fitness..." autocomplete="off">
+                </div>
+                <div class="input-field-group" style="display: flex; align-items: flex-end;">
+                  <button type="button" id="copy-selected-interests-btn" class="btn btn-primary btn-glow" disabled>
+                    <i data-lucide="copy"></i> Copiar Seleccionados (0)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Category Chips -->
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;" id="meta-category-chips">
+                <button type="button" class="tag-chip active" data-category="all">Todos los Nichos</button>
+                <button type="button" class="tag-chip" data-category="health">Salud & Bienestar</button>
+                <button type="button" class="tag-chip" data-category="beauty">Belleza & Skincare</button>
+                <button type="button" class="tag-chip" data-category="fitness">Fitness & Deporte</button>
+                <button type="button" class="tag-chip" data-category="pets">Mascotas</button>
+                <button type="button" class="tag-chip" data-category="home">Hogar & Estilo</button>
+                <button type="button" class="tag-chip" data-category="tech">Tecnología & Gadgets</button>
+              </div>
+            </div>
+
+            <!-- Interests Grid -->
+            <div id="meta-interests-grid" class="products-grid">
+              <!-- Dynamically populated from JS -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Terminal Overlay (Search Simulator Modal) -->
+    <div id="terminal-modal" class="terminal-overlay hidden">
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="close-terminal-dot" style="cursor:pointer"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">deep-research-agent-v1.0.3 - powershell</span>
+          <i data-lucide="terminal" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-output" id="terminal-output">
+            <!-- Simulated log lines go here -->
+          </div>
+          
+          <div class="terminal-footer">
+            <div class="progress-bar-container">
+              <span class="progress-label" id="progress-label">Iniciando escaneo...</span>
+              <div class="progress-track">
+                <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal (API Keys) -->
+    <div id="settings-modal" class="terminal-overlay hidden">
+      <div class="terminal-container" style="max-width: 500px">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="close-settings-dot" style="cursor:pointer"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">Configuración de API</span>
+          <i data-lucide="settings" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body" style="height: auto; padding: 2rem">
+          <h3 style="font-family: var(--font-display); margin-bottom: 0.5rem; color: var(--text-light); font-size:1.3rem">Clave de API de Gemini</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5">
+            Para realizar investigaciones profundas reales y búsquedas web en tiempo real, necesitas ingresar una clave API oficial de Google Gemini.
+          </p>
+          
+          <form id="settings-form">
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem">
+              <div>
+                <label for="gemini-key-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Gemini API Key:</label>
+                <input type="password" id="gemini-key-input" placeholder="AIzaSy..." required style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off">
+              </div>
+              
+              <div>
+                <label for="gemini-model-select" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Modelo de Inteligencia:</label>
+                <select id="gemini-model-select" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recomendado - Ultra Rápido y Económico)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash (Alta Velocidad y Precisión)</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Clásico Rápido)</option>
+                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (Clásico Ultra Profundo)</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="gemini-language-select" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Idioma de Respuesta:</label>
+                <select id="gemini-language-select" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+                  <option value="es">Español 🇪🇸</option>
+                  <option value="en">English 🇺🇸</option>
+                  <option value="pt">Português 🇧🇷</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem">
+                <input type="checkbox" id="gemini-grounding-input" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-cyan)">
+                <label for="gemini-grounding-input" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none">
+                  Activar Búsqueda en Google (Google Search Grounding)
+                </label>
+              </div>
+            </div>
+            
+            <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.5rem">
+              🔒 <strong>Nota de seguridad:</strong> Tu clave API se almacena de forma 100% local en tu navegador (localStorage). Las solicitudes de análisis van directo de tu dispositivo a los servidores oficiales de Google Gen AI, sin intermediarios.
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end">
+              <button type="button" class="btn btn-secondary" id="close-settings-btn">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Clave</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache Modal (Restore / Refresh) -->
+    <div id="cache-modal" class="terminal-overlay hidden">
+      <div class="terminal-container" style="max-width: 500px">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="close-cache-dot" style="cursor:pointer"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">Investigación en Caché</span>
+          <i data-lucide="database" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body" style="height: auto; padding: 2rem">
+          <h3 style="font-family: var(--font-display); margin-bottom: 0.5rem; color: var(--text-light); font-size:1.3rem">Investigación Reciente Encontrada</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5">
+            Ya existe un reporte completo para este producto guardado hace menos de 24 horas. Puedes cargar el reporte guardado instantáneamente para ahorrar tiempo y tokens de API, o forzar una nueva búsqueda.
+          </p>
+          
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem">
+            <button type="button" class="btn btn-secondary" id="cache-cancel-btn">Cancelar</button>
+            <button type="button" class="btn btn-secondary" id="cache-refresh-btn" style="border-color: var(--accent-violet); color: var(--accent-violet)">Nueva Búsqueda</button>
+            <button type="button" class="btn btn-primary" id="cache-load-btn">Cargar de Caché</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PRINT ONLY REPORT CONTAINER (For native PDF Export formatting) -->
+  <div id="print-report-container" class="print-only">
+    <!-- Generates dynamic printable document of exactly 6 structured pages -->
+  </div>
+
+  <!-- App Entry Script -->
+  <script type="module" src="/src/main.js"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Unregister existing service workers in development to prevent caching issues
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log('Unregistered service worker for local development');
+          }
+        });
+      } else {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+            .catch(err => console.error('PWA Service Worker registration failed:', err));
+        });
+      }
+    }
+  </script>
+</body>
+</html>
