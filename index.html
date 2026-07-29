@@ -34,8 +34,31 @@
 </head>
 <body>
 
+  <!-- Auth gate: blocks the platform until sign-in when Supabase is configured -->
+  <div id="auth-gate" class="auth-gate hidden" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+    <div class="auth-gate-panel">
+      <div class="auth-gate-brand">
+        <div class="logo-icon-pulse">
+          <i data-lucide="shield-alert" class="logo-icon"></i>
+        </div>
+        <span class="logo-text">DROP<span class="accent-text">DEEP</span></span>
+      </div>
+      <h1 id="auth-gate-title" class="auth-gate-title">Acceso a la plataforma</h1>
+      <p class="auth-gate-copy">Crea una cuenta o inicia sesión para usar DropDeep: investigación de productos, portafolio, prompts y espionaje competitivo.</p>
+      <div class="auth-gate-actions">
+        <button type="button" class="btn btn-primary btn-glow" id="auth-gate-signup-btn">
+          <i data-lucide="user-plus"></i> Crear cuenta
+        </button>
+        <button type="button" class="btn btn-secondary" id="auth-gate-login-btn">
+          <i data-lucide="log-in"></i> Ya tengo cuenta
+        </button>
+      </div>
+      <p class="auth-gate-footnote">Tu clave Gemini se guarda solo en este dispositivo, aislada por cuenta.</p>
+    </div>
+  </div>
+
   <!-- App Container -->
-  <div class="app-container">
+  <div class="app-container" id="app-shell">
     
     <!-- Top Navigation Header -->
     <header class="main-header">
@@ -760,7 +783,7 @@
         </div>
         <div class="terminal-body" style="height: auto; padding: 2rem">
           <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5">
-            Guarda tu clave Gemini de forma aislada por cuenta en este dispositivo.
+            Necesitas una cuenta para acceder a DropDeep. Tu clave Gemini queda aislada por usuario en este dispositivo.
           </p>
           <div id="auth-error" class="auth-error hidden" role="alert"></div>
           <form id="auth-form">
@@ -774,13 +797,13 @@
                 <input type="password" id="auth-password-input" required minlength="6" autocomplete="current-password" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
               </div>
             </div>
-            <button type="button" class="btn btn-secondary auth-google-btn auth-google-stub" id="auth-google-btn" style="width: 100%; margin-bottom: 0.75rem" disabled title="Próximamente">
-              <i data-lucide="chrome"></i> Continuar con Google (próximamente)
+            <button type="button" class="btn btn-secondary auth-google-btn" id="auth-google-btn" style="width: 100%; margin-bottom: 0.75rem">
+              <i data-lucide="chrome"></i> Continuar con Google
             </button>
             <div style="display: flex; flex-direction: column; gap: 0.75rem">
               <button type="submit" class="btn btn-primary" id="auth-submit-btn">Entrar</button>
               <button type="button" class="btn btn-secondary" id="auth-toggle-mode-btn" style="font-size: 0.85rem">¿No tienes cuenta? Regístrate</button>
-              <button type="button" class="btn btn-secondary" id="close-auth-btn" style="font-size: 0.85rem">Cancelar</button>
+              <button type="button" class="btn btn-secondary" id="close-auth-btn" style="font-size: 0.85rem">Cerrar</button>
             </div>
           </form>
         </div>

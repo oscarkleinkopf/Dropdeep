@@ -45,10 +45,13 @@ If Supabase secrets are unset, the site still deploys in **demo mode** (local-on
 
 When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured:
 
-1. Click **Entrar** in the header to sign up or log in (email/password).
-2. **Settings** (Gemini API key) requires an authenticated session.
-3. Each user's Gemini key is stored in `localStorage` scoped by user ID (`dropdeep_gemini_key_<uuid>`), so shared machines don't leak keys between accounts.
-4. Non-secret prefs (model, language, grounding) sync to `public.profiles` when that table exists (see `supabase/migrations/001_profiles.sql`).
+1. Visitors see an **access gate** — they must **sign up or log in** before using the app.
+2. Click **Entrar** / **Crear cuenta** (or use Google if enabled).
+3. **Settings** (Gemini API key) is available after sign-in.
+4. Each user's Gemini key is stored in `localStorage` scoped by user ID (`dropdeep_gemini_key_<uuid>`).
+5. Non-secret prefs sync to `public.profiles` when that table exists.
+
+Without Supabase env vars, the site runs in **demo mode** (open access, accounts banner).
 
 **Setup:**
 
