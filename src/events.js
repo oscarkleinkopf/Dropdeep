@@ -8,6 +8,7 @@ import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from '
 import { promptHubState, renderPromptHubOutput, updatePromptBoxContent } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
+import { updateOnboardingPanel } from './ui/onboarding.js';
 import { isAuthConfigured, isAuthenticated } from './auth/auth.js';
 import { openAuthModal } from './ui/authModal.js';
 import { upsertProfilePrefs } from './auth/profile.js';
@@ -26,6 +27,17 @@ export function setupEventListeners() {
 
   // Logo button returns to dashboard
   document.getElementById('logo-btn').addEventListener('click', () => {
+    switchView('dashboard-view');
+  });
+
+  // Empty portfolio CTA → dashboard search
+  document.getElementById('empty-portfolio-cta')?.addEventListener('click', () => {
+    switchView('dashboard-view');
+    document.getElementById('search-input')?.focus();
+  });
+
+  // Spy empty state → dashboard
+  document.getElementById('spy-empty-dashboard-cta')?.addEventListener('click', () => {
     switchView('dashboard-view');
   });
 

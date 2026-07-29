@@ -11,6 +11,7 @@ import { showToast } from '../utils/toast.js';
 import { isAuthConfigured, isAuthenticated } from '../auth/auth.js';
 import { openAuthModal } from './authModal.js';
 import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
+import { updateOnboardingPanel } from './onboarding.js';
 
 const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 
@@ -85,6 +86,7 @@ export function requireGeminiKey(message) {
 export function onGeminiKeySaved() {
   localStorage.removeItem(DISMISS_KEY);
   updateGeminiKeyBanner();
+  updateOnboardingPanel();
 }
 
 /** Load stored prefs into the settings form. */

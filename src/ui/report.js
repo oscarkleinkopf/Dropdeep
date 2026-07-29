@@ -7,9 +7,12 @@ import { sanitizeReport } from '../research/gemini.js';
 import { generateDeepResearchReport } from '../data/reportGenerator.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
+import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
 
 export function openDeepResearchReport(productOrReport) {
+  markFirstResearchDone();
+  updateOnboardingPanel();
   let report;
   let loadedFromCache = false;
   if (typeof productOrReport === 'string') {

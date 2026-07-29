@@ -5,6 +5,7 @@ import { initAuth, onAuthStateChange, isAuthenticated, isAuthConfigured } from '
 import { initAuthModal } from './ui/authModal.js';
 import { initUserMenu, initAuthBanner } from './ui/userMenu.js';
 import { initAuthGate } from './ui/authGate.js';
+import { initOnboarding } from './ui/onboarding.js';
 import { syncProfileFromServer } from './auth/profile.js';
 
 let appBootstrapped = false;
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAuthModal();
   initUserMenu();
   initAuthGate();
+  initOnboarding();
 
   if (isAuthenticated()) {
     await syncProfileFromServer();
