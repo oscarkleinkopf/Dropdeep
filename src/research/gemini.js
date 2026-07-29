@@ -3,6 +3,8 @@ import { state } from '../state.js';
 import { cleanAndParseJSON } from '../utils/json.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runSimulatedResearchSequence } from './flow.js';
+import { isGeminiGroundingEnabled } from '../utils/geminiStorage.js';
+import { isGeminiProxyEnabled, createProxyGenerativeModel } from './geminiProxy.js';
 
 export async function generateContentWithRetry(modelInstance, requestPayload, addLog, stepName, maxRetries = 5, fallbackModelInstance = null, fallbackPayload = null) {
   let attempt = 0;
@@ -87,7 +89,7 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
     output.scrollTop = output.scrollHeight;
   };
 
-  const isGroundingEnabled = localStorage.getItem('dropdeep_gemini_grounding') !== 'false';
+  const isGroundingEnabled = isGeminiGroundingEnabled();
 
   addLog(`🚀 INICIANDO INVESTIGACIÓN EN VIVO CON GOOGLE GEMINI (${modelName.toUpperCase()})...`, 'header-line');
   if (isGroundingEnabled) {
@@ -102,27 +104,37 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
   label.textContent = "Estableciendo conexión con Gemini...";
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
+    let modelWithSearch;
+    let modelWithoutSearch;
+    const useProxy = isGeminiProxyEnabled() || apiKey === 'proxy';
+
+    if (useProxy) {
+      addLog(`🔐 Usando proxy seguro Supabase (clave Gemini en servidor)...`, 'info');
+      modelWithSearch = createProxyGenerativeModel({ model: modelName, useSearch: isGroundingEnabled });
+      modelWithoutSearch = createProxyGenerativeModel({ model: modelName, useSearch: false });
+    } else {
+      const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Configure dynamic search tools depending on model version (1.5 uses googleSearchRetrieval, 2.x/2.5 uses googleSearch)
-    let tools = [];
-    if (isGroundingEnabled) {
-      if (modelName.startsWith('gemini-2') || modelName.startsWith('gemini-exp') || modelName.includes('2.0') || modelName.includes('2.5')) {
-        tools.push({ googleSearch: {} });
-      } else {
-        tools.push({ googleSearchRetrieval: {} });
+      // Configure dynamic search tools depending on model version (1.5 uses googleSearchRetrieval, 2.x/2.5 uses googleSearch)
+      let tools = [];
+      if (isGroundingEnabled) {
+        if (modelName.startsWith('gemini-2') || modelName.startsWith('gemini-exp') || modelName.includes('2.0') || modelName.includes('2.5')) {
+          tools.push({ googleSearch: {} });
+        } else {
+          tools.push({ googleSearchRetrieval: {} });
+        }
       }
+
+      // Configure model instances
+      modelWithSearch = genAI.getGenerativeModel({
+        model: modelName,
+        tools: tools.length > 0 ? tools : undefined
+      });
+
+      modelWithoutSearch = genAI.getGenerativeModel({
+        model: modelName
+      });
     }
-
-    // Configure model instances
-    const modelWithSearch = genAI.getGenerativeModel({
-      model: modelName,
-      tools: tools.length > 0 ? tools : undefined
-    });
-
-    const modelWithoutSearch = genAI.getGenerativeModel({
-      model: modelName
-    });
 
     // STEP 1: Copywriting Deep Research Report
     addLog(`[1/4] [RUN] Generando Reporte de Copywriting para '${productName.toUpperCase()}'...`, 'info');

@@ -2,13 +2,27 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { calculateProductScore } from '../research/scoring.js';
 
+const SENSITIVE_KEY_PATTERN = /^(api[_-]?key|gemini[_-]?key|password|secret|token)$/i;
+
+function stripSensitiveFields(obj) {
+  if (obj == null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(stripSensitiveFields);
+  const out = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (SENSITIVE_KEY_PATTERN.test(key)) continue;
+    out[key] = stripSensitiveFields(value);
+  }
+  return out;
+}
+
 export function exportPortfolioJSON() {
   if (state.portfolio.length === 0) {
     showToast("No hay productos en el portafolio para exportar.", "error");
     return;
   }
 
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.portfolio, null, 2));
+  const safePortfolio = stripSensitiveFields(state.portfolio);
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(safePortfolio, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
   downloadAnchor.setAttribute("download", `dropdeep_portfolio_${new Date().toISOString().split('T')[0]}.json`);

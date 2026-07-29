@@ -1,8 +1,24 @@
 import { renderAutomatedFeed, runTrendScannerSimulation } from './ui/feed.js';
 import { updatePortfolioBadge } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
+import { initAuth, onAuthStateChange, isAuthenticated } from './auth/auth.js';
+import { initAuthModal } from './ui/authModal.js';
+import { initUserMenu, initAuthBanner } from './ui/userMenu.js';
+import { syncProfileFromServer } from './auth/profile.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await initAuth();
+  initAuthBanner();
+  initAuthModal();
+  initUserMenu();
+  if (isAuthenticated()) {
+    await syncProfileFromServer();
+  }
+  onAuthStateChange(async (session) => {
+    if (session?.user) {
+      await syncProfileFromServer();
+    }
+  });
   lucide.createIcons();
   renderAutomatedFeed();
   updatePortfolioBadge();
@@ -15,14 +31,12 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const registration of registrations) {
         registration.unregister();
-        console.log('Unregistered service worker for local development');
       }
     });
   } else {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)
-        .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
-        .catch((err) => console.error('PWA Service Worker registration failed:', err));
+        .catch(() => { /* SW registration failure is non-fatal */ });
     });
   }
 }

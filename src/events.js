@@ -7,7 +7,10 @@ import { toggleSaveProduct, renderPortfolioList, openProductComparison } from '.
 import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from './ui/export.js';
 import { promptHubState, renderPromptHubOutput, updatePromptBoxContent } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
-import { initGeminiKeyBanner, onGeminiKeySaved } from './ui/geminiKeyBanner.js';
+import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
+import { isAuthConfigured, isAuthenticated } from './auth/auth.js';
+import { openAuthModal } from './ui/authModal.js';
+import { upsertProfilePrefs } from './auth/profile.js';
 
 export function setupEventListeners() {
   initGeminiKeyBanner(runPendingSimulation);
@@ -158,25 +161,11 @@ export function setupEventListeners() {
   const closeSettingsDot = document.getElementById('close-settings-dot');
   const closeSettingsBtn = document.getElementById('close-settings-btn');
   const settingsForm = document.getElementById('settings-form');
-  const geminiKeyInput = document.getElementById('gemini-key-input');
-  const geminiModelSelect = document.getElementById('gemini-model-select');
-
-  // Fill stored key/model/grounding on load
-  const storedKey = localStorage.getItem('dropdeep_gemini_key');
-  const storedModel = localStorage.getItem('dropdeep_gemini_model') || 'gemini-2.5-flash';
-  const storedGrounding = localStorage.getItem('dropdeep_gemini_grounding') !== 'false';
-  const geminiGroundingInput = document.getElementById('gemini-grounding-input');
-
-  if (storedKey) {
-    geminiKeyInput.value = storedKey;
-  }
-  geminiModelSelect.value = storedModel;
-  if (geminiGroundingInput) {
-    geminiGroundingInput.checked = storedGrounding;
-  }
+  populateSettingsForm();
 
   settingsBtn.addEventListener('click', () => {
-    settingsModal.classList.remove('hidden');
+    populateSettingsForm();
+    openSettingsModal();
   });
 
   const closeSettings = () => {
@@ -185,25 +174,21 @@ export function setupEventListeners() {
   closeSettingsDot.addEventListener('click', closeSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
 
-  // Settings Form Language retrieval
-  const geminiLanguageSelect = document.getElementById('gemini-language-select');
-  const storedLanguage = localStorage.getItem('dropdeep_gemini_language') || 'es';
-  if (geminiLanguageSelect) {
-    geminiLanguageSelect.value = storedLanguage;
-  }
-
   settingsForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const key = geminiKeyInput.value.trim();
-    const model = geminiModelSelect.value;
-    const grounding = geminiGroundingInput ? geminiGroundingInput.checked : true;
-    const lang = geminiLanguageSelect ? geminiLanguageSelect.value : 'es';
-    if (key) {
-      localStorage.setItem('dropdeep_gemini_key', key);
-      localStorage.setItem('dropdeep_gemini_model', model);
-      localStorage.setItem('dropdeep_gemini_grounding', grounding ? 'true' : 'false');
-      localStorage.setItem('dropdeep_gemini_language', lang);
-      state.outputLanguage = lang;
+    if (isAuthConfigured && !isAuthenticated()) {
+      openAuthModal('login');
+      showToast('Inicia sesión para guardar tu clave API.', 'info');
+      return;
+    }
+    const saved = saveSettingsFromForm();
+    if (saved) {
+      state.outputLanguage = saved.lang;
+      upsertProfilePrefs({
+        model: saved.model,
+        language: saved.lang,
+        grounding: saved.grounding,
+      }).catch(() => { /* offline / table not migrated yet */ });
       showToast("Configuración de API guardada correctamente.", "success");
       onGeminiKeySaved();
       closeSettings();

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <title>DropDeep | Dropshipping & Marketing Intelligence Hub</title>
   
   <!-- SEO Meta Tags -->
@@ -46,34 +47,62 @@
         <span class="beta-badge">INTELLIGENCE</span>
       </div>
       
-      <nav class="nav-links">
-        <button class="nav-link active" data-target="dashboard-view" id="nav-dashboard">
-          <i data-lucide="layout-dashboard" class="nav-icon"></i> Dashboard
+      <nav class="nav-links" aria-label="Secciones principales">
+        <button class="nav-link active" data-target="dashboard-view" id="nav-dashboard" title="Dashboard">
+          <i data-lucide="layout-dashboard" class="nav-icon"></i>
+          <span class="nav-link-text">Dashboard</span>
         </button>
-        <button class="nav-link" data-target="scanner-view" id="nav-scanner">
-          <i data-lucide="radar" class="nav-icon"></i> Trend Scanner
+        <button class="nav-link" data-target="scanner-view" id="nav-scanner" title="Trend Scanner">
+          <i data-lucide="radar" class="nav-icon"></i>
+          <span class="nav-link-text">Scanner</span>
         </button>
-        <button class="nav-link" data-target="portfolio-view" id="nav-portfolio">
-          <i data-lucide="folder-heart" class="nav-icon"></i> My Portfolio
+        <button class="nav-link" data-target="portfolio-view" id="nav-portfolio" title="My Portfolio">
+          <i data-lucide="folder-heart" class="nav-icon"></i>
+          <span class="nav-link-text">Portfolio</span>
           <span class="portfolio-badge hidden" id="portfolio-count">0</span>
         </button>
-        <button class="nav-link" data-target="prompt-hub-view" id="nav-prompts">
-          <i data-lucide="sparkles" class="nav-icon"></i> Prompt Hub (Sin API)
+        <button class="nav-link" data-target="prompt-hub-view" id="nav-prompts" title="Prompt Hub (Sin API)">
+          <i data-lucide="sparkles" class="nav-icon"></i>
+          <span class="nav-link-text">Prompts</span>
         </button>
-        <button class="nav-link" data-target="spy-intelligence-view" id="nav-spy">
-          <i data-lucide="eye" class="nav-icon"></i> Espionaje Competitivo
+        <button class="nav-link" data-target="spy-intelligence-view" id="nav-spy" title="Espionaje Competitivo">
+          <i data-lucide="eye" class="nav-icon"></i>
+          <span class="nav-link-text">Spy</span>
         </button>
       </nav>
       
-      <div class="header-actions" style="display:flex; gap:0.75rem; align-items:center">
-        <span class="server-status">
-          <span class="status-dot green"></span> Active Scraper
+      <div class="header-actions">
+        <span class="server-status" title="Scraper activo">
+          <span class="status-dot green"></span>
+          <span class="server-status-label">Online</span>
         </span>
+        <button type="button" class="btn btn-secondary auth-login-btn" id="auth-login-btn" title="Iniciar sesión">
+          <i data-lucide="log-in" style="width:16px; height:16px"></i>
+          <span class="auth-login-label">Entrar</span>
+        </button>
+        <div class="user-menu hidden" id="user-menu">
+          <button type="button" class="user-menu-trigger" id="user-menu-trigger" aria-haspopup="true" aria-expanded="false">
+            <i data-lucide="user-circle" style="width:18px; height:18px"></i>
+            <span class="user-menu-email" id="user-menu-email"></span>
+            <i data-lucide="chevron-down" style="width:14px; height:14px"></i>
+          </button>
+          <div class="user-menu-dropdown hidden" id="user-menu-dropdown">
+            <button type="button" class="user-menu-item" id="auth-logout-btn">
+              <i data-lucide="log-out" style="width:16px; height:16px"></i> Cerrar sesión
+            </button>
+          </div>
+        </div>
         <button class="btn btn-secondary" id="settings-btn" title="Configurar API Key" style="padding:0.4rem 0.6rem; display:inline-flex; align-items:center; justify-content:center">
           <i data-lucide="settings" style="width:16px; height:16px"></i>
         </button>
       </div>
     </header>
+
+    <!-- Demo mode banner (accounts disabled when Supabase env missing) -->
+    <div id="auth-demo-banner" class="auth-demo-banner hidden" role="status">
+      <i data-lucide="info" class="auth-demo-banner-icon"></i>
+      <span>Las cuentas de usuario están desactivadas en este despliegue. La app funciona en modo local; configura Supabase para habilitar inicio de sesión.</span>
+    </div>
 
     <!-- Gemini API Key Banner (visible when no key configured) -->
     <div id="gemini-key-banner" class="gemini-key-banner hidden" role="status" aria-live="polite">
@@ -704,12 +733,53 @@
             </div>
             
             <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.5rem">
-              🔒 <strong>Nota de seguridad:</strong> Tu clave API se almacena de forma 100% local en tu navegador (localStorage). Las solicitudes de análisis van directo de tu dispositivo a los servidores oficiales de Google Gen AI, sin intermediarios.
+              🔒 <strong>Nota de seguridad:</strong> Tu clave API se almacena solo en este navegador (localStorage), aislada por cuenta cuando inicias sesión. Las solicitudes van directo de tu dispositivo a Google Gen AI — nunca se envían a servidores de DropDeep. Un servidor compartido requeriría backend (no disponible en GitHub Pages estático).
             </div>
             
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end">
               <button type="button" class="btn btn-secondary" id="close-settings-btn">Cancelar</button>
               <button type="submit" class="btn btn-primary">Guardar Clave</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Modal (login / signup) -->
+    <div id="auth-modal" class="terminal-overlay hidden">
+      <div class="terminal-container" style="max-width: 420px">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="close-auth-dot" style="cursor:pointer"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title" id="auth-modal-title">Iniciar sesión</span>
+          <i data-lucide="user" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body" style="height: auto; padding: 2rem">
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5">
+            Guarda tu clave Gemini de forma aislada por cuenta en este dispositivo.
+          </p>
+          <div id="auth-error" class="auth-error hidden" role="alert"></div>
+          <form id="auth-form">
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem">
+              <div>
+                <label for="auth-email-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Correo electrónico</label>
+                <input type="email" id="auth-email-input" required autocomplete="email" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+              </div>
+              <div>
+                <label for="auth-password-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Contraseña</label>
+                <input type="password" id="auth-password-input" required minlength="6" autocomplete="current-password" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary auth-google-btn auth-google-stub" id="auth-google-btn" style="width: 100%; margin-bottom: 0.75rem" disabled title="Próximamente">
+              <i data-lucide="chrome"></i> Continuar con Google (próximamente)
+            </button>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem">
+              <button type="submit" class="btn btn-primary" id="auth-submit-btn">Entrar</button>
+              <button type="button" class="btn btn-secondary" id="auth-toggle-mode-btn" style="font-size: 0.85rem">¿No tienes cuenta? Regístrate</button>
+              <button type="button" class="btn btn-secondary" id="close-auth-btn" style="font-size: 0.85rem">Cancelar</button>
             </div>
           </form>
         </div>

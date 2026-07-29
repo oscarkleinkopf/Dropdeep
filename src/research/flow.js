@@ -4,6 +4,8 @@ import { getCacheEntry } from './cache.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey } from '../ui/geminiKeyBanner.js';
+import { getGeminiKey, getGeminiModel, getGeminiLanguage } from '../utils/geminiStorage.js';
+import { isGeminiProxyEnabled } from './geminiProxy.js';
 
 let pendingSimulation = null;
 
@@ -47,9 +49,15 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
 }
 
 export function runApiResearchDirect(productName, competitorUrl = '') {
-  const apiKey = localStorage.getItem('dropdeep_gemini_key');
-  const modelName = localStorage.getItem('dropdeep_gemini_model') || 'gemini-1.5-flash';
+  const modelName = getGeminiModel();
 
+  if (isGeminiProxyEnabled()) {
+    pendingSimulation = null;
+    runRealResearchSequence(productName, 'proxy', modelName, competitorUrl);
+    return;
+  }
+
+  const apiKey = getGeminiKey();
   if (!apiKey) {
     pendingSimulation = { productName, competitorUrl };
     requireGeminiKey(
@@ -64,7 +72,7 @@ export function runApiResearchDirect(productName, competitorUrl = '') {
 
 // ROUTER FOR DEEP RESEARCH (LIVE OR SIMULATED)
 export function runDeepResearchSequence(productName, competitorUrl = '') {
-  const language = localStorage.getItem('dropdeep_gemini_language') || 'es';
+  const language = getGeminiLanguage();
   state.outputLanguage = language;
   
   const cachedData = getCacheEntry(productName, language);

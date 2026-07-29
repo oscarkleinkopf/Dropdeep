@@ -1,13 +1,25 @@
+import {
+  hasGeminiKey,
+  getGeminiKey,
+  getGeminiModel,
+  getGeminiLanguage,
+  isGeminiGroundingEnabled,
+  saveGeminiSettings
+} from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
+import { isAuthConfigured, isAuthenticated } from '../auth/auth.js';
+import { openAuthModal } from './authModal.js';
 
-const STORAGE_KEY = 'dropdeep_gemini_key';
 const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 
-export function hasGeminiKey() {
-  return Boolean(localStorage.getItem(STORAGE_KEY)?.trim());
-}
+export { hasGeminiKey };
 
 export function openSettingsModal() {
+  if (isAuthConfigured && !isAuthenticated()) {
+    openAuthModal('login');
+    showToast('Inicia sesión para acceder a Ajustes.', 'info');
+    return;
+  }
   const settingsModal = document.getElementById('settings-modal');
   if (settingsModal) {
     settingsModal.classList.remove('hidden');
@@ -66,4 +78,33 @@ export function requireGeminiKey(message) {
 export function onGeminiKeySaved() {
   localStorage.removeItem(DISMISS_KEY);
   updateGeminiKeyBanner();
+}
+
+/** Load stored prefs into the settings form. */
+export function populateSettingsForm() {
+  const geminiKeyInput = document.getElementById('gemini-key-input');
+  const geminiModelSelect = document.getElementById('gemini-model-select');
+  const geminiGroundingInput = document.getElementById('gemini-grounding-input');
+  const geminiLanguageSelect = document.getElementById('gemini-language-select');
+
+  const storedKey = getGeminiKey();
+  if (storedKey && geminiKeyInput) {
+    geminiKeyInput.value = storedKey;
+  }
+  if (geminiModelSelect) geminiModelSelect.value = getGeminiModel();
+  if (geminiGroundingInput) geminiGroundingInput.checked = isGeminiGroundingEnabled();
+  if (geminiLanguageSelect) geminiLanguageSelect.value = getGeminiLanguage();
+}
+
+/** Persist settings form values (never logs the key). */
+export function saveSettingsFromForm() {
+  const key = document.getElementById('gemini-key-input')?.value.trim();
+  const model = document.getElementById('gemini-model-select')?.value;
+  const grounding = document.getElementById('gemini-grounding-input')?.checked ?? true;
+  const lang = document.getElementById('gemini-language-select')?.value || 'es';
+
+  if (!key) return false;
+
+  saveGeminiSettings({ key, model, grounding, language: lang });
+  return { lang, model, grounding };
 }

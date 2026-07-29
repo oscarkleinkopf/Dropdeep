@@ -1,3 +1,5 @@
+import { getGeminiLanguage } from './utils/geminiStorage.js';
+
 // Shared application state
 export const state = {
   portfolio: JSON.parse(localStorage.getItem('dropdeep_portfolio')) || [],
@@ -7,5 +9,5 @@ export const state = {
   activePortfolioId: null,
   scannedQueue: [],
   selectedMetaInterests: [],
-  outputLanguage: localStorage.getItem('dropdeep_gemini_language') || 'es'
+  outputLanguage: getGeminiLanguage()
 };
