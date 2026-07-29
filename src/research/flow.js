@@ -3,6 +3,19 @@ import { showToast } from '../utils/toast.js';
 import { getCacheEntry } from './cache.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
+import { requireGeminiKey } from '../ui/geminiKeyBanner.js';
+
+let pendingSimulation = null;
+
+export function runPendingSimulation() {
+  if (!pendingSimulation) {
+    showToast('Ingresa un producto en el buscador y pulsa «Ejecutar Deep Research» primero.', 'info');
+    return;
+  }
+  const { productName, competitorUrl } = pendingSimulation;
+  pendingSimulation = null;
+  runSimulatedResearchSequence(productName, competitorUrl);
+}
 
 export function openCacheModal(productName, competitorUrl, cachedData) {
   const modal = document.getElementById('cache-modal');
@@ -38,15 +51,14 @@ export function runApiResearchDirect(productName, competitorUrl = '') {
   const modelName = localStorage.getItem('dropdeep_gemini_model') || 'gemini-1.5-flash';
 
   if (!apiKey) {
-    const confirmSimulation = confirm("No tienes una API Key de Gemini guardada.\n\n¿Quieres usar el MODO SIMULACIÓN PROCEDURAL para probar la aplicación?\n(Si cancelas, se abrirá la ventana de configuración para ingresar tu clave).");
-    if (confirmSimulation) {
-      runSimulatedResearchSequence(productName, competitorUrl);
-    } else {
-      document.getElementById('settings-modal').classList.remove('hidden');
-    }
+    pendingSimulation = { productName, competitorUrl };
+    requireGeminiKey(
+      'Sin clave API de Gemini. Abre Ajustes para investigación en vivo o usa «Modo simulación» en el aviso superior.'
+    );
     return;
   }
 
+  pendingSimulation = null;
   runRealResearchSequence(productName, apiKey, modelName, competitorUrl);
 }
 

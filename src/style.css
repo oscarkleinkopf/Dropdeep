@@ -1635,6 +1635,118 @@ button {
   display: none !important;
 }
 
+/* Gemini API Key Banner */
+.gemini-key-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 1.5rem 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+  animation: bannerFadeIn 0.35s ease forwards;
+}
+
+.gemini-key-banner--highlight {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--shadow-neon-cyan);
+}
+
+.gemini-key-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.gemini-key-banner-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.gemini-key-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.gemini-key-banner-text strong {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.gemini-key-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.gemini-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.gemini-banner-btn i {
+  width: 14px;
+  height: 14px;
+}
+
+.gemini-key-banner-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--border-radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.gemini-key-banner-dismiss:hover {
+  color: var(--text-light);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.gemini-key-banner-dismiss i {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes bannerFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .gemini-key-banner {
+    margin: 0 0.75rem 0.5rem;
+  }
+
+  .gemini-key-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
 /* Notification Toast */
 .toast-notification {
   position: fixed;

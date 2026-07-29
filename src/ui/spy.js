@@ -3,6 +3,7 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { metaHiddenInterestsDatabase } from '../data/metaInterests.js';
 import { generateCompetitorStoreAnalysis } from '../data/competitorAnalysis.js';
+import { updateGeminiKeyBanner } from './geminiKeyBanner.js';
 
 export function renderCompetitorStoreAnalysis(data) {
   const container = document.getElementById('competitor-analysis-results');
@@ -189,9 +190,9 @@ Devuelve un JSON estricto sin markdown adicional con las siguientes claves:
       showToast("Análisis completado mediante Inteligencia Procedural.", "info");
     }
   } else {
-    // Mode Zero-Token Procedural
+    updateGeminiKeyBanner();
     analysisResult = generateCompetitorStoreAnalysis(url);
-    showToast("Análisis completado en Modo Zero-Token.", "success");
+    showToast("Análisis en Modo Zero-Token. Configura Gemini en Ajustes para escaneo en vivo.", "info");
   }
 
   renderCompetitorStoreAnalysis(analysisResult);

@@ -75,6 +75,28 @@
       </div>
     </header>
 
+    <!-- Gemini API Key Banner (visible when no key configured) -->
+    <div id="gemini-key-banner" class="gemini-key-banner hidden" role="status" aria-live="polite">
+      <div class="gemini-key-banner-content">
+        <i data-lucide="key-round" class="gemini-key-banner-icon"></i>
+        <div class="gemini-key-banner-text">
+          <strong>Sin clave API de Gemini</strong>
+          <span>Deep Research en vivo y análisis competitivo con IA requieren tu clave. También puedes usar el modo simulación sin API.</span>
+        </div>
+      </div>
+      <div class="gemini-key-banner-actions">
+        <button type="button" class="btn btn-primary gemini-banner-btn" id="gemini-banner-settings-btn">
+          <i data-lucide="settings"></i> Abrir Ajustes
+        </button>
+        <button type="button" class="btn btn-secondary gemini-banner-btn" id="gemini-banner-sim-btn" title="Ejecutar Deep Research en modo simulación procedural">
+          <i data-lucide="play"></i> Modo simulación
+        </button>
+        <button type="button" class="gemini-key-banner-dismiss" id="gemini-banner-dismiss-btn" title="Cerrar aviso" aria-label="Cerrar aviso">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+    </div>
+
     <!-- Main Content Area -->
     <main class="main-content">
       

@@ -1,14 +1,17 @@
 import { state } from './state.js';
 import { showToast } from './utils/toast.js';
 import { switchView } from './ui/navigation.js';
-import { runDeepResearchSequence } from './research/flow.js';
+import { runDeepResearchSequence, runPendingSimulation } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
 import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from './ui/export.js';
 import { promptHubState, renderPromptHubOutput, updatePromptBoxContent } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
+import { initGeminiKeyBanner, onGeminiKeySaved } from './ui/geminiKeyBanner.js';
 
 export function setupEventListeners() {
+  initGeminiKeyBanner(runPendingSimulation);
+
   // Navigation Routing
   const navLinks = document.querySelectorAll('.nav-link');
   navLinks.forEach(link => {
@@ -202,6 +205,7 @@ export function setupEventListeners() {
       localStorage.setItem('dropdeep_gemini_language', lang);
       state.outputLanguage = lang;
       showToast("Configuración de API guardada correctamente.", "success");
+      onGeminiKeySaved();
       closeSettings();
     }
   });
