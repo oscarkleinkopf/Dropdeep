@@ -64,11 +64,11 @@ function updateUserMenuUI() {
     loginBtn.classList.add('hidden');
     menu.classList.remove('hidden');
     if (emailEl) emailEl.textContent = user.email || 'Usuario';
-    settingsBtn?.setAttribute('title', 'Configurar API Key (requiere sesión)');
+    settingsBtn?.setAttribute('title', 'Ajustes — clave API Gemini');
   } else {
     loginBtn.classList.remove('hidden');
     menu.classList.add('hidden');
-    settingsBtn?.setAttribute('title', 'Inicia sesión para configurar API Key');
+    settingsBtn?.setAttribute('title', 'Ajustes — clave API Gemini (BYOK sin cuenta)');
   }
   lucide.createIcons();
 }

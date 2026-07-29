@@ -4,6 +4,7 @@ import { isGeminiProxyEnabled, isGeminiProxyConfigured } from '../research/gemin
 import { openSettingsModal } from './geminiKeyBanner.js';
 import { state } from '../state.js';
 import { switchView } from './navigation.js';
+import { openAuthModal } from './authModal.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
 
@@ -21,6 +22,11 @@ export function dismissOnboarding() {
   updateOnboardingPanel();
 }
 
+export function markPromptHubDone() {
+  localStorage.setItem(`${storageKey()}_prompts`, 'true');
+  updateOnboardingPanel();
+}
+
 export function markFirstResearchDone() {
   localStorage.setItem(`${storageKey()}_research`, 'true');
   updateOnboardingPanel();
@@ -29,6 +35,10 @@ export function markFirstResearchDone() {
 export function markPortfolioSaveDone() {
   localStorage.setItem(`${storageKey()}_saved`, 'true');
   updateOnboardingPanel();
+}
+
+function hasUsedPromptHub() {
+  return localStorage.getItem(`${storageKey()}_prompts`) === 'true';
 }
 
 function hasCompletedFirstResearch() {
@@ -41,30 +51,33 @@ function hasSavedToPortfolio() {
 
 function shouldShowOnboarding() {
   if (isOnboardingDismissed()) return false;
-  if (isAuthConfigured && !isAuthenticated()) return false;
+  const promptsDone = hasUsedPromptHub();
   const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
   const saveDone = hasSavedToPortfolio();
-  if (geminiDone && researchDone && saveDone) return false;
+  if (promptsDone && geminiDone && researchDone && saveDone) return false;
   return true;
 }
 
 function renderSteps(panel) {
-  const accountDone = isAuthenticated() || !isAuthConfigured;
+  const promptsDone = hasUsedPromptHub();
   const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
   const saveDone = hasSavedToPortfolio();
 
   const geminiLabel = isGeminiProxyConfigured()
-    ? (geminiDone ? 'Gemini listo (proxy activo)' : 'Inicia sesión para usar proxy Gemini')
-    : 'Configurar API Gemini';
+    ? (geminiDone
+      ? 'Gemini listo (proxy o BYOK)'
+      : 'Opcional: BYOK gratis o créditos proxy con cuenta')
+    : 'Opcional: pegar clave Gemini (BYOK gratis)';
 
   const steps = [
     {
-      id: 'account',
-      label: 'Cuenta lista',
-      done: accountDone,
-      action: null,
+      id: 'prompts',
+      label: 'Prompt Hub → copiar prompts (sin API, ~60 s)',
+      done: promptsDone,
+      action: promptsDone ? null : 'prompts',
+      cta: 'Ir a Prompts',
     },
     {
       id: 'gemini',
@@ -75,14 +88,14 @@ function renderSteps(panel) {
     },
     {
       id: 'research',
-      label: 'Lanzar tu primer Deep Research',
+      label: 'Lanzar Deep Research (BYOK o proxy)',
       done: researchDone,
-      action: 'search',
+      action: researchDone ? null : 'search',
       cta: 'Ir al buscador',
     },
     {
       id: 'save',
-      label: 'Guardar reporte en portafolio',
+      label: 'Guardar reporte en portafolio local',
       done: saveDone,
       action: saveDone ? null : 'portfolio',
       cta: 'Ir al portafolio',
@@ -110,7 +123,14 @@ function renderSteps(panel) {
     btn.addEventListener('click', () => {
       const action = btn.getAttribute('data-action');
       if (action === 'settings') {
-        openSettingsModal();
+        if (isGeminiProxyConfigured() && !isAuthenticated()) {
+          openAuthModal('login');
+        } else {
+          openSettingsModal();
+        }
+      } else if (action === 'prompts') {
+        switchView('prompt-hub-view');
+        markPromptHubDone();
       } else if (action === 'search') {
         document.getElementById('search-input')?.focus();
         document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });

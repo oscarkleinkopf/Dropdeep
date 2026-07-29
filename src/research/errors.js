@@ -35,6 +35,20 @@ export function classifyGeminiError(error) {
     msg.includes('exhausted') ||
     msg.includes('rate limit')
   ) {
+    if (
+      msg.includes('daily_limit') ||
+      msg.includes('cuota diaria') ||
+      msg.includes('daily limit') ||
+      msg.includes('proxy_daily')
+    ) {
+      return {
+        type: 'proxy_daily_quota',
+        title: 'Cuota diaria de proxy agotada',
+        message:
+          'Cuota diaria agotada. Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.',
+        actions: ['settings'],
+      };
+    }
     return {
       type: 'quota',
       title: 'Cuota o límite de peticiones alcanzado',

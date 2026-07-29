@@ -8,9 +8,7 @@ import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from '
 import { promptHubState, renderPromptHubOutput, updatePromptBoxContent } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
-import { updateOnboardingPanel } from './ui/onboarding.js';
-import { isAuthConfigured, isAuthenticated } from './auth/auth.js';
-import { openAuthModal } from './ui/authModal.js';
+import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
 import { upsertProfilePrefs } from './auth/profile.js';
 import { cancelResearchSession } from './research/researchSession.js';
 
@@ -189,11 +187,6 @@ export function setupEventListeners() {
 
   settingsForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (isAuthConfigured && !isAuthenticated()) {
-      openAuthModal('login');
-      showToast('Inicia sesión para guardar tu clave API.', 'info');
-      return;
-    }
     const saved = saveSettingsFromForm();
     if (saved) {
       state.outputLanguage = saved.lang;
@@ -284,6 +277,8 @@ export function setupEventListeners() {
       switchView('prompt-hub-view');
 
       renderPromptHubOutput();
+      markPromptHubDone();
+      updateOnboardingPanel();
       showToast("Prompts maestros generados para " + pName, "success");
     });
   }
@@ -293,6 +288,8 @@ export function setupEventListeners() {
   if (generatePromptsBtn) {
     generatePromptsBtn.addEventListener('click', () => {
       renderPromptHubOutput();
+      markPromptHubDone();
+      updateOnboardingPanel();
       showToast("Secuencia de prompts actualizada", "success");
     });
   }

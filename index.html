@@ -34,26 +34,32 @@
 </head>
 <body>
 
-  <!-- Auth gate: blocks the platform until sign-in when Supabase is configured -->
-  <div id="auth-gate" class="auth-gate hidden" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+  <!-- Sync CTA (optional — tier operativo gratis; app nunca bloqueada) -->
+  <div id="auth-gate" class="auth-gate auth-gate--banner hidden" role="region" aria-labelledby="auth-gate-title">
     <div class="auth-gate-panel">
+      <button type="button" class="auth-gate-dismiss" id="auth-gate-dismiss-btn" title="Cerrar aviso" aria-label="Cerrar aviso">
+        <i data-lucide="x"></i>
+      </button>
       <div class="auth-gate-brand">
         <div class="logo-icon-pulse">
-          <i data-lucide="shield-alert" class="logo-icon"></i>
+          <i data-lucide="sparkles" class="logo-icon"></i>
         </div>
         <span class="logo-text">DROP<span class="accent-text">DEEP</span></span>
       </div>
-      <h1 id="auth-gate-title" class="auth-gate-title">Acceso a la plataforma</h1>
-      <p class="auth-gate-copy">Crea una cuenta o inicia sesión para usar DropDeep: investigación de productos, portafolio, prompts y espionaje competitivo.</p>
+      <h2 id="auth-gate-title" class="auth-gate-title">Tier operativo gratis</h2>
+      <p class="auth-gate-copy">Usa <strong>Prompt Hub</strong> y tu <strong>portafolio local</strong> sin cuenta. Crea una cuenta para sincronizar reportes en la nube y créditos diarios de proxy Gemini (starter).</p>
       <div class="auth-gate-actions">
-        <button type="button" class="btn btn-primary btn-glow" id="auth-gate-signup-btn">
-          <i data-lucide="user-plus"></i> Crear cuenta
+        <button type="button" class="btn btn-primary btn-glow" id="auth-gate-continue-btn">
+          <i data-lucide="arrow-right"></i> Continuar gratis
+        </button>
+        <button type="button" class="btn btn-secondary" id="auth-gate-signup-btn">
+          <i data-lucide="user-plus"></i> Crear cuenta (sync + créditos)
         </button>
         <button type="button" class="btn btn-secondary" id="auth-gate-login-btn">
           <i data-lucide="log-in"></i> Ya tengo cuenta
         </button>
       </div>
-      <p class="auth-gate-footnote">Tu clave Gemini se guarda solo en este dispositivo, aislada por cuenta.</p>
+      <p class="auth-gate-footnote" id="auth-gate-footnote">BYOK Gemini funciona sin sesión — la clave vive solo en este dispositivo.</p>
     </div>
   </div>
 
@@ -71,7 +77,7 @@
       </div>
       <div class="terminal-body" style="height: auto; padding: 2rem">
         <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5">
-          Necesitas una cuenta para acceder a DropDeep. Tu clave Gemini queda aislada por usuario en este dispositivo.
+          Opcional: sincroniza portafolio en la nube y usa créditos diarios de proxy Gemini. Prompt Hub y portafolio local funcionan sin cuenta.
         </p>
         <div id="auth-error" class="auth-error hidden" role="alert"></div>
         <form id="auth-form">
@@ -202,7 +208,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p class="onboarding-copy">Completa estos pasos en menos de 2 minutos: Gemini listo → primera investigación → guardar en portafolio.</p>
+          <p class="onboarding-copy">Ruta rápida (~60 s): Prompt Hub → copia prompts → pega en ChatGPT/Claude gratis. Luego BYOK Gemini o créditos proxy con cuenta.</p>
           <ol class="onboarding-steps"></ol>
         </div>
 

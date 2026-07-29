@@ -1,7 +1,10 @@
 import { isAuthConfigured, isAuthenticated, onAuthStateChange } from '../auth/auth.js';
 import { openAuthModal } from './authModal.js';
+import { FREE_PROXY_DAILY_LIMIT } from '../config/freeTier.js';
 
-/** When Supabase is configured, lock the app until the user signs in. */
+const SYNC_CTA_DISMISS_KEY = 'dropdeep_sync_cta_dismissed';
+
+/** Soft sync CTA — never locks Prompt Hub, portafolio local, or navegación. */
 export function initAuthGate() {
   const gate = document.getElementById('auth-gate');
   const app = document.getElementById('app-shell') || document.querySelector('.app-container');
@@ -12,6 +15,14 @@ export function initAuthGate() {
   });
   document.getElementById('auth-gate-signup-btn')?.addEventListener('click', () => {
     openAuthModal('signup');
+  });
+  document.getElementById('auth-gate-continue-btn')?.addEventListener('click', () => {
+    localStorage.setItem(SYNC_CTA_DISMISS_KEY, 'true');
+    updateAuthGate(gate, app);
+  });
+  document.getElementById('auth-gate-dismiss-btn')?.addEventListener('click', () => {
+    localStorage.setItem(SYNC_CTA_DISMISS_KEY, 'true');
+    updateAuthGate(gate, app);
   });
 
   const refresh = () => updateAuthGate(gate, app);
@@ -24,24 +35,31 @@ export function updateAuthGate(gateEl, appEl) {
   const app = appEl || document.getElementById('app-shell') || document.querySelector('.app-container');
   if (!gate) return;
 
-  // No Supabase → open platform (demo / local without accounts)
-  if (!isAuthConfigured) {
-    gate.classList.add('hidden');
-    app?.classList.remove('app-locked');
-    document.body.classList.remove('auth-locked');
-    return;
+  // Tier operativo gratis: app siempre desbloqueada
+  gate.classList.add('auth-gate--banner');
+  app?.classList.remove('app-locked');
+  document.body.classList.remove('auth-locked');
+
+  const showSyncCta =
+    isAuthConfigured &&
+    !isAuthenticated() &&
+    localStorage.getItem(SYNC_CTA_DISMISS_KEY) !== 'true';
+
+  gate.classList.toggle('hidden', !showSyncCta);
+  document.body.classList.toggle('sync-cta-visible', showSyncCta);
+
+  const footnote = document.getElementById('auth-gate-footnote');
+  if (footnote && showSyncCta) {
+    footnote.textContent =
+      `Con cuenta: sincroniza portafolio en la nube y ${FREE_PROXY_DAILY_LIMIT} créditos diarios de proxy Gemini (starter). BYOK funciona sin cuenta.`;
   }
 
-  const unlocked = isAuthenticated();
-  gate.classList.toggle('hidden', unlocked);
-  app?.classList.toggle('app-locked', !unlocked);
-  document.body.classList.toggle('auth-locked', !unlocked);
-
-  if (!unlocked) {
+  if (showSyncCta && typeof lucide !== 'undefined') {
     lucide.createIcons();
   }
 }
 
+/** @deprecated App is never platform-locked in free tier mode. */
 export function isPlatformLocked() {
-  return isAuthConfigured && !isAuthenticated();
+  return false;
 }

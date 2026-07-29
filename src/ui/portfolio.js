@@ -6,6 +6,12 @@ import { calculateProductScore } from '../research/scoring.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
+import { isAuthenticated } from '../auth/auth.js';
+import {
+  FREE_PORTFOLIO_CAP,
+  getCompareMax,
+} from '../config/freeTier.js';
+import { exportPortfolioJSON } from './export.js';
 
 export function updatePortfolioBadge() {
   const badge = document.getElementById('portfolio-count');
@@ -34,6 +40,14 @@ export function toggleSaveProduct() {
     heartIcon.setAttribute('data-lucide', 'heart');
     showToast("Eliminado del portafolio", "info");
   } else {
+    if (state.portfolio.length >= FREE_PORTFOLIO_CAP) {
+      showToast(
+        `Portafolio local limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno para liberar espacio.`,
+        'info'
+      );
+      exportPortfolioJSON();
+      return;
+    }
     // Add to portfolio
     const newItem = {
       id: report.name.toLowerCase().replace(/ /g, '-'),
@@ -144,9 +158,17 @@ export function renderPortfolioList() {
       const id = checkbox.getAttribute('data-id');
       state.selectedCompareIds = state.selectedCompareIds || [];
       if (checkbox.checked) {
-        if (state.selectedCompareIds.length >= 3) {
+        const compareMax = getCompareMax(isAuthenticated());
+        if (state.selectedCompareIds.length >= compareMax) {
           checkbox.checked = false;
-          showToast('Puedes comparar hasta 3 productos a la vez.', 'info');
+          if (!isAuthenticated() && compareMax < 3) {
+            showToast(
+              'Plan gratis: compara hasta 2 nichos. Inicia sesión para comparar 3 (Pro próximamente).',
+              'info'
+            );
+          } else {
+            showToast(`Puedes comparar hasta ${compareMax} productos a la vez.`, 'info');
+          }
           return;
         }
         if (!state.selectedCompareIds.includes(id)) {
@@ -298,9 +320,17 @@ export function renderActivePortfolioDetail() {
 
 export function openProductComparison() {
   const selectedIds = state.selectedCompareIds || [];
+  const compareMax = getCompareMax(isAuthenticated());
   if (selectedIds.length < 2) return;
-  if (selectedIds.length > 3) {
-    showToast('Selecciona entre 2 y 3 productos para comparar.', 'info');
+  if (selectedIds.length > compareMax) {
+    if (!isAuthenticated()) {
+      showToast(
+        'Plan gratis: compara hasta 2 nichos. Inicia sesión para comparar 3 (Pro próximamente).',
+        'info'
+      );
+    } else {
+      showToast(`Selecciona entre 2 y ${compareMax} productos para comparar.`, 'info');
+    }
     return;
   }
 

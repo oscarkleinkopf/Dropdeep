@@ -1,7 +1,7 @@
 import { renderDashboardStats, renderResearchFeed } from './ui/feed.js';
 import { updatePortfolioBadge } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
-import { initAuth, onAuthStateChange, isAuthenticated, isAuthConfigured } from './auth/auth.js';
+import { initAuth, onAuthStateChange, isAuthenticated } from './auth/auth.js';
 import { initAuthModal } from './ui/authModal.js';
 import { initUserMenu, initAuthBanner } from './ui/userMenu.js';
 import { initAuthGate } from './ui/authGate.js';
@@ -37,16 +37,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   onAuthStateChange(async (session) => {
     if (session?.user) {
       await syncProfileFromServer();
-      appBootstrapped = false;
-      await bootstrapAppShell();
     }
+    appBootstrapped = false;
+    await bootstrapAppShell();
   });
 
   lucide.createIcons();
-
-  if (!isAuthConfigured || isAuthenticated()) {
-    await bootstrapAppShell();
-  }
+  await bootstrapAppShell();
 });
 
 if ('serviceWorker' in navigator) {

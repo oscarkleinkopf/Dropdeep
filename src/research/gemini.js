@@ -97,6 +97,8 @@ function renderResearchErrorUI(modal, output, fill, label, error, productName, a
 
   if (classified.type === 'quota') {
     addLogTerminal(output, 'Espera 1–2 minutos antes de reintentar o cambia de modelo en Ajustes.', 'info');
+  } else if (classified.type === 'proxy_daily_quota') {
+    addLogTerminal(output, 'Pega tu clave Gemini gratis en AI Studio o vuelve mañana para más créditos proxy.', 'info');
   } else if (classified.type === 'invalid_key') {
     addLogTerminal(output, 'Abre Ajustes → pega una clave válida de Google AI Studio.', 'info');
   } else if (classified.type === 'proxy') {

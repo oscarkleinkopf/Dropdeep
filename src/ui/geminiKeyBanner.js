@@ -8,8 +8,6 @@ import {
   setGeminiPref
 } from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
-import { isAuthConfigured, isAuthenticated } from '../auth/auth.js';
-import { openAuthModal } from './authModal.js';
 import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
 import { updateOnboardingPanel } from './onboarding.js';
 
@@ -18,11 +16,6 @@ const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 export { hasGeminiKey };
 
 export function openSettingsModal() {
-  if (isAuthConfigured && !isAuthenticated()) {
-    openAuthModal('login');
-    showToast('Inicia sesión para acceder a Ajustes.', 'info');
-    return;
-  }
   const settingsModal = document.getElementById('settings-modal');
   if (settingsModal) {
     settingsModal.classList.remove('hidden');
