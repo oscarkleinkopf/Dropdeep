@@ -1,92 +1,90 @@
-const CACHE_NAME = 'dropdeep-cache-v5';
+const CACHE_NAME = 'dropdeep-cache-v6';
 const BASE = new URL('.', self.location.href).pathname;
 const ASSETS_TO_CACHE = [
-  BASE,
-  `${BASE}index.html`,
   `${BASE}manifest.json`,
   `${BASE}icon-512.png`,
-  `${BASE}icon-192.png`,
-  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://unpkg.com/lucide@latest'
+  `${BASE}icon-192.png`
 ];
 
-// Install Event - Pre-cache Assets
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[Service Worker] Caching App Shell assets');
-      return cache.addAll(ASSETS_TO_CACHE).catch(err => {
-        console.warn('[Service Worker] Failed to cache some assets during install:', err);
-      });
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(ASSETS_TO_CACHE).catch(() => undefined)
+    ).then(() => self.skipWaiting())
   );
 });
 
-// Activate Event - Clean Up Old Caches
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] Clearing old cache:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event - Cache First Strategy with Network Fallback
-self.addEventListener('fetch', event => {
-  // Only cache GET requests
+function isNavigationRequest(request) {
+  return request.mode === 'navigate' ||
+    (request.headers.get('accept') || '').includes('text/html');
+}
+
+function isHashedAsset(url) {
+  return url.pathname.includes('/assets/');
+}
+
+self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  
+
   const url = new URL(event.request.url);
-  // Skip caching for external API endpoints (e.g. Gemini generative API)
-  if (url.hostname.includes('googleapis.com')) {
+
+  if (url.hostname.includes('googleapis.com') || url.hostname.includes('supabase.co')) {
     return;
   }
 
-  // Skip bypass for other origins that don't need offline caching (unless static fonts/cdns)
-  if (url.origin !== self.location.origin && !url.hostname.includes('fonts') && !url.hostname.includes('cdn') && !url.hostname.includes('unpkg')) {
+  if (url.origin !== self.location.origin &&
+      !url.hostname.includes('fonts') &&
+      !url.hostname.includes('cdn') &&
+      !url.hostname.includes('unpkg')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        // Return cached asset, fetch update in background
-        fetch(event.request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, networkResponse);
-            });
+  // Always prefer network for HTML and Vite hashed bundles (avoid stale CSS/JS after deploy)
+  if (isNavigationRequest(event.request) || isHashedAsset(url)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && isHashedAsset(url)) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
-        }).catch(() => { /* ignore network error when offline */ });
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then(networkResponse => {
-        if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          if (isNavigationRequest(event.request)) {
+            return caches.match(`${BASE}index.html`) || caches.match(BASE);
+          }
+          throw new Error('Offline');
+        })
+    );
+    return;
+  }
+
+  // Other same-origin / CDN: stale-while-revalidate
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
-      }).catch(err => {
-        // If offline and request is for page, return cached index
-        if (event.request.mode === 'navigate') {
-          return caches.match(`${BASE}index.html`) || caches.match(BASE);
-        }
-        throw err;
-      });
+      }).catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
