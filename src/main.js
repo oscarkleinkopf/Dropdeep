@@ -6,6 +6,8 @@ import { initAuthModal } from './ui/authModal.js';
 import { initUserMenu, initAuthBanner } from './ui/userMenu.js';
 import { initAuthGate } from './ui/authGate.js';
 import { initOnboarding } from './ui/onboarding.js';
+import { initFirstProductWizard, updateWizardVisibility } from './ui/firstProductWizard.js';
+import { initResearchModeToggle } from './config/researchMode.js';
 import { syncProfileFromServer } from './auth/profile.js';
 import { syncResearchHistoryOnLoad } from './research/historySync.js';
 
@@ -18,6 +20,7 @@ async function bootstrapAppShell() {
   renderDashboardStats();
   renderResearchFeed();
   updatePortfolioBadge();
+  updateWizardVisibility();
   setupEventListeners();
   lucide.createIcons();
 }
@@ -29,6 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initUserMenu();
   initAuthGate();
   initOnboarding();
+  initFirstProductWizard();
+  initResearchModeToggle();
 
   if (isAuthenticated()) {
     await syncProfileFromServer();

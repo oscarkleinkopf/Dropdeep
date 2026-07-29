@@ -3415,6 +3415,218 @@ button {
   height: 14px;
 }
 
+.onboarding-wizard-cta {
+  margin-bottom: 0.75rem;
+}
+
+/* Research mode toggle */
+.research-mode-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+.research-mode-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.research-mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.research-mode-btn {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.research-mode-btn.active {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--accent-cyan);
+}
+
+.research-mode-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 180px;
+}
+
+/* First product wizard */
+.wizard-container {
+  max-width: 560px;
+}
+
+.wizard-body {
+  height: auto !important;
+  padding: 1.5rem 1.75rem 1.75rem !important;
+}
+
+.wizard-progress {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.wizard-progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: var(--transition-smooth);
+}
+
+.wizard-progress-dot.active,
+.wizard-progress-dot.done {
+  background: var(--accent-cyan);
+}
+
+.wizard-step-panel h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+  color: var(--text-light);
+}
+
+.wizard-step-copy {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.wizard-vertical-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.65rem;
+}
+
+.wizard-vertical-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.85rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  color: var(--text-secondary);
+}
+
+.wizard-vertical-card:hover,
+.wizard-vertical-card.active {
+  border-color: var(--accent-cyan);
+  color: var(--text-light);
+  background: rgba(34, 211, 238, 0.06);
+}
+
+.wizard-vertical-emoji {
+  font-size: 1.5rem;
+}
+
+.wizard-vertical-name {
+  font-size: 0.72rem;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.wizard-product-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.wizard-summary {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.wizard-action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wizard-footnote {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  line-height: 1.4;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.wizard-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem auto 1rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  color: var(--accent-cyan);
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px dashed rgba(34, 211, 238, 0.35);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.wizard-hero-cta:hover {
+  background: rgba(34, 211, 238, 0.14);
+}
+
+.empty-portfolio-actions,
+.research-feed-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.comparator-verdict-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
 /* Spy empty state */
 .spy-empty-state {
   text-align: center;

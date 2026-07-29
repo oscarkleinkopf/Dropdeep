@@ -116,6 +116,8 @@ Deep Research requires BYOK (no account) or the server proxy (account + daily qu
 
 ### Deep Research UX
 
+- **Modo Rápido vs Completo:** toggle junto al buscador — *Rápido* usa 2 pasos Gemini (reporte base + copys básicos); *Completo* ejecuta la secuencia de 5 pasos. Preferencia guardada en `localStorage`. Secciones omitidas en Rápido muestran aviso honesto.
+- **Wizard primer producto:** CTA en Inicio/portafolio vacío — elige vertical, nombre opcional, copia pack (nunca bloqueado), borrador en portafolio local. Funciona sin login.
 - **Cancel:** use *Cancelar investigación* in the terminal to abort safely.
 - **Errors:** Spanish messages for invalid key, quota, network, proxy down, and parse failures — with *Abrir Ajustes* / *Reintentar*.
 - **Retries:** up to 2 automatic retries on transient API errors.
@@ -123,7 +125,7 @@ Deep Research requires BYOK (no account) or the server proxy (account + daily qu
 ## Export & compare
 
 - **Export report:** CSV, Markdown (`.md`), **campaign kit** (`.md`), or PDF via `window.print()` from the report header.
-- **Compare niches:** select 2 products free (3 when logged in) in Portafolio → *Comparar*.
+- **Compare niches:** select 2 products free (3 when logged in) in Portafolio → *Comparar*. Veredicto *Cuál lanzar primero* basado solo en Product Score.
 - **History sync:** portfolio + 24h cache + Supabase `research_reports` merge on login.
 
 ## Security model

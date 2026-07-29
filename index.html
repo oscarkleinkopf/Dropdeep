@@ -209,6 +209,9 @@
             </button>
           </div>
           <p class="onboarding-copy">Ruta rápida (~60 s): elige un <strong>pack vertical</strong> en Prompt Hub → copia → pega en ChatGPT/Claude gratis. Luego opcional: Deep Research BYOK o cuenta para sync/proxy.</p>
+          <button type="button" class="btn btn-secondary btn-sm onboarding-wizard-cta hidden" id="wizard-onboarding-cta">
+            <i data-lucide="rocket"></i> Configurar mi primer producto (~60 s)
+          </button>
           <ol class="onboarding-steps"></ol>
         </div>
 
@@ -216,10 +219,25 @@
         <div class="hero-section">
           <h1 class="hero-title">Investiga productos para <span class="gradient-text">Dropshipping & Marketing</span></h1>
           <p class="hero-subtitle">Perfiles de comprador, objeciones y copys listos para anuncios. Necesitas Gemini para investigación en vivo.</p>
+          <button type="button" class="wizard-hero-cta hidden" id="wizard-hero-cta">
+            <i data-lucide="rocket"></i> ¿Primera vez? Configura tu primer producto (~60 s)
+          </button>
           
           <!-- Search Bar Container -->
           <div class="search-container">
             <form id="search-form" class="search-form">
+              <div class="research-mode-bar" role="group" aria-label="Profundidad de investigación">
+                <span class="research-mode-label">Profundidad:</span>
+                <div class="research-mode-toggle">
+                  <button type="button" class="research-mode-btn active" data-research-mode="complete" aria-selected="true" title="Secuencia completa — máxima profundidad">
+                    Completo
+                  </button>
+                  <button type="button" class="research-mode-btn" data-research-mode="fast" aria-selected="false" title="Menos pasos Gemini — menos costo / menos profundidad">
+                    Rápido
+                  </button>
+                </div>
+                <span class="research-mode-hint" id="research-mode-hint">Secuencia completa (5 pasos Gemini)</span>
+              </div>
               <div class="search-wrapper">
                 <i data-lucide="search" class="search-input-icon"></i>
                 <input type="text" id="search-input" placeholder="Nombre del producto (ej: Posture Corrector, Smart Water Bottle…)" required autocomplete="off">
@@ -322,9 +340,14 @@
             <i data-lucide="folder-open" class="empty-icon"></i>
             <h3>Tu portafolio está vacío</h3>
             <p>Investiga un producto en Inicio y guárdalo aquí para comparar y exportar.</p>
-            <button type="button" class="btn btn-primary" id="empty-portfolio-cta">
-              <i data-lucide="search"></i> Ir al buscador
-            </button>
+            <div class="empty-portfolio-actions">
+              <button type="button" class="btn btn-primary" id="empty-portfolio-cta">
+                <i data-lucide="search"></i> Ir al buscador
+              </button>
+              <button type="button" class="btn btn-secondary hidden" id="empty-portfolio-wizard-cta">
+                <i data-lucide="rocket"></i> Configurar primer producto
+              </button>
+            </div>
           </div>
           <div class="portfolio-layout hidden" id="portfolio-layout">
             <div class="portfolio-sidebar" style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 250px;">
@@ -356,7 +379,7 @@
         <div class="portfolio-header-bar">
           <div class="title-left">
             <h2>Comparador de Productos</h2>
-            <p>Comparativa lado a lado de tus productos guardados para tomar mejores decisiones.</p>
+            <p><strong>Cuál lanzar primero</strong> — veredicto basado solo en Product Score y métricas del reporte (sin proyecciones inventadas).</p>
           </div>
           <div class="portfolio-actions">
             <button class="btn btn-secondary" id="close-comparator-btn">
@@ -874,6 +897,64 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- First Product Wizard (works without login) -->
+  <div id="first-product-wizard" class="terminal-overlay hidden">
+    <div class="terminal-container wizard-container">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span class="term-dot red" id="wizard-close-dot" style="cursor:pointer" title="Cerrar"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+        </div>
+        <span class="terminal-title">Tu primer producto — ~60 s</span>
+        <button type="button" class="onboarding-dismiss-btn" id="wizard-dismiss-btn" title="No volver a mostrar">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="terminal-body wizard-body">
+        <div class="wizard-progress">
+          <span class="wizard-progress-dot active" data-step="1"></span>
+          <span class="wizard-progress-dot" data-step="2"></span>
+          <span class="wizard-progress-dot" data-step="3"></span>
+        </div>
+
+        <div class="wizard-step-panel" data-wizard-step="1">
+          <h3>Elige tu vertical</h3>
+          <p class="wizard-step-copy">Pack de prompts gratis — copiar nunca está bloqueado.</p>
+          <div class="wizard-vertical-grid" id="wizard-vertical-grid"></div>
+        </div>
+
+        <div class="wizard-step-panel hidden" data-wizard-step="2">
+          <h3>Nombra tu producto (opcional)</h3>
+          <p class="wizard-step-copy">Ej: rodillo de jade, comedero inteligente, difusor de aromas…</p>
+          <input type="text" id="wizard-product-input" class="wizard-product-input" placeholder="Nombre del producto o nicho" autocomplete="off">
+        </div>
+
+        <div class="wizard-step-panel hidden" data-wizard-step="3">
+          <h3>¿Qué quieres hacer?</h3>
+          <div class="wizard-summary" id="wizard-summary"></div>
+          <div class="wizard-action-grid">
+            <button type="button" class="btn btn-primary btn-glow" id="wizard-copy-pack-btn">
+              <i data-lucide="copy"></i> Copiar pack completo
+            </button>
+            <button type="button" class="btn btn-secondary" id="wizard-prompt-hub-btn">
+              <i data-lucide="sparkles"></i> Ir a Prompt Hub
+            </button>
+            <button type="button" class="btn btn-secondary" id="wizard-deep-research-btn">
+              <i data-lucide="zap"></i> Profundizar con Deep Research
+            </button>
+          </div>
+          <p class="wizard-footnote">Deep Research es opcional — requiere BYOK Gemini o cuenta con proxy.</p>
+        </div>
+
+        <div class="wizard-nav">
+          <button type="button" class="btn btn-secondary hidden" id="wizard-back-btn">Atrás</button>
+          <button type="button" class="btn btn-primary" id="wizard-next-btn">Siguiente</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- PRINT ONLY REPORT CONTAINER (For native PDF Export formatting) -->

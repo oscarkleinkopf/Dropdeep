@@ -40,7 +40,13 @@ export function openDeepResearchReport(productOrReport) {
   // Calculate dynamic Product Score and add badge
   const score = calculateProductScore(report);
   report.productScore = score;
-  
+
+  const titleContainer = document.querySelector('.report-header-title');
+  const oldScoreBadge = document.getElementById('report-score-badge');
+  if (oldScoreBadge) oldScoreBadge.remove();
+  const oldModeBadge = document.getElementById('report-mode-badge');
+  if (oldModeBadge) oldModeBadge.remove();
+
   let badgeClass = 'score-excellent';
   let badgeLabel = 'Excelente';
   if (score < 50) {
@@ -51,17 +57,21 @@ export function openDeepResearchReport(productOrReport) {
     badgeLabel = 'Viable';
   }
 
-  const titleContainer = document.querySelector('.report-header-title');
-  const oldScoreBadge = document.getElementById('report-score-badge');
-  if (oldScoreBadge) oldScoreBadge.remove();
-
   const scoreBadge = document.createElement('span');
   scoreBadge.id = 'report-score-badge';
   scoreBadge.className = `report-badge-status ${badgeClass}`;
   scoreBadge.innerHTML = `Product Score: <strong>${score}/100</strong> (${badgeLabel})`;
   titleContainer.appendChild(scoreBadge);
 
-  // Set Cache Refresh Button state
+  if (report._researchMode === 'fast') {
+    const modeBadge = document.createElement('span');
+    modeBadge.id = 'report-mode-badge';
+    modeBadge.className = 'report-badge-status';
+    modeBadge.style.marginLeft = '0.5rem';
+    modeBadge.textContent = 'Modo Rápido';
+    titleContainer.appendChild(modeBadge);
+  }
+
   const refreshCacheBtn = document.getElementById('refresh-cache-btn');
   if (refreshCacheBtn) {
     if (loadedFromCache) {

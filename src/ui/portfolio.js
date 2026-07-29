@@ -347,6 +347,7 @@ export function openProductComparison() {
 
   // Let's find the best product by Product Score
   let bestProduct = products[0];
+  let bestScore = 0;
   products.forEach(p => {
     const scoreP = p.fullReport.productScore || calculateProductScore(p.fullReport);
     const scoreBest = bestProduct.fullReport.productScore || calculateProductScore(bestProduct.fullReport);
@@ -354,6 +355,7 @@ export function openProductComparison() {
       bestProduct = p;
     }
   });
+  bestScore = bestProduct.fullReport.productScore || calculateProductScore(bestProduct.fullReport);
 
   let tableHeaderCols = '<th>Criterio</th>';
   let scoreCols = '';
@@ -412,11 +414,12 @@ export function openProductComparison() {
     opportunityCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractOpportunity(p)}</td>`;
 
     bestOptionCols += `<td class="${winnerClass}">
-      ${isWinner ? '<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🏆 MEJOR OPCIÓN</span>' : '<span style="color:var(--text-muted)">-</span>'}
+      ${isWinner ? `<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🚀 Lanza primero</span><br><span style="font-size:0.72rem;color:var(--text-muted)">Product Score ${score}/100 — mayor entre los seleccionados</span>` : `<span style="font-size:0.78rem;color:var(--text-muted)">Score ${score}/100 — ${score < bestScore ? `−${bestScore - score} pts vs. ganador` : 'empate'}</span>`}
     </td>`;
   });
 
   container.innerHTML = `
+    <p class="comparator-verdict-hint">Veredicto basado únicamente en Product Score y métricas del reporte — sin proyecciones de ventas inventadas.</p>
     <table class="comparator-table">
       <thead>
         <tr>${tableHeaderCols}</tr>
@@ -463,7 +466,7 @@ export function openProductComparison() {
           ${opportunityCols}
         </tr>
         <tr>
-          <td class="comparator-label-col">Veredicto</td>
+          <td class="comparator-label-col">Cuál lanzar primero</td>
           ${bestOptionCols}
         </tr>
       </tbody>

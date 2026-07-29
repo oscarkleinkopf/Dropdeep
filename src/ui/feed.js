@@ -3,6 +3,8 @@ import { listCacheEntries } from '../research/cache.js';
 import { runDeepResearchSequence } from '../research/flow.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
+import { showToast } from '../utils/toast.js';
+import { updateWizardVisibility } from './firstProductWizard.js';
 
 function getRecentResearchItems(limit = 6) {
   const seen = new Set();
@@ -76,9 +78,14 @@ export function renderResearchFeed() {
         <i data-lucide="search" class="empty-icon"></i>
         <h3>Sin investigaciones todavía</h3>
         <p>Ejecuta Deep Research con tu clave Gemini para generar reportes reales. Los resultados aparecerán aquí y en tu portafolio.</p>
-        <button type="button" class="btn btn-primary btn-glow" id="research-feed-cta">
-          <i data-lucide="zap"></i> Ir al buscador
-        </button>
+        <div class="research-feed-empty-actions">
+          <button type="button" class="btn btn-primary btn-glow" id="research-feed-cta">
+            <i data-lucide="zap"></i> Ir al buscador
+          </button>
+          <button type="button" class="btn btn-secondary hidden" id="wizard-feed-cta">
+            <i data-lucide="rocket"></i> Configurar primer producto
+          </button>
+        </div>
       </div>
     `;
     document.getElementById('research-feed-cta')?.addEventListener('click', () => {
@@ -86,6 +93,7 @@ export function renderResearchFeed() {
       document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    updateWizardVisibility();
     return;
   }
 
@@ -100,10 +108,13 @@ export function renderResearchFeed() {
 
     const sourceLabel = source === 'portfolio' ? 'Portafolio' : 'Caché (24h)';
 
+    const isDraft = report?._isDraft;
+    const modeLabel = report?._researchMode === 'fast' ? ' · Rápido' : '';
+
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <div class="product-card-badge">${sourceLabel}</div>
+      <div class="product-card-badge">${sourceLabel}${isDraft ? ' · Borrador' : ''}${modeLabel}</div>
       <div class="product-card-body">
         <span class="product-card-category">${report?.categoryId?.toUpperCase() || 'INVESTIGACIÓN'}</span>
         <h3 class="product-card-title">${name}</h3>
@@ -122,10 +133,10 @@ export function renderResearchFeed() {
           </div>
         </div>
         <div class="product-card-footer" style="display:flex; gap:0.5rem; flex-wrap:wrap">
-          <button class="btn btn-secondary open-report-btn" data-product-name="${name}">
-            <i data-lucide="file-text"></i> Ver reporte
+          <button class="btn btn-primary open-report-btn" data-product-name="${name}" ${report ? '' : 'disabled'}>
+            <i data-lucide="file-text"></i> Reabrir reporte
           </button>
-          <button class="btn btn-primary btn-glow rerun-research-btn" data-product-name="${name}">
+          <button class="btn btn-secondary rerun-research-btn" data-product-name="${name}">
             <i data-lucide="refresh-cw"></i> Re-investigar
           </button>
         </div>
@@ -138,7 +149,14 @@ export function renderResearchFeed() {
     btn.addEventListener('click', () => {
       const pName = btn.getAttribute('data-product-name');
       const item = items.find((i) => i.name === pName);
-      if (item?.report) openDeepResearchReport(item.report);
+      if (item?.report && !item.report._isDraft) {
+        openDeepResearchReport(item.report);
+      } else if (item?.report?._isDraft) {
+        showToast('Este borrador aún no tiene reporte — ejecuta Deep Research.', 'info');
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.value = pName;
+        document.getElementById('search-input')?.focus();
+      }
     });
   });
 
@@ -149,4 +167,5 @@ export function renderResearchFeed() {
   });
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
+  updateWizardVisibility();
 }

@@ -5,6 +5,7 @@ import { openSettingsModal } from './geminiKeyBanner.js';
 import { state } from '../state.js';
 import { switchView } from './navigation.js';
 import { openAuthModal } from './authModal.js';
+import { shouldShowWizard } from './firstProductWizard.js';
 import { setPromptHubMode } from './promptHub.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
@@ -152,6 +153,8 @@ export function updateOnboardingPanel() {
 
   if (show) {
     renderSteps(panel);
+    const wizardCta = document.getElementById('wizard-onboarding-cta');
+    if (wizardCta) wizardCta.classList.toggle('hidden', !shouldShowWizard());
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 }

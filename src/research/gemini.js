@@ -13,6 +13,8 @@ import {
 } from './researchSession.js';
 import { persistResearchReport } from './historySync.js';
 import { openSettingsModal } from '../ui/geminiKeyBanner.js';
+import { isFastResearchMode } from '../config/researchMode.js';
+import { buildFastModeReport, FAST_MODE_SKIP_MSG } from './fastMode.js';
 
 const TRANSIENT_MAX_RETRIES = 2;
 
@@ -194,7 +196,13 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
 
   const isGroundingEnabled = isGeminiGroundingEnabled();
 
+  const fastMode = isFastResearchMode();
+  const totalSteps = fastMode ? 2 : 5;
+
   addLog(`🚀 INICIANDO INVESTIGACIÓN EN VIVO CON GOOGLE GEMINI (${modelName.toUpperCase()})...`, 'header-line');
+  if (fastMode) {
+    addLog(`⚡ Modo Rápido activo — menos pasos Gemini, menos costo / menos profundidad.`, 'info');
+  }
   if (isGroundingEnabled) {
     addLog(`📡 Búsqueda en Google Search Grounding ACTIVADA. Buscando en foros, Amazon y Reddit...`, 'info');
   } else {
@@ -240,14 +248,16 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
     }
 
     // STEP 1: Copywriting Deep Research Report
-    addLog(`[1/4] [RUN] Generando Reporte de Copywriting para '${productName.toUpperCase()}'...`, 'info');
+    addLog(`[1/${totalSteps}] [RUN] Generando Reporte de Copywriting para '${productName.toUpperCase()}'...`, 'info');
     if (isGroundingEnabled) {
       addLog(`🔍 Realizando búsquedas en Google Search por competidores, reviews de Amazon y dolores en Reddit...`, 'info');
     } else {
       addLog(`🔍 Analizando el mercado de '${productName}' basándose en datos internos...`, 'info');
     }
-    fill.style.width = '20%';
-    label.textContent = "Generando Reporte de Copywriting (Paso 1 de 4)...";
+    fill.style.width = fastMode ? '30%' : '20%';
+    label.textContent = fastMode
+      ? 'Generando esqueleto de reporte (Paso 1 de 2)...'
+      : 'Generando Reporte de Copywriting (Paso 1 de 5)...';
 
     let competitorContext = '';
     if (competitorUrl) {
@@ -444,11 +454,80 @@ IMPORTANTE: Para evitar bloqueos por derechos de autor o recitación de fuentes 
       throw new Error("El reporte de copywriting no pudo ser parseado como un objeto válido: " + e.message);
     }
 
+    if (fastMode) {
+      addLog(`[2/2] [RUN] Modo Rápido: generando bullets de anuncios y titulares...`, 'info');
+      fill.style.width = '65%';
+      label.textContent = 'Generando copys básicos (Paso 2 de 2)...';
+
+      const promptFast2 = `Basándote en este reporte de investigación previa sobre "${productName}": ${JSON.stringify(report)}, genera copys publicitarios básicos en español.
+Devuelve un objeto JSON con el siguiente esquema exacto:
+{
+  "headlines": ["Titular 1", "Titular 2", "Titular 3"],
+  "adCopy": {
+    "facebook": [
+      { "primaryText": "...", "headline": "...", "description": "..." },
+      { "primaryText": "...", "headline": "...", "description": "..." }
+    ],
+    "tiktok": [
+      { "hook": "...", "body": "...", "cta": "..." },
+      { "hook": "...", "body": "...", "cta": "..." }
+    ]
+  }
+}
+Retorna solo el JSON en texto plano.`;
+
+      const payloadFast2 = {
+        contents: [{ role: 'user', parts: [{ text: promptFast2 }] }],
+      };
+
+      const resultFast2 = await generateContentWithRetry(
+        modelWithoutSearch,
+        payloadFast2,
+        addLog,
+        'Paso 2 (Modo Rápido — Ad Copy)',
+        TRANSIENT_MAX_RETRIES,
+        null,
+        null,
+        abortSignal
+      );
+
+      throwIfAborted(abortSignal);
+
+      let fastMarketing;
+      try {
+        fastMarketing = cleanAndParseJSON(resultFast2.response.text());
+        addLog(`✅ [SUCCESS] Paso 2 (Rápido) completado. Copys básicos listos.`, 'success');
+      } catch (e) {
+        addLog(`⚠️ Fallo al parsear copys rápidos — secciones avanzadas quedarán sin generar.`, 'warning');
+        fastMarketing = { headlines: [], adCopy: { facebook: [], tiktok: [] } };
+      }
+
+      const finalReport = buildFastModeReport(report, fastMarketing, competitorUrl);
+      finalReport._researchMode = 'fast';
+
+      state.currentReport = finalReport;
+      addLog(`🎉 REPORTE MODO RÁPIDO LISTO — secciones omitidas marcadas honestamente.`, 'header-line');
+      addLog(`ℹ️ Para Avatar Brief, UGC, landing y emails: cambia a Modo Completo y re-ejecuta.`, 'info');
+      fill.style.width = '100%';
+      label.textContent = 'Completado (Modo Rápido).';
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+
+      persistResearchReport(finalReport).catch(() => { /* offline */ });
+
+      setTimeout(() => {
+        if (isResearchAborted(abortSignal)) return;
+        modal.classList.add('hidden');
+        openDeepResearchReport(finalReport);
+      }, 1000);
+
+      return;
+    }
+
     fill.style.width = '40%';
-    label.textContent = "Compilando Ficha Avatar Brief (Paso 2 de 4)...";
+    label.textContent = "Compilando Ficha Avatar Brief (Paso 2 de 5)...";
 
     // STEP 2: Avatar Brief (no search grounding needed)
-    addLog(`[2/4] [RUN] Generando Ficha psicográfica Avatar Brief...`, 'info');
+    addLog(`[2/5] [RUN] Generando Ficha psicográfica Avatar Brief...`, 'info');
     const prompt2 = `Basándote en el siguiente reporte de investigación previa: ${JSON.stringify(report)}, genera la ficha Avatar Brief detallada en español. 
 Devuelve un objeto JSON con el siguiente esquema exacto:
 {
@@ -543,10 +622,10 @@ Retorna solo el JSON en texto plano.`;
     }
 
     fill.style.width = '60%';
-    label.textContent = "Diseñando Arquitectura de Oferta (Paso 3 de 4)...";
+    label.textContent = "Diseñando Arquitectura de Oferta (Paso 3 de 5)...";
 
     // STEP 3: Offer Brief (no search grounding needed)
-    addLog(`[3/4] [RUN] Generando Offer Brief de marketing...`, 'info');
+    addLog(`[3/5] [RUN] Generando Offer Brief de marketing...`, 'info');
     const prompt3 = `Basándote en la investigación previa y en el avatar brief: ${JSON.stringify(report)} y ${JSON.stringify(avatarBrief)}, genera el Offer Brief detallado en español.
 Devuelve un objeto JSON con el siguiente esquema exacto:
 {
@@ -622,10 +701,10 @@ Retorna solo el JSON en texto plano.`;
     }
 
     fill.style.width = '80%';
-    label.textContent = "Generando Activos Creativos y Landing Page (Paso 4 de 4)...";
+    label.textContent = "Generando Activos Creativos y Landing Page (Paso 4 de 5)...";
 
     // STEP 4: Activos Creativos (UGC y Landing Page HTML/Tailwind)
-    addLog(`[4/4] [RUN] Generando Activos de Creatividad, Scripts UGC y Landing Page...`, 'info');
+    addLog(`[4/5] [RUN] Generando Activos de Creatividad, Scripts UGC y Landing Page...`, 'info');
     const prompt4 = `Basándote en la investigación, el avatar y la oferta previos: ${JSON.stringify(report)}, ${JSON.stringify(avatarBrief)} y ${JSON.stringify(offerBrief)}, genera los activos creativos detallados en español para el producto "${productName}".
 Si se especificó una URL de competidor ("${competitorUrl}"), incluye un análisis comparativo de ganchos contra ellos.
 Devuelve un objeto JSON con el siguiente esquema exacto:
@@ -890,7 +969,8 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
       emailSequence: marketingAssets.emailSequence,
       adCopy: marketingAssets.adCopy,
       shopifyDescription: marketingAssets.shopifyDescription,
-      competitorUrl: competitorUrl
+      competitorUrl: competitorUrl,
+      _researchMode: 'complete',
     };
 
     state.currentReport = finalReport;
@@ -919,6 +999,9 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
 
 export function sanitizeReport(report) {
   if (!report) return {};
+
+  const isFastReport = report._researchMode === 'fast';
+  const skipMsg = FAST_MODE_SKIP_MSG;
   
   const sanitized = {
     name: report.name || "Producto Sin Nombre",
@@ -1046,8 +1129,23 @@ export function sanitizeReport(report) {
       body: report.shopifyDescription?.body || "",
       faq: report.shopifyDescription?.faq || []
     },
-    competitorUrl: report.competitorUrl || ""
+    competitorUrl: report.competitorUrl || "",
+    _researchMode: report._researchMode || 'complete',
+    _isDraft: report._isDraft || false,
   };
+
+  if (isFastReport && !report.avatarBrief?.general?.age) {
+    const skipped = buildFastModeReport(report, report.adCopy ? { adCopy: report.adCopy, headlines: report.offerBrief?.headlines || [] } : { adCopy: { facebook: [], tiktok: [] }, headlines: [] }, report.competitorUrl || '');
+    Object.assign(sanitized, {
+      avatarBrief: skipped.avatarBrief,
+      offerBrief: { ...skipped.offerBrief, headlines: report.offerBrief?.headlines?.length ? report.offerBrief.headlines : skipped.offerBrief.headlines },
+      ugcScripts: report.ugcScripts?.length ? report.ugcScripts : skipped.ugcScripts,
+      landingPage: report.landingPage?.html ? report.landingPage : skipped.landingPage,
+      competitorAnalysis: report.competitorAnalysis?.weaknesses && report.competitorAnalysis.weaknesses !== skipMsg ? report.competitorAnalysis : skipped.competitorAnalysis,
+      emailSequence: report.emailSequence?.length ? report.emailSequence : skipped.emailSequence,
+      shopifyDescription: report.shopifyDescription?.body && !report.shopifyDescription.body.includes(skipMsg) ? report.shopifyDescription : skipped.shopifyDescription,
+    });
+  }
   
   return sanitized;
 }
