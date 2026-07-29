@@ -77,6 +77,8 @@ Google OAuth: enable **Google** under Authentication → Providers, then use the
 
 > **Prompt Hub** and some spy/meta tools work without an API key — they generate copy-paste prompts or use local/static data.
 
+Deep Research always requires a Gemini API key (BYOK) or the server proxy (`VITE_GEMINI_PROXY=true`). There is no procedural/demo fallback — reports come from live API responses or your saved portfolio/cache.
+
 ## Security model
 
 DropDeep is primarily a **static SPA** (GitHub Pages). Optional Supabase Auth + Edge Functions add accounts and a server-side Gemini proxy.

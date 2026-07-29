@@ -3,6 +3,7 @@ import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
+import { renderDashboardStats, renderResearchFeed } from './feed.js';
 
 export function updatePortfolioBadge() {
   const badge = document.getElementById('portfolio-count');
@@ -56,6 +57,8 @@ export function toggleSaveProduct() {
   // Update storage & badges
   localStorage.setItem('dropdeep_portfolio', JSON.stringify(state.portfolio));
   updatePortfolioBadge();
+  renderDashboardStats();
+  renderResearchFeed();
   lucide.createIcons();
 }
 

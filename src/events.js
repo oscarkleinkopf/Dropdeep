@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { showToast } from './utils/toast.js';
 import { switchView } from './ui/navigation.js';
-import { runDeepResearchSequence, runPendingSimulation } from './research/flow.js';
+import { runDeepResearchSequence } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
 import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from './ui/export.js';
@@ -14,7 +14,7 @@ import { openAuthModal } from './ui/authModal.js';
 import { upsertProfilePrefs } from './auth/profile.js';
 
 export function setupEventListeners() {
-  initGeminiKeyBanner(runPendingSimulation);
+  initGeminiKeyBanner();
 
   // Navigation Routing
   const navLinks = document.querySelectorAll('.nav-link');

@@ -2,7 +2,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { state } from '../state.js';
 import { cleanAndParseJSON } from '../utils/json.js';
 import { openDeepResearchReport } from '../ui/report.js';
-import { runSimulatedResearchSequence } from './flow.js';
 import { isGeminiGroundingEnabled } from '../utils/geminiStorage.js';
 import { isGeminiProxyEnabled, createProxyGenerativeModel } from './geminiProxy.js';
 
@@ -795,47 +794,23 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
     const isQuota = errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('limit') || errMsg.includes('exhausted');
     
     if (isQuota) {
-      addLog(`💡 Cuota superada (Quota Exceeded): Has alcanzado el límite de peticiones de tu API Key.`, 'info');
-      addLog(`👉 Puedes usar el MODO SIMULACIÓN PROCEDURAL para generar el reporte de este producto gratis.`, 'success');
-      
-      const actionContainer = document.createElement('div');
-      actionContainer.style.marginTop = '1rem';
-      actionContainer.style.display = 'flex';
-      actionContainer.style.gap = '0.75rem';
-      
-      const simBtn = document.createElement('button');
-      simBtn.className = 'btn btn-primary';
-      simBtn.textContent = 'Iniciar Modo Simulación';
-      simBtn.style.padding = '0.5rem 1rem';
-      simBtn.onclick = () => {
-        modal.classList.add('hidden');
-        runSimulatedResearchSequence(productName, competitorUrl);
-      };
-      
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'btn btn-secondary';
-      closeBtn.textContent = 'Cerrar';
-      closeBtn.style.padding = '0.5rem 1rem';
-      closeBtn.onclick = () => modal.classList.add('hidden');
-      
-      actionContainer.appendChild(simBtn);
-      actionContainer.appendChild(closeBtn);
-      output.appendChild(actionContainer);
+      addLog('💡 Cuota superada: has alcanzado el límite de peticiones de tu API Key.', 'info');
+      addLog('Espera unos minutos o revisa tu plan en Google AI Studio antes de reintentar.', 'info');
     } else {
-      addLog(`💡 Consejo: Verifica tu API Key y tu conexión a internet o intenta cambiar de modelo en configuraciones.`, 'info');
-      
-      const actionContainer = document.createElement('div');
-      actionContainer.style.marginTop = '1rem';
-      
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'btn btn-secondary';
-      closeBtn.textContent = 'Cerrar Terminal';
-      closeBtn.style.padding = '0.5rem 1rem';
-      closeBtn.onclick = () => modal.classList.add('hidden');
-      
-      actionContainer.appendChild(closeBtn);
-      output.appendChild(actionContainer);
+      addLog('💡 Consejo: Verifica tu API Key y tu conexión a internet o intenta cambiar de modelo en Ajustes.', 'info');
     }
+
+    const actionContainer = document.createElement('div');
+    actionContainer.style.marginTop = '1rem';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn btn-secondary';
+    closeBtn.textContent = 'Cerrar Terminal';
+    closeBtn.style.padding = '0.5rem 1rem';
+    closeBtn.onclick = () => modal.classList.add('hidden');
+
+    actionContainer.appendChild(closeBtn);
+    output.appendChild(actionContainer);
     
     output.scrollTop = output.scrollHeight;
     fill.style.backgroundColor = 'var(--accent-red)';

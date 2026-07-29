@@ -1,4 +1,4 @@
-import { renderAutomatedFeed, runTrendScannerSimulation } from './ui/feed.js';
+import { renderDashboardStats, renderResearchFeed } from './ui/feed.js';
 import { updatePortfolioBadge } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
 import { initAuth, onAuthStateChange, isAuthenticated, isAuthConfigured } from './auth/auth.js';
@@ -13,10 +13,10 @@ let appBootstrapped = false;
 function bootstrapAppShell() {
   if (appBootstrapped) return;
   appBootstrapped = true;
-  renderAutomatedFeed();
+  renderDashboardStats();
+  renderResearchFeed();
   updatePortfolioBadge();
   setupEventListeners();
-  runTrendScannerSimulation();
   lucide.createIcons();
 }
 

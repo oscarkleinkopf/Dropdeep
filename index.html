@@ -113,13 +113,9 @@
       
       <div class="nav-wrapper">
         <nav class="nav-links" aria-label="Secciones principales">
-          <button class="nav-link active" data-target="dashboard-view" id="nav-dashboard" title="Inicio — buscador y feed" aria-label="Inicio">
+          <button class="nav-link active" data-target="dashboard-view" id="nav-dashboard" title="Inicio — buscador e investigaciones" aria-label="Inicio">
             <i data-lucide="layout-dashboard" class="nav-icon"></i>
             <span class="nav-link-text">Inicio</span>
-          </button>
-          <button class="nav-link" data-target="scanner-view" id="nav-scanner" title="Tendencias — escaneo en vivo" aria-label="Tendencias">
-            <i data-lucide="radar" class="nav-icon"></i>
-            <span class="nav-link-text">Tendencias</span>
           </button>
           <button class="nav-link" data-target="portfolio-view" id="nav-portfolio" title="Portafolio — productos guardados" aria-label="Portafolio">
             <i data-lucide="folder-heart" class="nav-icon"></i>
@@ -177,15 +173,12 @@
         <i data-lucide="key-round" class="gemini-key-banner-icon"></i>
         <div class="gemini-key-banner-text">
           <strong>Sin clave API de Gemini</strong>
-          <span>Deep Research en vivo y análisis competitivo con IA requieren tu clave. También puedes usar el modo simulación sin API.</span>
+          <span>Deep Research en vivo y análisis competitivo con IA requieren tu clave. Configúrala en Ajustes para investigar productos reales.</span>
         </div>
       </div>
       <div class="gemini-key-banner-actions">
         <button type="button" class="btn btn-primary gemini-banner-btn" id="gemini-banner-settings-btn">
           <i data-lucide="settings"></i> Abrir Ajustes
-        </button>
-        <button type="button" class="btn btn-secondary gemini-banner-btn" id="gemini-banner-sim-btn" title="Ejecutar Deep Research en modo simulación procedural">
-          <i data-lucide="play"></i> Modo simulación
         </button>
         <button type="button" class="gemini-key-banner-dismiss" id="gemini-banner-dismiss-btn" title="Cerrar aviso" aria-label="Cerrar aviso">
           <i data-lucide="x"></i>
@@ -250,78 +243,53 @@
           </div>
         </div>
 
-        <!-- Metrics Grid (compact, below fold) -->
+        <!-- Metrics Grid (real stats from portfolio/cache) -->
         <div class="metrics-dashboard metrics-dashboard--compact">
           <div class="metric-card">
             <div class="metric-header">
-              <span class="metric-title">Nicho Más Caliente</span>
-              <i data-lucide="flame" class="metric-icon red-icon"></i>
+              <span class="metric-title">Productos en Portafolio</span>
+              <i data-lucide="folder-heart" class="metric-icon red-icon"></i>
             </div>
-            <div class="metric-value">Salud & Bienestar</div>
-            <div class="metric-sub">Velocidad media de tendencia +142%</div>
+            <div class="metric-value" id="metric-portfolio-count">0</div>
+            <div class="metric-sub">Investigaciones guardadas por ti</div>
           </div>
           <div class="metric-card">
             <div class="metric-header">
-              <span class="metric-title">Margen Neto Promedio</span>
-              <i data-lucide="percent" class="metric-icon green-icon"></i>
+              <span class="metric-title">Reportes en Caché</span>
+              <i data-lucide="database" class="metric-icon green-icon"></i>
             </div>
-            <div class="metric-value">71.8%</div>
-            <div class="metric-sub">Costo medio de adquisición $8.40</div>
+            <div class="metric-value" id="metric-cache-count">0</div>
+            <div class="metric-sub">Disponibles 24 h tras investigar</div>
           </div>
           <div class="metric-card">
             <div class="metric-header">
-              <span class="metric-title">Competencia Global</span>
+              <span class="metric-title">Última Investigación</span>
+              <i data-lucide="clock" class="metric-icon blue-icon"></i>
+            </div>
+            <div class="metric-value" id="metric-last-product">—</div>
+            <div class="metric-sub" id="metric-last-date">Aún no has investigado</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Score Promedio</span>
               <i data-lucide="line-chart" class="metric-icon blue-icon"></i>
             </div>
-            <div class="metric-value">Moderada</div>
-            <div class="metric-sub">Baja saturación en mercados latinos</div>
+            <div class="metric-value" id="metric-avg-score">—</div>
+            <div class="metric-sub" id="metric-avg-score-sub">Guarda reportes en tu portafolio</div>
           </div>
         </div>
 
-        <!-- Section Title: Discovery Feed -->
+        <!-- Section Title: Recent Research -->
         <div class="section-title-bar">
           <div class="title-left">
-            <h2>Productos Ganadores Descubiertos <span class="badge-new">Live Feed</span></h2>
-            <p>Monitoreo automático de alta rentabilidad basado en volumen de anuncios y baja saturación.</p>
+            <h2>Tus Investigaciones Recientes</h2>
+            <p>Reportes reales generados con Gemini o guardados en tu portafolio.</p>
           </div>
         </div>
 
-        <!-- Winning Products Feed Grid -->
-        <div class="products-grid" id="automated-feed">
+        <!-- Recent Research Grid -->
+        <div class="products-grid" id="research-feed">
           <!-- Dynamically populated from JS -->
-        </div>
-      </section>
-
-      <!-- VIEW: TREND SCANNER (SIMULATION FEED) -->
-      <section id="scanner-view" class="view-section">
-        <div class="scanner-hero">
-          <div class="scanner-status-panel">
-            <div class="radar-box">
-              <div class="radar-circle">
-                <div class="radar-sweep"></div>
-                <div class="radar-dot" style="top:30%; left:60%"></div>
-                <div class="radar-dot" style="top:70%; left:20%"></div>
-                <div class="radar-dot" style="top:40%; left:30%"></div>
-              </div>
-            </div>
-            <div class="scanner-log-panel">
-              <h3>Consola de Monitoreo Global</h3>
-              <div class="scanner-console-logs" id="scanner-logs-container">
-                <!-- Log lines populated by JS -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live Scan Grid -->
-        <div class="section-title-bar">
-          <div class="title-left">
-            <h2>Productos Escaneados Recientemente</h2>
-            <p>Análisis automáticos en cola listos para investigación profunda.</p>
-          </div>
-        </div>
-        <div class="products-grid" id="scanned-feed">
-          <!-- Dynamically populated -->
         </div>
       </section>
 
@@ -347,7 +315,7 @@
           <div class="empty-portfolio" id="empty-portfolio-view">
             <i data-lucide="folder-open" class="empty-icon"></i>
             <h3>Tu portafolio está vacío</h3>
-            <p>Investiga un producto en Inicio o guarda uno del feed para verlo aquí.</p>
+            <p>Investiga un producto en Inicio y guárdalo aquí para comparar y exportar.</p>
             <button type="button" class="btn btn-primary" id="empty-portfolio-cta">
               <i data-lucide="search"></i> Ir al buscador
             </button>
@@ -740,7 +708,7 @@
 
     </main>
 
-    <!-- Terminal Overlay (Search Simulator Modal) -->
+    <!-- Terminal Overlay (Deep Research progress) -->
     <div id="terminal-modal" class="terminal-overlay hidden">
       <div class="terminal-container">
         <div class="terminal-header">
@@ -758,12 +726,12 @@
         </p>
         <div class="terminal-body">
           <div class="terminal-output" id="terminal-output">
-            <!-- Simulated log lines go here -->
+            <!-- Research log lines -->
           </div>
           
           <div class="terminal-footer">
             <div class="progress-bar-container">
-              <span class="progress-label" id="progress-label">Iniciando escaneo...</span>
+              <span class="progress-label" id="progress-label">Iniciando investigación...</span>
               <div class="progress-track">
                 <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
               </div>

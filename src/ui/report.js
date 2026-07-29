@@ -4,31 +4,29 @@ import { switchView } from './navigation.js';
 import { setCacheEntry } from '../research/cache.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { sanitizeReport } from '../research/gemini.js';
-import { generateDeepResearchReport } from '../data/reportGenerator.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
+import { renderDashboardStats, renderResearchFeed } from './feed.js';
 
 export function openDeepResearchReport(productOrReport) {
+  if (typeof productOrReport === 'string') {
+    showToast('Este reporte requiere investigación en vivo con Gemini.', 'info');
+    runApiResearchDirect(productOrReport);
+    return;
+  }
+
   markFirstResearchDone();
   updateOnboardingPanel();
-  let report;
-  let loadedFromCache = false;
-  if (typeof productOrReport === 'string') {
-    report = generateDeepResearchReport(productOrReport);
-    loadedFromCache = false;
-    // Cache the simulated report
+  let report = sanitizeReport(productOrReport);
+  const loadedFromCache = !!productOrReport._loadedFromCache;
+
+  if (!loadedFromCache) {
     const language = state.outputLanguage || 'es';
     setCacheEntry(report.name, report, language);
-  } else {
-    report = productOrReport;
-    loadedFromCache = !!report._loadedFromCache;
   }
-  
-  // SANITIZE REPORT OBJECT TO PREVENT RENDERING CRASHES ON INCOMPLETE FIELDS
-  report = sanitizeReport(report);
-  
+
   state.currentReport = report;
   
   // Clear search input
@@ -337,6 +335,9 @@ export function openDeepResearchReport(productOrReport) {
   // Render Report Sections in tab contents & build printable container
   renderReportContent();
   renderPrintableReport();
+
+  renderDashboardStats();
+  renderResearchFeed();
 
   // Go to View
   switchView('report-view');

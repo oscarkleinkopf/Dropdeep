@@ -1,10 +1,10 @@
 import { state } from '../state.js';
 import { renderPortfolioList } from './portfolio.js';
 import { renderMetaHiddenInterests } from './spy.js';
+import { renderDashboardStats, renderResearchFeed } from './feed.js';
 
 const NAV_VIEW_MAP = {
   'dashboard-view': 'nav-dashboard',
-  'scanner-view': 'nav-scanner',
   'portfolio-view': 'nav-portfolio',
   'prompt-hub-view': 'nav-prompts',
   'spy-intelligence-view': 'nav-spy',
@@ -34,7 +34,10 @@ export function switchView(viewId) {
   }
 
   // View specific setups
-  if (viewId === 'portfolio-view') {
+  if (viewId === 'dashboard-view') {
+    renderDashboardStats();
+    renderResearchFeed();
+  } else if (viewId === 'portfolio-view') {
     renderPortfolioList();
   } else if (viewId === 'spy-intelligence-view') {
     renderMetaHiddenInterests();

@@ -1,109 +1,152 @@
 import { state } from '../state.js';
-import { automatedProducts } from '../data/products.js';
+import { listCacheEntries } from '../research/cache.js';
 import { runDeepResearchSequence } from '../research/flow.js';
+import { openDeepResearchReport } from './report.js';
+import { calculateProductScore } from '../research/scoring.js';
 
-export function renderAutomatedFeed() {
-  const feed = document.getElementById('automated-feed');
+function getRecentResearchItems(limit = 6) {
+  const seen = new Set();
+  const items = [];
+
+  const addItem = (name, report, savedAt, source) => {
+    const key = name.toLowerCase().trim();
+    if (seen.has(key)) return;
+    seen.add(key);
+    items.push({ name, report, savedAt, source });
+  };
+
+  state.portfolio.forEach((item) => {
+    addItem(item.name, item.fullReport, item.savedAt, 'portfolio');
+  });
+
+  listCacheEntries().forEach((entry) => {
+    const date = new Date(entry.timestamp).toLocaleDateString('es');
+    addItem(entry.name, entry.data, date, 'cache');
+  });
+
+  return items.slice(0, limit);
+}
+
+export function renderDashboardStats() {
+  const portfolioCount = state.portfolio.length;
+  const cacheCount = listCacheEntries().length;
+
+  let lastName = '—';
+  let lastDate = 'Aún no has investigado';
+  const recent = getRecentResearchItems(1);
+  if (recent.length > 0) {
+    lastName = recent[0].name;
+    lastDate = recent[0].savedAt || 'Reciente';
+  }
+
+  const avgScore = portfolioCount > 0
+    ? Math.round(
+        state.portfolio.reduce((sum, p) => {
+          const score = p.fullReport?.productScore || calculateProductScore(p.fullReport);
+          return sum + score;
+        }, 0) / portfolioCount
+      )
+    : null;
+
+  const el = (id, text) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = text;
+  };
+
+  el('metric-portfolio-count', String(portfolioCount));
+  el('metric-cache-count', String(cacheCount));
+  el('metric-last-product', lastName);
+  el('metric-last-date', lastDate);
+  el('metric-avg-score', avgScore !== null ? `${avgScore}/100` : '—');
+  el(
+    'metric-avg-score-sub',
+    avgScore !== null ? 'Promedio de productos guardados' : 'Guarda reportes en tu portafolio'
+  );
+}
+
+export function renderResearchFeed() {
+  const feed = document.getElementById('research-feed');
+  if (!feed) return;
+
+  const items = getRecentResearchItems(6);
+
+  if (items.length === 0) {
+    feed.innerHTML = `
+      <div class="empty-portfolio research-feed-empty">
+        <i data-lucide="search" class="empty-icon"></i>
+        <h3>Sin investigaciones todavía</h3>
+        <p>Ejecuta Deep Research con tu clave Gemini para generar reportes reales. Los resultados aparecerán aquí y en tu portafolio.</p>
+        <button type="button" class="btn btn-primary btn-glow" id="research-feed-cta">
+          <i data-lucide="zap"></i> Ir al buscador
+        </button>
+      </div>
+    `;
+    document.getElementById('research-feed-cta')?.addEventListener('click', () => {
+      document.getElementById('search-input')?.focus();
+      document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+
   feed.innerHTML = '';
+  feed.className = 'products-grid';
 
-  automatedProducts.forEach(product => {
+  items.forEach(({ name, report, savedAt, source }) => {
+    const score = report?.productScore || calculateProductScore(report);
+    let scoreColor = 'var(--accent-emerald)';
+    if (score < 50) scoreColor = 'var(--accent-red)';
+    else if (score < 75) scoreColor = 'var(--accent-amber)';
+
+    const sourceLabel = source === 'portfolio' ? 'Portafolio' : 'Caché (24h)';
+
     const card = document.createElement('div');
     card.className = 'product-card';
-    
-    // Saturation and Trend colors
-    const saturationColor = product.saturationScore > 50 ? 'red' : 'green';
-    
     card.innerHTML = `
-      <div class="product-card-badge">${product.trendVelocity} Vel</div>
+      <div class="product-card-badge">${sourceLabel}</div>
       <div class="product-card-body">
-        <span class="product-card-category">${product.category}</span>
-        <h3 class="product-card-title">${product.name}</h3>
-        <p class="product-card-desc">${product.description}</p>
-        
+        <span class="product-card-category">${report?.categoryId?.toUpperCase() || 'INVESTIGACIÓN'}</span>
+        <h3 class="product-card-title">${name}</h3>
         <div class="card-stats-table">
           <div class="stats-row">
-            <span class="stats-label">Precio Proveedor:</span>
-            <span class="stats-val">$${product.supplierPrice.toFixed(2)}</span>
+            <span class="stats-label">Product Score:</span>
+            <span class="stats-val" style="color:${scoreColor}">${score}/100</span>
           </div>
           <div class="stats-row">
-            <span class="stats-label">Precio Sugerido:</span>
-            <span class="stats-val">$${product.retailPrice.toFixed(2)}</span>
+            <span class="stats-label">Margen estimado:</span>
+            <span class="stats-val green">$${(report?.margin ?? 0).toFixed(2)}</span>
           </div>
           <div class="stats-row">
-            <span class="stats-label">Margen Neto:</span>
-            <span class="stats-val green">$${(product.retailPrice - product.supplierPrice).toFixed(2)} (${Math.round((product.retailPrice - product.supplierPrice)/product.supplierPrice*100)}% ROI)</span>
-          </div>
-          <div class="stats-row">
-            <span class="stats-label">Envío Promedio:</span>
-            <span class="stats-val">${product.shippingDays} días</span>
-          </div>
-          <div class="stats-row">
-            <span class="stats-label">Saturación:</span>
-            <span class="stats-val ${saturationColor}">${product.saturationScore}%</span>
+            <span class="stats-label">Fecha:</span>
+            <span class="stats-val">${savedAt}</span>
           </div>
         </div>
-        
-        <div class="product-card-footer">
-          <button class="btn btn-primary btn-glow run-research-btn" data-product-name="${product.name}">
-            <i data-lucide="shield-alert"></i> Deep Research
+        <div class="product-card-footer" style="display:flex; gap:0.5rem; flex-wrap:wrap">
+          <button class="btn btn-secondary open-report-btn" data-product-name="${name}">
+            <i data-lucide="file-text"></i> Ver reporte
+          </button>
+          <button class="btn btn-primary btn-glow rerun-research-btn" data-product-name="${name}">
+            <i data-lucide="refresh-cw"></i> Re-investigar
           </button>
         </div>
       </div>
     `;
-    
     feed.appendChild(card);
   });
 
-  // Bind click listeners to research buttons
-  feed.querySelectorAll('.run-research-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const pName = e.currentTarget.getAttribute('data-product-name');
-      runDeepResearchSequence(pName);
+  feed.querySelectorAll('.open-report-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const pName = btn.getAttribute('data-product-name');
+      const item = items.find((i) => i.name === pName);
+      if (item?.report) openDeepResearchReport(item.report);
     });
   });
+
+  feed.querySelectorAll('.rerun-research-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      runDeepResearchSequence(btn.getAttribute('data-product-name'));
+    });
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-// Background Simulated Trend Scanner Logs
-export function runTrendScannerSimulation() {
-  const container = document.getElementById('scanner-logs-container');
-  if (!container) return;
-
-  const logs = [
-    { text: "Iniciando análisis periódico del mercado global...", type: "system" },
-    { text: "Conectando con API de AliExpress, Zendrop y CJ...", type: "system" },
-    { text: "Scrapeando foro Reddit r/ecommerce y r/dropshipping...", type: "system" },
-    { text: "Encontrado nuevo producto de alta tracción: 'Electric Heated Knee Sleeve' (Tendencia +120%)", type: "find" },
-    { text: "Saturación detectada en EE.UU.: 24% | Margen estimado: 74% | Envío: 7 días", type: "find" },
-    { text: "Scrapeando TikTok Creative Center por palabras clave de Belleza...", type: "system" },
-    { text: "Identificado ángulo ganador: 'Anti-envejecimiento sin inyecciones'", type: "find" },
-    { text: "Advertencia: Nivel de quejas de AliExpress para 'Smart Watch Z4' supera 12%. Saltando...", type: "warn" },
-    { text: "Escaneando reseñas de Amazon para 'Orthopedic Back Pillow'...", type: "system" },
-    { text: "Almacenando perfiles de comprador en base de datos...", type: "system" },
-    { text: "Encontrado producto con alta retención: 'Silicone Bath Brush' (Tendencia +65%)", type: "find" }
-  ];
-
-  let logIndex = 0;
-
-  function printNextLog() {
-    if (state.activeView === 'scanner-view') {
-      const log = logs[logIndex % logs.length];
-      const time = new Date().toLocaleTimeString();
-      const div = document.createElement('div');
-      div.className = `log-line ${log.type}`;
-      div.innerHTML = `<span style="color:var(--text-muted)">[${time}]</span> ${log.text}`;
-      container.appendChild(div);
-      
-      // Keep only last 20 logs
-      while (container.childNodes.length > 20) {
-        container.removeChild(container.firstChild);
-      }
-      container.scrollTop = container.scrollHeight;
-    }
-    logIndex++;
-    setTimeout(runTrendScannerSimulation, 3000 + Math.random() * 3000);
-  }
-
-  printNextLog();
-}
-
-// ==========================================================================

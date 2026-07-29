@@ -43,15 +43,11 @@ export function updateGeminiKeyBanner() {
   banner.classList.toggle('hidden', !shouldShow);
 }
 
-export function initGeminiKeyBanner(onSimulateClick) {
+export function initGeminiKeyBanner() {
   const banner = document.getElementById('gemini-key-banner');
   if (!banner) return;
 
   document.getElementById('gemini-banner-settings-btn')?.addEventListener('click', openSettingsModal);
-
-  document.getElementById('gemini-banner-sim-btn')?.addEventListener('click', () => {
-    if (onSimulateClick) onSimulateClick();
-  });
 
   document.getElementById('gemini-banner-dismiss-btn')?.addEventListener('click', () => {
     banner.classList.add('hidden');
