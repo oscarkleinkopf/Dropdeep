@@ -22,6 +22,8 @@ Las entradas más recientes van primero.
 - Prompt Hub: etiquetas UMP/UMS corregidas en secuencia maestra.
 - Default de profundidad sin preferencia guardada: **Express** (recomendado sin API).
 
+`e3b43d1`
+
 ### Añadido (docs previos)
 
 - Manual de usuario en español (`docs/MANUAL.md`) y mecanismo de actualización automática vía regla Cursor.
