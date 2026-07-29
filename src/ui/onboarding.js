@@ -1,7 +1,9 @@
 import { getCurrentUserId, isAuthenticated, isAuthConfigured, onAuthStateChange } from '../auth/auth.js';
 import { hasGeminiKey } from '../utils/geminiStorage.js';
-import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
+import { isGeminiProxyEnabled, isGeminiProxyConfigured } from '../research/geminiProxy.js';
 import { openSettingsModal } from './geminiKeyBanner.js';
+import { state } from '../state.js';
+import { switchView } from './navigation.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
 
@@ -24,17 +26,26 @@ export function markFirstResearchDone() {
   updateOnboardingPanel();
 }
 
+export function markPortfolioSaveDone() {
+  localStorage.setItem(`${storageKey()}_saved`, 'true');
+  updateOnboardingPanel();
+}
+
 function hasCompletedFirstResearch() {
   return localStorage.getItem(`${storageKey()}_research`) === 'true';
+}
+
+function hasSavedToPortfolio() {
+  return localStorage.getItem(`${storageKey()}_saved`) === 'true' || state.portfolio.length > 0;
 }
 
 function shouldShowOnboarding() {
   if (isOnboardingDismissed()) return false;
   if (isAuthConfigured && !isAuthenticated()) return false;
-  if (isGeminiProxyEnabled()) return false;
-  const geminiDone = hasGeminiKey();
+  const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
-  if (geminiDone && researchDone) return false;
+  const saveDone = hasSavedToPortfolio();
+  if (geminiDone && researchDone && saveDone) return false;
   return true;
 }
 
@@ -42,6 +53,11 @@ function renderSteps(panel) {
   const accountDone = isAuthenticated() || !isAuthConfigured;
   const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
+  const saveDone = hasSavedToPortfolio();
+
+  const geminiLabel = isGeminiProxyConfigured()
+    ? (geminiDone ? 'Gemini listo (proxy activo)' : 'Inicia sesión para usar proxy Gemini')
+    : 'Configurar API Gemini';
 
   const steps = [
     {
@@ -52,10 +68,10 @@ function renderSteps(panel) {
     },
     {
       id: 'gemini',
-      label: 'Configurar API Gemini',
+      label: geminiLabel,
       done: geminiDone,
-      action: 'settings',
-      cta: 'Abrir Ajustes',
+      action: geminiDone ? null : 'settings',
+      cta: isGeminiProxyConfigured() && !isAuthenticated() ? 'Iniciar sesión' : 'Abrir Ajustes',
     },
     {
       id: 'research',
@@ -63,6 +79,13 @@ function renderSteps(panel) {
       done: researchDone,
       action: 'search',
       cta: 'Ir al buscador',
+    },
+    {
+      id: 'save',
+      label: 'Guardar reporte en portafolio',
+      done: saveDone,
+      action: saveDone ? null : 'portfolio',
+      cta: 'Ir al portafolio',
     },
   ];
 
@@ -91,6 +114,8 @@ function renderSteps(panel) {
       } else if (action === 'search') {
         document.getElementById('search-input')?.focus();
         document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (action === 'portfolio') {
+        switchView('portfolio-view');
       }
     });
   });

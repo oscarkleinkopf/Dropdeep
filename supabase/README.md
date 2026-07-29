@@ -4,9 +4,10 @@
 
 In Supabase Dashboard → **SQL Editor**, paste and run:
 
-`supabase/migrations/001_profiles.sql`
+- `supabase/migrations/001_profiles.sql`
+- `supabase/migrations/002_research_reports.sql` (cloud history sync)
 
-This creates `public.profiles` with RLS so each user only reads/writes their own row. A trigger creates a profile on signup.
+`research_reports` stores completed Deep Research JSON per user (RLS by `user_id`). The app merges remote rows with local portfolio/cache on login.
 
 ## 2. Gemini proxy Edge Function
 

@@ -4,8 +4,28 @@ import { cleanAndParseJSON } from '../utils/json.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { isGeminiGroundingEnabled } from '../utils/geminiStorage.js';
 import { isGeminiProxyEnabled, createProxyGenerativeModel } from './geminiProxy.js';
+import { classifyGeminiError } from './errors.js';
+import {
+  startResearchSession,
+  cancelResearchSession,
+  throwIfAborted,
+  isResearchAborted,
+} from './researchSession.js';
+import { persistResearchReport } from './historySync.js';
+import { openSettingsModal } from '../ui/geminiKeyBanner.js';
 
-export async function generateContentWithRetry(modelInstance, requestPayload, addLog, stepName, maxRetries = 5, fallbackModelInstance = null, fallbackPayload = null) {
+const TRANSIENT_MAX_RETRIES = 2;
+
+export async function generateContentWithRetry(
+  modelInstance,
+  requestPayload,
+  addLog,
+  stepName,
+  maxRetries = TRANSIENT_MAX_RETRIES,
+  fallbackModelInstance = null,
+  fallbackPayload = null,
+  abortSignal = null
+) {
   let attempt = 0;
   let delay = 3000; // start with 3s delay
   let currentModel = modelInstance;
@@ -13,11 +33,13 @@ export async function generateContentWithRetry(modelInstance, requestPayload, ad
   let usingFallback = false;
 
   while (attempt < maxRetries) {
+    throwIfAborted(abortSignal);
     try {
       attempt++;
       const result = await currentModel.generateContent(currentPayload);
       return result;
     } catch (error) {
+      throwIfAborted(abortSignal);
       console.error(`Error en ${stepName} (Intento ${attempt}/${maxRetries}):`, error);
       
       const errMsg = String(error.message || error).toLowerCase();
@@ -68,17 +90,97 @@ export async function generateContentWithRetry(modelInstance, requestPayload, ad
   }
 }
 
+function renderResearchErrorUI(modal, output, fill, label, error, productName, apiKey, modelName, competitorUrl) {
+  const classified = classifyGeminiError(error);
+  addLogTerminal(output, `❌ ${classified.title}`, 'warning');
+  addLogTerminal(output, classified.message, 'warning');
+
+  if (classified.type === 'quota') {
+    addLogTerminal(output, 'Espera 1–2 minutos antes de reintentar o cambia de modelo en Ajustes.', 'info');
+  } else if (classified.type === 'invalid_key') {
+    addLogTerminal(output, 'Abre Ajustes → pega una clave válida de Google AI Studio.', 'info');
+  } else if (classified.type === 'proxy') {
+    addLogTerminal(output, 'Si el proxy falla, desactiva VITE_GEMINI_PROXY o configura BYOK en Ajustes.', 'info');
+  } else if (classified.type === 'parse') {
+    addLogTerminal(output, 'Tip: Gemini 2.5 Flash suele dar JSON más estable para reportes largos.', 'info');
+  }
+
+  const actionContainer = document.createElement('div');
+  actionContainer.className = 'terminal-error-actions';
+  actionContainer.style.marginTop = '1rem';
+  actionContainer.style.display = 'flex';
+  actionContainer.style.flexWrap = 'wrap';
+  actionContainer.style.gap = '0.5rem';
+
+  if (classified.actions.includes('settings')) {
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'btn btn-primary';
+    settingsBtn.textContent = 'Abrir Ajustes';
+    settingsBtn.onclick = () => openSettingsModal();
+    actionContainer.appendChild(settingsBtn);
+  }
+
+  if (classified.actions.includes('retry')) {
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'btn btn-secondary';
+    retryBtn.textContent = 'Reintentar';
+    retryBtn.onclick = () => {
+      modal.classList.add('hidden');
+      runRealResearchSequence(productName, apiKey, modelName, competitorUrl);
+    };
+    actionContainer.appendChild(retryBtn);
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'btn btn-secondary';
+  closeBtn.textContent = 'Cerrar';
+  closeBtn.onclick = () => modal.classList.add('hidden');
+  actionContainer.appendChild(closeBtn);
+
+  output.appendChild(actionContainer);
+  output.scrollTop = output.scrollHeight;
+  fill.style.backgroundColor = 'var(--accent-red)';
+  label.textContent = classified.title;
+}
+
+function addLogTerminal(output, text, type = 'info') {
+  const line = document.createElement('div');
+  line.className = `term-line ${type}`;
+  line.textContent = text;
+  output.appendChild(line);
+  output.scrollTop = output.scrollHeight;
+}
+
 // RUN REAL LIVE RESEARCH WITH GOOGLE GEMINI API
 export async function runRealResearchSequence(productName, apiKey, modelName, competitorUrl = '') {
   const modal = document.getElementById('terminal-modal');
   const output = document.getElementById('terminal-output');
   const fill = document.getElementById('progress-fill');
   const label = document.getElementById('progress-label');
+  const cancelBtn = document.getElementById('terminal-cancel-btn');
+  const closeHint = document.getElementById('terminal-close-hint');
+
+  const abortSignal = startResearchSession(productName, competitorUrl);
 
   modal.classList.remove('hidden');
   output.innerHTML = '';
   fill.style.width = '0%';
   fill.style.backgroundColor = 'var(--accent-cyan)';
+  if (closeHint) {
+    closeHint.innerHTML = '<i data-lucide="info"></i> Usa <strong>Cancelar investigación</strong> para detener la ejecución de forma segura.';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  const onCancel = () => {
+    cancelResearchSession(true);
+    addLogTerminal(output, '⏹ Investigación cancelada por el usuario.', 'warning');
+    label.textContent = 'Cancelado';
+    fill.style.backgroundColor = 'var(--accent-amber)';
+  };
+  if (cancelBtn) {
+    cancelBtn.onclick = onCancel;
+    cancelBtn.classList.remove('hidden');
+  }
 
   const addLog = (text, type = 'info') => {
     const line = document.createElement('div');
@@ -231,10 +333,13 @@ IMPORTANTE: Para evitar bloqueos por derechos de autor o recitación de fuentes 
       payload1, 
       addLog, 
       "Paso 1 (Reporte de Copywriting)", 
-      5, 
+      TRANSIENT_MAX_RETRIES, 
       modelWithoutSearch, 
-      payload1NoSearch
+      payload1NoSearch,
+      abortSignal
     );
+
+    throwIfAborted(abortSignal);
 
     const text1 = result1.response.text();
     let report;
@@ -386,7 +491,9 @@ Retorna solo el JSON en texto plano.`;
       contents: [{ role: "user", parts: [{ text: prompt2 }] }]
     };
 
-    const result2 = await generateContentWithRetry(modelWithoutSearch, payload2, addLog, "Paso 2 (Avatar Brief)", 5);
+    const result2 = await generateContentWithRetry(modelWithoutSearch, payload2, addLog, "Paso 2 (Avatar Brief)", TRANSIENT_MAX_RETRIES, null, null, abortSignal);
+
+    throwIfAborted(abortSignal);
 
     const text2 = result2.response.text();
     let avatarBrief;
@@ -470,8 +577,11 @@ Retorna solo el JSON en texto plano.`;
       contents: [{ role: "user", parts: [{ text: prompt3 }] }]
     };
 
-    const result3 = await generateContentWithRetry(modelWithoutSearch, payload3, addLog, "Paso 3 (Offer Brief)", 5);
+    const result3 = await generateContentWithRetry(modelWithoutSearch, payload3, addLog, "Paso 3 (Offer Brief)", TRANSIENT_MAX_RETRIES, null, null, abortSignal);
 
+    throwIfAborted(abortSignal);
+
+    const text3 = result3.response.text();
     let offerBrief;
     try {
       offerBrief = cleanAndParseJSON(text3);
@@ -573,7 +683,9 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
       contents: [{ role: "user", parts: [{ text: prompt4 }] }]
     };
 
-    const result4 = await generateContentWithRetry(modelWithoutSearch, payload4, addLog, "Paso 4 (Activos Creativos)", 5);
+    const result4 = await generateContentWithRetry(modelWithoutSearch, payload4, addLog, "Paso 4 (Activos Creativos)", TRANSIENT_MAX_RETRIES, null, null, abortSignal);
+
+    throwIfAborted(abortSignal);
 
     const text4 = result4.response.text();
     let creatives;
@@ -704,7 +816,8 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
       contents: [{ role: "user", parts: [{ text: prompt5 }] }]
     };
 
-    const result5 = await generateContentWithRetry(modelWithoutSearch, payload5, addLog, "Paso 5 (Marketing Assets)", 5);
+    const result5 = await generateContentWithRetry(modelWithoutSearch, payload5, addLog, "Paso 5 (Marketing Assets)", TRANSIENT_MAX_RETRIES, null, null, abortSignal);
+    throwIfAborted(abortSignal);
     const text5 = result5.response.text();
     let marketingAssets;
     try {
@@ -762,6 +875,8 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
       };
     }
 
+    throwIfAborted(abortSignal);
+
     // Consolidated final report object
     const finalReport = {
       ...report,
@@ -780,41 +895,23 @@ Retorna solo el JSON en texto plano sin bloques de código markdown.`;
     addLog(`🎉 COMPILANDO REPORTE COMPLETO EN LA INTERFAZ DE USUARIO...`, 'header-line');
     fill.style.width = '100%';
     label.textContent = "Completado.";
+    if (cancelBtn) cancelBtn.classList.add('hidden');
+
+    persistResearchReport(finalReport).catch(() => { /* offline */ });
 
     setTimeout(() => {
+      if (isResearchAborted(abortSignal)) return;
       modal.classList.add('hidden');
       openDeepResearchReport(finalReport);
     }, 1000);
 
   } catch (error) {
-    addLog(`❌ [ERROR] Falló la ejecución de la API de Gemini.`, 'warning');
-    addLog(`Detalle del error: ${error.message}`, 'warning');
-    
-    const errMsg = String(error.message || error).toLowerCase();
-    const isQuota = errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('limit') || errMsg.includes('exhausted');
-    
-    if (isQuota) {
-      addLog('💡 Cuota superada: has alcanzado el límite de peticiones de tu API Key.', 'info');
-      addLog('Espera unos minutos o revisa tu plan en Google AI Studio antes de reintentar.', 'info');
-    } else {
-      addLog('💡 Consejo: Verifica tu API Key y tu conexión a internet o intenta cambiar de modelo en Ajustes.', 'info');
+    if (isResearchAborted(abortSignal)) {
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+      return;
     }
-
-    const actionContainer = document.createElement('div');
-    actionContainer.style.marginTop = '1rem';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'btn btn-secondary';
-    closeBtn.textContent = 'Cerrar Terminal';
-    closeBtn.style.padding = '0.5rem 1rem';
-    closeBtn.onclick = () => modal.classList.add('hidden');
-
-    actionContainer.appendChild(closeBtn);
-    output.appendChild(actionContainer);
-    
-    output.scrollTop = output.scrollHeight;
-    fill.style.backgroundColor = 'var(--accent-red)';
-    label.textContent = "Error en la ejecución.";
+    if (cancelBtn) cancelBtn.classList.add('hidden');
+    renderResearchErrorUI(modal, output, fill, label, error, productName, apiKey, modelName, competitorUrl);
   }
 }
 

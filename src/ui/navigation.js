@@ -2,6 +2,7 @@ import { state } from '../state.js';
 import { renderPortfolioList } from './portfolio.js';
 import { renderMetaHiddenInterests } from './spy.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
+import { renderPromptHubOutput } from './promptHub.js';
 
 const NAV_VIEW_MAP = {
   'dashboard-view': 'nav-dashboard',
@@ -41,5 +42,7 @@ export function switchView(viewId) {
     renderPortfolioList();
   } else if (viewId === 'spy-intelligence-view') {
     renderMetaHiddenInterests();
+  } else if (viewId === 'prompt-hub-view') {
+    renderPromptHubOutput({ prefill: true, useReport: true });
   }
 }

@@ -12,6 +12,7 @@ import { updateOnboardingPanel } from './ui/onboarding.js';
 import { isAuthConfigured, isAuthenticated } from './auth/auth.js';
 import { openAuthModal } from './ui/authModal.js';
 import { upsertProfilePrefs } from './auth/profile.js';
+import { cancelResearchSession } from './research/researchSession.js';
 
 export function setupEventListeners() {
   initGeminiKeyBanner();
@@ -243,11 +244,18 @@ export function setupEventListeners() {
     });
   }
 
-  // Close Terminal Dot listener (to allow canceling/closing terminal)
+  // Close Terminal Dot listener (hide modal only — use Cancel to abort API)
   const closeTerminalDot = document.getElementById('close-terminal-dot');
   if (closeTerminalDot) {
     closeTerminalDot.addEventListener('click', () => {
       document.getElementById('terminal-modal').classList.add('hidden');
+    });
+  }
+
+  const terminalCancelBtn = document.getElementById('terminal-cancel-btn');
+  if (terminalCancelBtn) {
+    terminalCancelBtn.addEventListener('click', () => {
+      cancelResearchSession(true);
     });
   }
 

@@ -50,6 +50,7 @@ When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured:
 3. **Settings** (Gemini API key) is available after sign-in.
 4. Each user's Gemini key is stored in `localStorage` scoped by user ID (`dropdeep_gemini_key_<uuid>`).
 5. Non-secret prefs sync to `public.profiles` when that table exists.
+6. Completed reports sync to `public.research_reports` (RLS) when logged in; offline falls back to localStorage/cache.
 
 Without Supabase env vars, the site runs in **demo mode** (open access, accounts banner).
 
@@ -58,7 +59,7 @@ Without Supabase env vars, the site runs in **demo mode** (open access, accounts
 1. Create a project at [supabase.com](https://supabase.com).
 2. Enable **Email** provider under Authentication → Providers.
 3. Copy Project URL and **publishable** key into `.env` locally or GitHub Secrets for CI.
-4. (Optional) Run the SQL in `supabase/migrations/001_profiles.sql`.
+4. Run SQL in `supabase/migrations/001_profiles.sql` and `002_research_reports.sql`.
 5. Redeploy.
 
 See also `supabase/README.md` for Edge Function proxy deploy steps.
@@ -71,13 +72,30 @@ Google OAuth: enable **Google** under Authentication → Providers, then use the
 
 **Mode B — Proxy (`VITE_GEMINI_PROXY=true`):** authenticated users call a Supabase Edge Function that holds `GEMINI_API_KEY` server-side. See `supabase/README.md`.
 
+| Env var | Where | Purpose |
+|---------|--------|---------|
+| `VITE_GEMINI_PROXY` | `.env` / GitHub Secrets | `true` to prefer proxy when logged in |
+| `GEMINI_API_KEY` | Supabase secrets only | Server key for `gemini-proxy` Edge Function |
+
 1. Get a key from [Google AI Studio](https://aistudio.google.com/apikey) (BYOK or for the server secret).
 2. In the app, click **Settings** (sign in first if auth is enabled).
 3. Paste your **Gemini API Key** (BYOK), choose model/language, and save.
 
-> **Prompt Hub** and some spy/meta tools work without an API key — they generate copy-paste prompts or use local/static data.
+> **Prompt Hub** works without an API key — it generates copy-paste prompts. With an open research report, prompts are prefilled with real niche insights.
 
 Deep Research always requires a Gemini API key (BYOK) or the server proxy (`VITE_GEMINI_PROXY=true`). There is no procedural/demo fallback — reports come from live API responses or your saved portfolio/cache.
+
+### Deep Research UX
+
+- **Cancel:** use *Cancelar investigación* in the terminal to abort safely.
+- **Errors:** Spanish messages for invalid key, quota, network, proxy down, and parse failures — with *Abrir Ajustes* / *Reintentar*.
+- **Retries:** up to 2 automatic retries on transient API errors.
+
+## Export & compare
+
+- **Export report:** CSV, Markdown (`.md`), or PDF via `window.print()` from the report header.
+- **Compare niches:** select 2–3 products in Portafolio → *Comparar* (scores, margins, risks, opportunities).
+- **History sync:** portfolio + 24h cache + Supabase `research_reports` merge on login.
 
 ## Security model
 
@@ -102,8 +120,9 @@ DropDeep is primarily a **static SPA** (GitHub Pages). Optional Supabase Auth + 
 | `src/auth/` | Supabase client and session helpers |
 | `src/events.js` | UI event wiring |
 | `src/utils/geminiStorage.js` | Per-user Gemini key/prefs in localStorage |
-| `src/research/` | Gemini integration, caching, research flow |
+| `src/research/` | Gemini integration, caching, history sync, research flow |
 | `src/ui/` | Views: feed, report, portfolio, prompt hub, spy, auth |
+| `supabase/migrations/` | SQL for `profiles` and `research_reports` |
 | `public/` | PWA manifest, service worker, icons |
 
 ## PWA icons
@@ -122,9 +141,3 @@ Outputs optimized `public/icon-192.png` and `public/icon-512.png`.
 - [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) — Gemini client
 - [@supabase/supabase-js](https://www.npmjs.com/package/@supabase/supabase-js) — optional auth
 - [Chart.js](https://www.chartjs.org/) & [Lucide](https://lucide.dev/) — charts and icons (CDN)
-
-## What's next (Phase 2)
-
-- Supabase Edge Function or Netlify Function as Gemini API proxy (server-held key for paid tiers)
-- `profiles` table with Row Level Security for cloud-synced preferences
-- Google OAuth provider enabled in Supabase

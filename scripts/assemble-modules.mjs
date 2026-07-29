@@ -108,8 +108,6 @@ write(
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { metaHiddenInterestsDatabase } from '../data/metaInterests.js';
-import { generateCompetitorStoreAnalysis } from '../data/competitorAnalysis.js';
-
 ${exportFunctions(readRaw('ui/spy.raw.js'))}`
 );
 
@@ -147,7 +145,6 @@ import { switchView } from './navigation.js';
 import { setCacheEntry } from '../research/cache.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { sanitizeReport } from '../research/gemini.js';
-import { generateDeepResearchReport } from '../data/reportGenerator.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';

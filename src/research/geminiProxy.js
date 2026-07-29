@@ -2,12 +2,12 @@ import { supabase, isAuthConfigured } from '../auth/supabaseClient.js';
 import { isAuthenticated } from '../auth/auth.js';
 
 /** Server-held Gemini key via Supabase Edge Function (requires login). */
+export function isGeminiProxyConfigured() {
+  return String(import.meta.env.VITE_GEMINI_PROXY || '').toLowerCase() === 'true';
+}
+
 export function isGeminiProxyEnabled() {
-  return (
-    String(import.meta.env.VITE_GEMINI_PROXY || '').toLowerCase() === 'true' &&
-    isAuthConfigured &&
-    isAuthenticated()
-  );
+  return isGeminiProxyConfigured() && isAuthConfigured && isAuthenticated();
 }
 
 /**
@@ -33,7 +33,11 @@ export function createProxyGenerativeModel({ model, useSearch = false } = {}) {
       });
 
       if (error) {
-        throw new Error(error.message || 'Error en gemini-proxy');
+        const msg = error.message || 'Error en gemini-proxy';
+        if (msg.includes('Failed to fetch') || msg.includes('fetch')) {
+          throw new Error('Proxy Gemini no disponible: no se pudo contactar con la Edge Function de Supabase.');
+        }
+        throw new Error(msg);
       }
       if (data?.error) {
         throw new Error(data.error);

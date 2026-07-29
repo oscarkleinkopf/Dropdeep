@@ -2,12 +2,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { metaHiddenInterestsDatabase } from '../data/metaInterests.js';
-import { generateCompetitorStoreAnalysis } from '../data/competitorAnalysis.js';
-import { updateGeminiKeyBanner } from './geminiKeyBanner.js';
+import { updateGeminiKeyBanner, openSettingsModal } from './geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel } from '../utils/geminiStorage.js';
 import { escapeHtml } from '../utils/sanitize.js';
 import { isGeminiProxyEnabled, createProxyGenerativeModel } from '../research/geminiProxy.js';
 import { switchView } from './navigation.js';
+import { classifyGeminiError } from '../research/errors.js';
 
 export function renderCompetitorStoreAnalysis(data) {
   const container = document.getElementById('competitor-analysis-results');
@@ -121,7 +121,35 @@ export function renderCompetitorStoreAnalysis(data) {
   }
 }
 
-// Run Store Scan (Hybrid API + Procedural)
+function renderSpyUnavailable(reason, detail = '') {
+  const container = document.getElementById('competitor-analysis-results');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="spy-empty-state" style="border-style: solid; border-color: var(--border-color);">
+      <i data-lucide="clock" class="spy-empty-icon"></i>
+      <h3>Espionaje de tienda: requiere fuente real</h3>
+      <p>${escapeHtml(reason)}</p>
+      ${detail ? `<p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem">${escapeHtml(detail)}</p>` : ''}
+      <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin-top:1rem">
+        <button type="button" class="btn btn-primary btn-glow" id="spy-open-settings-btn">
+          <i data-lucide="settings"></i> Abrir Ajustes
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="spy-empty-dashboard-cta">
+          <i data-lucide="layout-dashboard"></i> Volver a Inicio
+        </button>
+      </div>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:1rem; max-width:520px; margin-inline:auto">
+        Próximamente: escaneo con fuente verificada (Shopify/Wappalyzer). Hoy solo analizamos URLs en vivo vía Gemini — sin datos simulados.
+      </p>
+    </div>
+  `;
+  lucide.createIcons();
+  document.getElementById('spy-open-settings-btn')?.addEventListener('click', openSettingsModal);
+  document.getElementById('spy-empty-dashboard-cta')?.addEventListener('click', () => switchView('dashboard-view'));
+}
+
+// Run Store Scan (live Gemini only — no mock fallback)
 export async function runCompetitorStoreScan(url) {
   if (!url || !url.trim()) {
     showToast("Por favor ingresa una URL válida.", "error");
@@ -136,7 +164,7 @@ export async function runCompetitorStoreScan(url) {
           <div class="radar-sweep"></div>
         </div>
         <h3 style="margin-top: 1rem;">Escaneando URL del Competidor...</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Extrayendo estructura de precios, ganchos de copy y tecnologías instaladas en ${escapeHtml(url)}</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Analizando ${escapeHtml(url)} con Gemini en vivo</p>
       </div>
     `;
     lucide.createIcons();
@@ -144,17 +172,25 @@ export async function runCompetitorStoreScan(url) {
 
   const apiKey = getGeminiKey();
   const useProxy = isGeminiProxyEnabled();
-  let analysisResult;
 
-  if (useProxy || apiKey) {
-    try {
-      showToast(useProxy ? "Analizando vía proxy seguro..." : "Conectando con Gemini API para análisis en vivo...", "info");
-      const modelName = getGeminiModel();
-      const model = useProxy
-        ? createProxyGenerativeModel({ model: modelName, useSearch: false })
-        : new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: modelName });
-      
-      const prompt = `Analiza la tienda o producto de esta URL: ${url}.
+  if (!useProxy && !apiKey) {
+    updateGeminiKeyBanner();
+    renderSpyUnavailable(
+      'Configura tu clave Gemini en Ajustes o activa el proxy Supabase para escanear tiendas reales.',
+      'No mostramos datos inventados cuando la API no está disponible.'
+    );
+    showToast("Espionaje requiere Gemini (BYOK o proxy).", "info");
+    return;
+  }
+
+  try {
+    showToast(useProxy ? "Analizando vía proxy seguro..." : "Conectando con Gemini API para análisis en vivo...", "info");
+    const modelName = getGeminiModel();
+    const model = useProxy
+      ? createProxyGenerativeModel({ model: modelName, useSearch: false })
+      : new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: modelName });
+    
+    const prompt = `Analiza la tienda o producto de esta URL: ${url}.
 Devuelve un JSON estricto sin markdown adicional con las siguientes claves:
 {
   "domain": "dominio extraido",
@@ -187,24 +223,19 @@ Devuelve un JSON estricto sin markdown adicional con las siguientes claves:
   }
 }`;
 
-      const res = await model.generateContent(useProxy
-        ? { contents: [{ role: 'user', parts: [{ text: prompt }] }] }
-        : prompt);
-      const text = res.response.text();
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      analysisResult = JSON.parse(cleaned);
-      showToast("Análisis en vivo de la tienda competidora completado.", "success");
-    } catch {
-      analysisResult = generateCompetitorStoreAnalysis(url);
-      showToast("Análisis completado mediante Inteligencia Procedural.", "info");
-    }
-  } else {
-    updateGeminiKeyBanner();
-    analysisResult = generateCompetitorStoreAnalysis(url);
-    showToast("Análisis en Modo Zero-Token. Configura Gemini en Ajustes para escaneo en vivo.", "info");
+    const res = await model.generateContent(useProxy
+      ? { contents: [{ role: 'user', parts: [{ text: prompt }] }] }
+      : prompt);
+    const text = res.response.text();
+    const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const analysisResult = JSON.parse(cleaned);
+    showToast("Análisis en vivo de la tienda competidora completado.", "success");
+    renderCompetitorStoreAnalysis(analysisResult);
+  } catch (err) {
+    const classified = classifyGeminiError(err);
+    renderSpyUnavailable(classified.message, classified.title);
+    showToast(classified.title, "error");
   }
-
-  renderCompetitorStoreAnalysis(analysisResult);
 }
 
 // Render Meta Hidden Interests Grid
@@ -234,6 +265,9 @@ export function renderMetaHiddenInterests(query = '', category = 'all') {
     `;
     return;
   }
+
+  const disclaimer = document.getElementById('meta-interests-disclaimer');
+  if (disclaimer) disclaimer.classList.remove('hidden');
 
   grid.innerHTML = filtered.map(item => {
     const isChecked = state.selectedMetaInterests.includes(item.name);

@@ -4,6 +4,8 @@ import { switchView } from './navigation.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
+import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
+import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
 
 export function updatePortfolioBadge() {
   const badge = document.getElementById('portfolio-count');
@@ -52,10 +54,13 @@ export function toggleSaveProduct() {
     saveText.textContent = "Guardado en Portafolio";
     heartIcon.setAttribute('data-lucide', 'check');
     showToast("Producto guardado en tu portafolio", "success");
+    markPortfolioSaveDone();
+    updateOnboardingPanel();
+    persistResearchReport(report).catch(() => { /* offline */ });
   }
 
   // Update storage & badges
-  localStorage.setItem('dropdeep_portfolio', JSON.stringify(state.portfolio));
+  savePortfolioLocal();
   updatePortfolioBadge();
   renderDashboardStats();
   renderResearchFeed();
@@ -139,6 +144,11 @@ export function renderPortfolioList() {
       const id = checkbox.getAttribute('data-id');
       state.selectedCompareIds = state.selectedCompareIds || [];
       if (checkbox.checked) {
+        if (state.selectedCompareIds.length >= 3) {
+          checkbox.checked = false;
+          showToast('Puedes comparar hasta 3 productos a la vez.', 'info');
+          return;
+        }
         if (!state.selectedCompareIds.includes(id)) {
           state.selectedCompareIds.push(id);
         }
@@ -289,6 +299,10 @@ export function renderActivePortfolioDetail() {
 export function openProductComparison() {
   const selectedIds = state.selectedCompareIds || [];
   if (selectedIds.length < 2) return;
+  if (selectedIds.length > 3) {
+    showToast('Selecciona entre 2 y 3 productos para comparar.', 'info');
+    return;
+  }
 
   const products = state.portfolio.filter(p => selectedIds.includes(p.id));
   const container = document.getElementById('comparator-grid-container');
@@ -313,7 +327,25 @@ export function openProductComparison() {
   let saturationCols = '';
   let shippingCols = '';
   let supplierCols = '';
+  let riskCols = '';
+  let opportunityCols = '';
   let bestOptionCols = '';
+
+  const extractRisk = (p) => {
+    const r = p.fullReport;
+    return r?.solutions?.skepticism
+      || r?.demographics?.defeats
+      || r?.competitorAnalysis?.weaknesses
+      || '—';
+  };
+
+  const extractOpportunity = (p) => {
+    const r = p.fullReport;
+    return r?.offerBrief?.bigIdea
+      || r?.competitorAnalysis?.differentiation
+      || r?.secrets?.mechanismSolution
+      || '—';
+  };
 
   products.forEach(p => {
     const score = p.fullReport.productScore || calculateProductScore(p.fullReport);
@@ -338,6 +370,9 @@ export function openProductComparison() {
     supplierCols += `<td class="${winnerClass}">
       ${cheaper ? `<span style="color:var(--accent-cyan)">${cheaper.platform}</span> ($${cheaper.price})` : 'N/A'}
     </td>`;
+
+    riskCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractRisk(p)}</td>`;
+    opportunityCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractOpportunity(p)}</td>`;
 
     bestOptionCols += `<td class="${winnerClass}">
       ${isWinner ? '<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🏆 MEJOR OPCIÓN</span>' : '<span style="color:var(--text-muted)">-</span>'}
@@ -381,6 +416,14 @@ export function openProductComparison() {
         <tr>
           <td class="comparator-label-col">Proveedor más Económico</td>
           ${supplierCols}
+        </tr>
+        <tr>
+          <td class="comparator-label-col">Riesgo / Escepticismo clave</td>
+          ${riskCols}
+        </tr>
+        <tr>
+          <td class="comparator-label-col">Oportunidad / Diferenciación</td>
+          ${opportunityCols}
         </tr>
         <tr>
           <td class="comparator-label-col">Veredicto</td>

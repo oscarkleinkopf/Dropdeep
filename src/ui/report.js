@@ -7,6 +7,7 @@ import { sanitizeReport } from '../research/gemini.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
+import { toggleSaveProduct } from './portfolio.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 
@@ -342,6 +343,45 @@ export function openDeepResearchReport(productOrReport) {
   // Go to View
   switchView('report-view');
   switchReportTab('section-demographics'); // default tab
+  showSaveReportBanner(report, loadedFromCache);
+}
+
+function showSaveReportBanner(report, loadedFromCache) {
+  const existing = document.getElementById('report-save-banner');
+  if (existing) existing.remove();
+
+  const isSaved = state.portfolio.some(p => p.name.toLowerCase() === report.name.toLowerCase());
+  if (isSaved || loadedFromCache) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'report-save-banner';
+  banner.className = 'report-save-banner';
+  banner.innerHTML = `
+    <div class="report-save-banner-inner">
+      <div>
+        <strong>Investigación completada</strong>
+        <p>Guarda este reporte en tu portafolio para comparar nichos, exportar y sincronizar entre dispositivos.</p>
+      </div>
+      <div class="report-save-banner-actions">
+        <button type="button" class="btn btn-primary btn-glow" id="report-save-banner-btn">
+          <i data-lucide="heart"></i> Guardar en Portafolio
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="report-save-banner-dismiss">Ahora no</button>
+      </div>
+    </div>
+  `;
+
+  const reportView = document.getElementById('report-view');
+  const headerNav = reportView?.querySelector('.report-header-nav');
+  if (headerNav) {
+    headerNav.insertAdjacentElement('afterend', banner);
+    lucide.createIcons();
+    document.getElementById('report-save-banner-btn')?.addEventListener('click', () => {
+      toggleSaveProduct();
+      banner.remove();
+    });
+    document.getElementById('report-save-banner-dismiss')?.addEventListener('click', () => banner.remove());
+  }
 }
 
 // Switch tabs inside the report panel

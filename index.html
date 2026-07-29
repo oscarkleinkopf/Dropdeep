@@ -202,7 +202,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p class="onboarding-copy">Completa estos pasos para sacar el máximo de DropDeep. Necesitas una clave Gemini para investigación en vivo.</p>
+          <p class="onboarding-copy">Completa estos pasos en menos de 2 minutos: Gemini listo → primera investigación → guardar en portafolio.</p>
           <ol class="onboarding-steps"></ol>
         </div>
 
@@ -523,7 +523,8 @@
               <span>MODO ZERO-TOKEN & FREE LLM</span>
             </div>
             <h2>Generador de Prompts Maestros para <span class="gradient-text">Chatbots Exteriores</span></h2>
-            <p>Obtén secuencias de prompts hiper-específicas de 5 fases para copiar y pegar directamente en **ChatGPT, Claude 3.5, Gemini o DeepSeek** sin gastar tokens ni pagar suscripciones de API.</p>
+            <p id="prompt-hub-source-badge" class="prompt-hub-source-badge">Prompts genéricos — funcionan mejor después de un Deep Research</p>
+            <p>Obtén secuencias de prompts hiper-específicas de 5 fases para copiar y pegar directamente en ChatGPT, Claude, Gemini o DeepSeek.</p>
           </div>
 
           <!-- Configuration Panel -->
@@ -630,7 +631,7 @@
               <span>INTELIGENCIA DE MERCADO & ESPIONAJE</span>
             </div>
             <h2>Suite de Espionaje Competitivo y <span class="gradient-text">Audiencias Ocultas</span></h2>
-            <p>Analiza tiendas de competidores por URL para extraer su pila tecnológica, ganchos y quejas de clientes, o explora intereses ocultos de Meta Ads que tu competencia ignora.</p>
+            <p>Analiza tiendas de competidores por URL con Gemini en vivo, o explora una base de referencia de intereses Meta (no datos en tiempo real).</p>
           </div>
 
           <!-- Sub-navigation Tabs -->
@@ -661,8 +662,8 @@
             <div id="competitor-analysis-results">
               <div class="spy-empty-state">
                 <i data-lucide="globe" class="spy-empty-icon"></i>
-                <h3>Ingresa una URL de competidor para extraer su inteligencia</h3>
-                <p>La app analizará su tecnología, precios, ganchos de copy y principales quejas de sus clientes.</p>
+                <h3>Ingresa una URL de competidor para analizarla con Gemini</h3>
+                <p>Requiere clave Gemini (BYOK) o proxy Supabase. Sin API no mostramos datos simulados.</p>
                 <button type="button" class="btn btn-secondary btn-sm" id="spy-empty-dashboard-cta">
                   <i data-lucide="layout-dashboard"></i> Volver a Inicio
                 </button>
@@ -671,7 +672,10 @@
           </div>
 
           <!-- SUBTAB 2: META HIDDEN INTERESTS -->
-          <div id="subtab-meta-panel" class="hidden">
+            <div id="subtab-meta-panel" class="hidden">
+            <p id="meta-interests-disclaimer" class="spy-disclaimer hidden">
+              <i data-lucide="info"></i> Base de referencia estática curada — no son datos en vivo de Meta Ads Manager.
+            </p>
             <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
               <div class="config-inputs-grid" style="grid-template-columns: 1fr auto;">
                 <div class="input-field-group">
@@ -722,7 +726,7 @@
         </div>
         <p class="terminal-close-hint" id="terminal-close-hint">
           <i data-lucide="info"></i>
-          Puedes cerrar con la <strong>X</strong> roja; la investigación puede continuar en segundo plano.
+          Usa <strong>Cancelar investigación</strong> para detener la ejecución. Cerrar la ventana no detiene la API.
         </p>
         <div class="terminal-body">
           <div class="terminal-output" id="terminal-output">
@@ -736,6 +740,9 @@
                 <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
               </div>
             </div>
+            <button type="button" class="btn btn-secondary btn-sm terminal-cancel-btn hidden" id="terminal-cancel-btn">
+              <i data-lucide="square"></i> Cancelar investigación
+            </button>
           </div>
         </div>
       </div>

@@ -7,12 +7,14 @@ import { initUserMenu, initAuthBanner } from './ui/userMenu.js';
 import { initAuthGate } from './ui/authGate.js';
 import { initOnboarding } from './ui/onboarding.js';
 import { syncProfileFromServer } from './auth/profile.js';
+import { syncResearchHistoryOnLoad } from './research/historySync.js';
 
 let appBootstrapped = false;
 
-function bootstrapAppShell() {
+async function bootstrapAppShell() {
   if (appBootstrapped) return;
   appBootstrapped = true;
+  await syncResearchHistoryOnLoad().catch(() => { /* offline */ });
   renderDashboardStats();
   renderResearchFeed();
   updatePortfolioBadge();
@@ -35,14 +37,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   onAuthStateChange(async (session) => {
     if (session?.user) {
       await syncProfileFromServer();
-      bootstrapAppShell();
+      appBootstrapped = false;
+      await bootstrapAppShell();
     }
   });
 
   lucide.createIcons();
 
   if (!isAuthConfigured || isAuthenticated()) {
-    bootstrapAppShell();
+    await bootstrapAppShell();
   }
 });
 

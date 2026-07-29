@@ -5,7 +5,7 @@ import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey } from '../ui/geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel, getGeminiLanguage } from '../utils/geminiStorage.js';
-import { isGeminiProxyEnabled } from './geminiProxy.js';
+import { isGeminiProxyEnabled, isGeminiProxyConfigured } from './geminiProxy.js';
 
 export function openCacheModal(productName, competitorUrl, cachedData) {
   const modal = document.getElementById('cache-modal');
@@ -38,6 +38,13 @@ export function runApiResearchDirect(productName, competitorUrl = '') {
 
   if (isGeminiProxyEnabled()) {
     runRealResearchSequence(productName, 'proxy', modelName, competitorUrl);
+    return;
+  }
+
+  if (isGeminiProxyConfigured() && !isGeminiProxyEnabled()) {
+    requireGeminiKey(
+      'El proxy Gemini requiere iniciar sesión. Entra con tu cuenta o configura BYOK en Ajustes.'
+    );
     return;
   }
 

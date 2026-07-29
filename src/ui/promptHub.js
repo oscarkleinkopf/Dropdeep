@@ -1,13 +1,39 @@
+import { state } from '../state.js';
+
 // PROMPT HUB STATE & GENERATOR ENGINE
 export let promptHubState = {
   activeStep: 1,
-  promptData: null
+  promptData: null,
+  source: 'generic', // 'generic' | 'report'
 };
 
-export function generateMasterPromptSequence(productName, competitorUrl = '', targetPrice = '', chatbotTarget = 'chatgpt') {
-  const name = productName || 'Producto Ganador';
-  const priceText = targetPrice ? `$${parseFloat(targetPrice).toFixed(2)}` : 'un precio competitivo de e-commerce';
-  const compText = competitorUrl ? `\n- URL de Competidor Directo a Analizar: ${competitorUrl}` : '';
+function insightBlock(report) {
+  if (!report) return '';
+  const lines = [];
+  if (report.demographics?.who) lines.push(`- Público: ${report.demographics.who}`);
+  if (report.demographics?.belief) lines.push(`- Creencia central: "${report.demographics.belief}"`);
+  if (report.demographics?.defeats) lines.push(`- Frustración principal: ${report.demographics.defeats}`);
+  if (report.secrets?.mechanismProblem) lines.push(`- UMP (problema): ${report.secrets.mechanismProblem}`);
+  if (report.secrets?.mechanismSolution) lines.push(`- UMS (solución): ${report.secrets.mechanismSolution}`);
+  if (report.offerBrief?.bigIdea) lines.push(`- Gran idea: ${report.offerBrief.bigIdea}`);
+  if (report.angles?.[0]?.hook) lines.push(`- Gancho validado: "${report.angles[0].hook}"`);
+  if (report.verbatims?.length) {
+    lines.push(`- Verbatims reales (muestra): ${report.verbatims.slice(0, 5).map((v) => `"${v}"`).join(', ')}`);
+  }
+  return lines.length ? `\n\nCONTEXTO DE INVESTIGACIÓN REAL (Deep Research DropDeep):\n${lines.join('\n')}` : '';
+}
+
+export function generateMasterPromptSequence(productName, competitorUrl = '', targetPrice = '', chatbotTarget = 'chatgpt', report = null) {
+  const name = productName || report?.name || 'Producto Ganador';
+  const priceText = targetPrice
+    ? `$${parseFloat(targetPrice).toFixed(2)}`
+    : report?.retail
+      ? `$${parseFloat(report.retail).toFixed(2)}`
+      : 'un precio competitivo de e-commerce';
+  const compText = (competitorUrl || report?.competitorUrl)
+    ? `\n- URL de Competidor Directo a Analizar: ${competitorUrl || report.competitorUrl}`
+    : '';
+  const insights = insightBlock(report);
 
   const step1Titles = {
     chatgpt: "ChatGPT 4o / o3-mini",
@@ -20,8 +46,8 @@ export function generateMasterPromptSequence(productName, competitorUrl = '', ta
   const step1 = `[SISTEMA: ROL DE INVESTIGADOR DE MERCADO DE ÉLITE PARA ${targetBotName.toUpperCase()}]
 Actúa como un Investigador de Mercado de Élite y Redactor de Respuesta Directa de nivel mundial especializado en e-commerce y dropshipping.
 
-Tu objetivo es realizar un análisis profundo del producto: "${name}"${compText}.
-Precio Retail Estimado: ${priceText}.
+Tu objetivo es ${report ? 'profundizar y expandir' : 'realizar'} un análisis profundo del producto: "${name}"${compText}.
+Precio Retail ${report ? 'validado' : 'Estimado'}: ${priceText}.${insights}
 
 Genera los siguientes 5 bloques con información detallada, verídica y profunda en español:
 
@@ -39,7 +65,7 @@ Genera los siguientes 5 bloques con información detallada, verídica y profunda
 Devuelve un informe altamente estructurado, claro y sin introducciones innecesarias.`;
 
   const step2 = `[FASE 2: CONSTRUCCIÓN DE FICHA AVATAR BRIEF]
-Basándote en la investigación previa del producto "${name}", construye la Ficha Psicográfica Completa del Comprador Ideal (Avatar Brief):
+Basándote en la investigación previa del producto "${name}", construye la Ficha Psicográfica Completa del Comprador Ideal (Avatar Brief):${insights}
 
 1. PERFIL DEMOGRÁFICO: Edad objetivo, género predominante, ubicación geográfica, nivel socioeconómico, profesión e identidad.
 2. MAPA PSICOGRÁFICO DE DOLORES:
@@ -54,7 +80,7 @@ Basándote en la investigación previa del producto "${name}", construye la Fich
 6. CREENCIA FUNDAMENTAL: La única frase/idea que necesita creer para comprar "${name}" de inmediato.`;
 
   const step3 = `[FASE 3: ESTRUCTURA DE OFERTA IRRESISTIBLE (OFFER BRIEF)]
-Basándote en el producto "${name}" y el avatar psicográfico, diseña la Estrategia de Oferta (Offer Brief):
+Basándote en el producto "${name}" y el avatar psicográfico, diseña la Estrategia de Oferta (Offer Brief):${insights}
 
 1. APILAMIENTO DE LA OFERTA (Offer Stacks): Producto Principal + 3 Bonus Digitales/Físicos de alto valor percibido.
 2. ANCLAJE DE PRECIO (Price Anchoring): Precio de Comparación Percibido vs Precio de Venta (${priceText}) demostrando un 50%+ de descuento.
@@ -63,7 +89,7 @@ Basándote en el producto "${name}" y el avatar psicográfico, diseña la Estrat
 5. OBJECCIONES CRÍTICAS & CONTRA-ARGUMENTOS: Las 5 preguntas más difíciles del comprador y sus respuestas persuasivas.`;
 
   const step4 = `[FASE 4: CREATIVOS PUBLICITARIOS - GUIONES UGC & AD COPY]
-Genera los Activos de Publicidad de Conversión para "${name}":
+Genera los Activos de Publicidad de Conversión para "${name}":${insights}
 
 1. 3 GUIONES DE VIDEO UGC PARA TIKTOK / REELS / SHORTS:
    - Guion 1 (30s): Gancho de Curiosidad / Patrón Interrumpido.
@@ -81,7 +107,7 @@ Genera los Activos de Publicidad de Conversión para "${name}":
    - Hook inicial de 3 segundos, cuerpo de interacción y CTA overlay.`;
 
   const step5 = `[FASE 5: LANDING PAGE HTML5 & DESCRIPCIÓN SHOPIFY]
-Genera el código de venta y la ficha de producto para "${name}":
+Genera el código de venta y la ficha de producto para "${name}":${insights}
 
 1. SEO METADATA: Título SEO optimizado, Meta Description y Palabras Clave.
 2. CÓDIGO HTML5 DE LANDING PAGE COMPLETA (Con estilos integrados Tailwind CSS):
@@ -99,7 +125,7 @@ Genera el código de venta y la ficha de producto para "${name}":
 MEGA SYSTEM PROMPT DE RESEARCH & COPYWRITING (ALL-IN-ONE)
 ============================================================
 Actúa como un equipo completo de E-commerce Intelligence para el producto: "${name}"${compText}.
-Precio Retail Objetivo: ${priceText}.
+Precio Retail Objetivo: ${priceText}.${insights}
 
 EJECUTA LAS SIGUIENTES 5 FASES EN UN SOLO INFORME ESTRUCTURADO EN ESPAÑOL:
 
@@ -122,21 +148,53 @@ ${step5}
   return { step1, step2, step3, step4, step5, allInOne };
 }
 
-export function renderPromptHubOutput() {
+export function prefillPromptHubFromReport(report) {
+  if (!report?.name) return false;
+  const pInput = document.getElementById('prompt-product-input');
+  const cInput = document.getElementById('prompt-competitor-input');
+  const prInput = document.getElementById('prompt-price-input');
+  if (pInput) pInput.value = report.name;
+  if (cInput) cInput.value = report.competitorUrl || '';
+  if (prInput && report.retail) prInput.value = String(parseFloat(report.retail).toFixed(2));
+  return true;
+}
+
+export function updatePromptHubSourceBadge() {
+  const badge = document.getElementById('prompt-hub-source-badge');
+  if (!badge) return;
+  if (promptHubState.source === 'report' && state.currentReport?.name) {
+    badge.classList.remove('hidden');
+    badge.textContent = `Prompts enriquecidos con Deep Research: ${state.currentReport.name}`;
+  } else {
+    badge.classList.remove('hidden');
+    badge.textContent = 'Prompts genéricos — funcionan mejor después de un Deep Research';
+  }
+}
+
+export function renderPromptHubOutput(options = {}) {
   const pInput = document.getElementById('prompt-product-input');
   const cInput = document.getElementById('prompt-competitor-input');
   const prInput = document.getElementById('prompt-price-input');
   const botSelect = document.getElementById('prompt-chatbot-select');
 
-  const productName = pInput ? pInput.value.trim() : '';
-  const competitorUrl = cInput ? cInput.value.trim() : '';
-  const targetPrice = prInput ? prInput.value.trim() : '';
+  const useReport = options.useReport !== false && state.currentReport?.name;
+  const report = useReport ? state.currentReport : null;
+  promptHubState.source = report ? 'report' : 'generic';
+
+  if (report && options.prefill !== false) {
+    prefillPromptHubFromReport(report);
+  }
+
+  const productName = pInput ? pInput.value.trim() : (report?.name || '');
+  const competitorUrl = cInput ? cInput.value.trim() : (report?.competitorUrl || '');
+  const targetPrice = prInput ? prInput.value.trim() : (report?.retail ? String(report.retail) : '');
   const chatbotTarget = botSelect ? botSelect.value : 'chatgpt';
 
   const name = productName || 'Producto Ganador';
-  promptHubState.promptData = generateMasterPromptSequence(name, competitorUrl, targetPrice, chatbotTarget);
+  promptHubState.promptData = generateMasterPromptSequence(name, competitorUrl, targetPrice, chatbotTarget, report);
 
   updatePromptBoxContent();
+  updatePromptHubSourceBadge();
 }
 
 export function updatePromptBoxContent() {
@@ -161,13 +219,8 @@ export function updatePromptBoxContent() {
     codeContent.textContent = promptHubState.promptData['step' + step] || '';
   }
 
-  // Update tabs active state
   document.querySelectorAll('.prompt-tab-btn').forEach(btn => {
     const s = parseInt(btn.getAttribute('data-prompt-step')) || 1;
-    if (s === step) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    btn.classList.toggle('active', s === step);
   });
 }

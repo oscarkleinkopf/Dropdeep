@@ -7,6 +7,7 @@ export const state = {
   activeView: 'dashboard-view',
   activeReportTab: 'section-demographics',
   activePortfolioId: null,
+  selectedCompareIds: [],
   selectedMetaInterests: [],
   outputLanguage: getGeminiLanguage()
 };
