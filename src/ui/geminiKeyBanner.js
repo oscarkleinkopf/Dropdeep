@@ -65,7 +65,8 @@ export function requireGeminiKey(message) {
   }
 
   showToast(
-    message || 'Configura tu clave API de Gemini en Ajustes para usar investigación en vivo.',
+    message ||
+      'Deep Research automático requiere clave Gemini o proxy. Usa Modo Copiloto (gratis) o configura BYOK en Ajustes.',
     'info'
   );
 

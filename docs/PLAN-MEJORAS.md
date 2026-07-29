@@ -110,9 +110,9 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ### Deuda / inconsistencias ya observadas en código
 
 1. **`gemini.js` no reutiliza `reportParse.js`** — prompts duplicados respecto a `reportSchema.js`; merge manual distinto al copiloto.
-2. **Cuota proxy por llamada, no por investigación** — cada paso Gemini invoca `gemini-proxy` → con límite 2/día, modo Completo (5 pasos) es inviable vía proxy.
-3. **Fallbacks en API con plantillas genéricas** — si falla parse en pasos 2–5, `gemini.js` rellena datos placeholder que pueden parecer reales (`sanitizeReport` los normaliza).
-4. **Simulador A/B en reporte** — `report.js` ~1530–1628 usa heurística + `Math.random()` pero la UI dice "Simulador Científico" y muestra CTR estimado.
+2. **Cuota proxy por llamada, no por investigación** — ~~cada paso Gemini invoca `gemini-proxy`~~ → **corregido** (T03): sesión UUID, migración 004.
+3. **Fallbacks en API con plantillas genéricas** — ~~`gemini.js` rellena datos placeholder~~ → **corregido** (T02): `reportFallbacks.js`.
+4. **Simulador A/B en reporte** — ~~`Math.random()` + “Simulador Científico”~~ → **corregido** (T12): comparador heurístico offline.
 5. **Spy sin scraping real** — Gemini infiere desde URL; UI lo declara parcialmente (`spy.js` ~143) pero resultados pueden alucinarse.
 6. **Sesión copiloto volátil** — cerrar modal = `cancelCopilotSession()` pierde progreso parcial.
 7. **`src/data.js` shim roto** — exporta `generateCompetitorStoreAnalysis` desde `./data/index.js` pero `index.js` no lo reexporta; `src/data/reportGenerator.js` parece legacy sin imports.
@@ -125,6 +125,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T01 — Refactorizar ruta API para reutilizar `reportParse.js`
+
+> **Estado (2026-07-29):** ✅ Hecho — `gemini.js` usa `parseAndValidateStep`, `applyStepToReport`, `assembleCopilotReport` + `buildApiPrompt()`. Loop unificado por pasos API.
 
 **Objetivo:** Una sola fuente de verdad para parseo/merge de pasos JSON, igualando forma de salida copiloto ↔ API.
 
@@ -174,6 +176,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T02 — Etiquetar honestamente fallbacks de API (eliminar datos genéricos como si fueran reales)
 
+> **Estado (2026-07-29):** ✅ Hecho — `reportFallbacks.js`, catches sin plantillas; banner `_incompleteSections` + export MD.
+
 **Objetivo:** Si un paso API falla al parsear, el usuario ve placeholders explícitos (como modo rápido), no copy genérico de "soporte ergonómico".
 
 | Campo | Valor |
@@ -212,6 +216,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T03 — Cuota proxy: contar por investigación, no por llamada Gemini
+
+> **Estado (2026-07-29):** ✅ Hecho — `004_research_session_quota.sql`, `researchSessionId` en proxy, docs actualizados. **Residual:** desplegar migración + Edge Function en Supabase prod; T16 badge completo pendiente (hint ligero en profundidad).
 
 **Objetivo:** Con límite 2/día, el usuario puede completar investigaciones enteras (1 consumo = 1 secuencia hasta 5 pasos).
 
@@ -253,6 +259,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T04 — Modo Copiloto "un solo pegado" (Modo Rápido 1-step)
+
+> **Estado (2026-07-29):** ✅ Hecho — `COPILOT_STEPS.ALL_IN_ONE`, toggle **Express**, default sin preferencia previa. **Deferred:** T05 persistencia sesión.
 
 **Objetivo:** Reducir fricción del camino gratis: opción de **1 copiar + 1 pegar** para reporte mínimo viable.
 
@@ -532,6 +540,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T12 — Renombrar simulador A/B a heurística local (sin CTR falso)
+
+> **Estado (2026-07-29):** ✅ Hecho — comparador determinista, sin CTR ni “científico”.
 
 **Objetivo:** No presentar CTR como predicción científica.
 
@@ -958,6 +968,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T27 — Unificar prompts API con `reportSchema.buildCopilotPrompt`
+
+> **Estado (2026-07-29):** ✅ Hecho — `buildApiPrompt()` en `reportSchema.js`; `gemini.js` sin prompts inline duplicados.
 
 **Objetivo:** Eliminar drift entre prompts copiloto y API (complemento de T01).
 

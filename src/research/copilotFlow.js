@@ -1,4 +1,4 @@
-import { isFastResearchMode } from '../config/researchMode.js';
+import { getResearchMode } from '../config/researchMode.js';
 import {
   buildCopilotPrompt,
   getCopilotStepList,
@@ -21,13 +21,15 @@ export function getCopilotSession() {
 }
 
 export function startCopilotSession(productName, competitorUrl = '') {
-  const fastMode = isFastResearchMode();
-  const steps = getCopilotStepList(fastMode);
+  const mode = getResearchMode();
+  const steps = getCopilotStepList(mode);
 
   session = {
     productName,
     competitorUrl,
-    fastMode,
+    mode,
+    fastMode: mode === 'fast',
+    expressMode: mode === 'express',
     steps,
     currentStepIndex: 0,
     partialReport: { name: productName },
@@ -77,6 +79,7 @@ export function processCopilotPaste(rawText) {
       session.completed = true;
       let finalReport = assembleCopilotReport(session.partialReport, {
         fastMode: session.fastMode,
+        expressMode: session.expressMode,
         competitorUrl: session.competitorUrl,
         productName: session.productName,
       });

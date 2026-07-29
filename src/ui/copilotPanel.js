@@ -20,6 +20,7 @@ function renderStepUI(step) {
   const pasteEl = document.getElementById('copilot-paste-input');
   const errorEl = document.getElementById('copilot-error-msg');
   const productEl = document.getElementById('copilot-product-name');
+  const guideEl = document.getElementById('copilot-steps-guide');
 
   if (titleEl) titleEl.textContent = step.meta.title;
   if (progressEl) progressEl.textContent = `${step.index + 1} / ${step.total} — ${step.meta.short}`;
@@ -28,6 +29,19 @@ function renderStepUI(step) {
   if (errorEl) {
     errorEl.textContent = '';
     errorEl.classList.add('hidden');
+  }
+  if (guideEl && step.total === 1) {
+    guideEl.innerHTML = `
+      <li><strong>Copiar prompt</strong> → botón abajo (único paso express)</li>
+      <li><strong>Pegar en tu chatbot gratis</strong> y esperar el JSON completo</li>
+      <li><strong>Pegar aquí la respuesta</strong> → Procesar respuesta → reporte listo</li>
+    `;
+  } else if (guideEl) {
+    guideEl.innerHTML = `
+      <li><strong>Copiar prompt</strong> → botón abajo</li>
+      <li><strong>Pegar en tu chatbot gratis</strong> (ChatGPT, Gemini, Claude, DeepSeek web)</li>
+      <li><strong>Pegar aquí la respuesta</strong> → Procesar respuesta</li>
+    `;
   }
   if (productEl) productEl.textContent = step.prompt.includes('"') ? '' : '';
 

@@ -7,6 +7,7 @@ export const COPILOT_STEPS = {
   CREATIVES: 'creatives',
   MARKETING_ASSETS: 'marketingAssets',
   FAST_MARKETING: 'fastMarketing',
+  ALL_IN_ONE: 'allInOne',
 };
 
 const JSON_ONLY_RULE = `
@@ -14,7 +15,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido. Sin markdown, sin b
 Si no conoces un dato exacto, estima de forma razonable basándote en tu conocimiento del mercado de dropshipping.
 Todos los textos deben estar en español.`;
 
-export function getCopilotStepList(fastMode) {
+export function getApiStepList(fastMode) {
   if (fastMode) {
     return [COPILOT_STEPS.BASE_REPORT, COPILOT_STEPS.FAST_MARKETING];
   }
@@ -25,6 +26,27 @@ export function getCopilotStepList(fastMode) {
     COPILOT_STEPS.CREATIVES,
     COPILOT_STEPS.MARKETING_ASSETS,
   ];
+}
+
+export function getCopilotStepList(mode) {
+  if (mode === 'express') {
+    return [COPILOT_STEPS.ALL_IN_ONE];
+  }
+  if (mode === 'fast') {
+    return [COPILOT_STEPS.BASE_REPORT, COPILOT_STEPS.FAST_MARKETING];
+  }
+  return [
+    COPILOT_STEPS.BASE_REPORT,
+    COPILOT_STEPS.AVATAR_BRIEF,
+    COPILOT_STEPS.OFFER_BRIEF,
+    COPILOT_STEPS.CREATIVES,
+    COPILOT_STEPS.MARKETING_ASSETS,
+  ];
+}
+
+/** @deprecated Use getCopilotStepList(mode) or getApiStepList(fastMode). */
+export function getCopilotStepListLegacy(fastMode) {
+  return getCopilotStepList(fastMode ? 'fast' : 'complete');
 }
 
 export function getCopilotStepMeta(stepId) {
@@ -58,6 +80,11 @@ export function getCopilotStepMeta(stepId) {
       title: 'Copys publicitarios básicos',
       short: 'Paso 2 — Titulares y anuncios',
       chatbotTip: 'Modo rápido: solo copys esenciales.',
+    },
+    [COPILOT_STEPS.ALL_IN_ONE]: {
+      title: 'Reporte express (1 pegado)',
+      short: 'Express — investigación + copys en un JSON',
+      chatbotTip: 'Modo express: copia un solo prompt, pega una sola respuesta JSON.',
     },
   };
   return meta[stepId] || { title: stepId, short: stepId, chatbotTip: '' };
@@ -337,7 +364,117 @@ Genera copys publicitarios básicos en español. Devuelve JSON con este esquema 
 }
 ${JSON_ONLY_RULE}`;
 
+    case COPILOT_STEPS.ALL_IN_ONE:
+      return `Realiza una investigación de mercado en español sobre el producto de dropshipping: "${productName}".
+${competitorBlock(competitorUrl)}
+Actúa como Investigador de Mercado de Élite y Redactor de Respuesta Directa.
+Genera UN SOLO objeto JSON que combine la investigación base y copys publicitarios mínimos.
+Devuelve JSON con este esquema exacto (rellena cada campo):
+{
+  "name": "${productName}",
+  "categoryId": "beauty|pet|health|home|tech|general",
+  "cost": 12.5,
+  "retail": 39.9,
+  "margin": 27.4,
+  "roi": 219,
+  "shipping": 8,
+  "sales": 2500,
+  "saturation": 28,
+  "trend": "+120%",
+  "suppliers": [
+    {
+      "platform": "AliExpress | CJ Dropshipping | Alibaba | Zendrop | Otro",
+      "name": "Nombre del proveedor",
+      "price": 10.5,
+      "shippingCost": 3.5,
+      "shippingTime": "8-12",
+      "link": "URL del producto o búsqueda"
+    }
+  ],
+  "demographics": {
+    "who": "...",
+    "attitudes": "...",
+    "dreams": "...",
+    "defeats": "...",
+    "outsideForces": "...",
+    "prejudices": "...",
+    "belief": "..."
+  },
+  "solutions": {
+    "current": "...",
+    "experience": "...",
+    "likes": "...",
+    "dislikes": "...",
+    "horrorStories": ["...", "...", "..."],
+    "skepticism": "..."
+  },
+  "secrets": {
+    "historical": "...",
+    "conspiracy": "...",
+    "mechanismProblem": "...",
+    "mechanismSolution": "..."
+  },
+  "eden": {
+    "goldenAge": "...",
+    "corruptor": "...",
+    "contrast": "..."
+  },
+  "verbatims": ["Frase 1", "Frase 2", "... hasta 10 frases"],
+  "angles": [
+    { "title": "1. Conspiración", "narrative": "...", "hook": "...", "headline": "..." },
+    { "title": "2. Frustración Empática", "narrative": "...", "hook": "...", "headline": "..." },
+    { "title": "3. Mecanismo Biológico", "narrative": "...", "hook": "...", "headline": "..." }
+  ],
+  "headlines": ["Titular 1", "Titular 2", "Titular 3"],
+  "adCopy": {
+    "facebook": [
+      { "primaryText": "...", "headline": "...", "description": "..." },
+      { "primaryText": "...", "headline": "...", "description": "..." }
+    ],
+    "tiktok": [
+      { "hook": "...", "body": "...", "cta": "..." },
+      { "hook": "...", "body": "...", "cta": "..." }
+    ]
+  }
+}
+Calcula margin = retail - cost y roi = Math.round((margin / cost) * 100) de forma congruente.
+${JSON_ONLY_RULE}`;
+
     default:
       return `Genera JSON para el paso "${stepId}" del producto "${productName}". ${JSON_ONLY_RULE}`;
   }
+}
+
+/** API prompts — extends copilot schema with grounding/search instructions (T27). */
+export function buildApiPrompt(
+  stepId,
+  {
+    productName,
+    competitorUrl = '',
+    priorReport = null,
+    useGrounding = false,
+    outputLanguage = 'es',
+  } = {}
+) {
+  const base = buildCopilotPrompt(stepId, { productName, competitorUrl, priorReport });
+
+  if (stepId === COPILOT_STEPS.BASE_REPORT) {
+    const searchClause = useGrounding
+      ? 'Utiliza Google Search Grounding activamente. Busca proveedores reales (AliExpress, Alibaba, CJ Dropshipping, Zendrop), reviews y dolores en foros.'
+      : 'Búsqueda web desactivada — utiliza la base de conocimiento del modelo.';
+    return `${searchClause}
+${competitorBlock(competitorUrl)}
+Debes actuar como un Investigador de Mercado de Élite y un Redactor de Respuesta Directa.
+IMPORTANTE: Para evitar bloqueos RECITATION, parafrasea — no copies textos largos de fuentes.
+${base.replace(/^Realiza una investigación de mercado profunda en español sobre el producto de dropshipping: "[^"]+"\.\n/, '')}`;
+  }
+
+  if (stepId === COPILOT_STEPS.MARKETING_ASSETS) {
+    return base.replace(
+      'Genera materiales de marketing en español.',
+      `Genera materiales de marketing en el idioma: "${outputLanguage}".`
+    );
+  }
+
+  return base;
 }

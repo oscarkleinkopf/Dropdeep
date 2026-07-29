@@ -185,7 +185,7 @@
         <i data-lucide="key-round" class="gemini-key-banner-icon"></i>
         <div class="gemini-key-banner-text">
           <strong>Sin clave API de Gemini</strong>
-          <span>Deep Research en vivo y análisis competitivo con IA requieren tu clave. Configúrala en Ajustes para investigar productos reales.</span>
+          <span>Deep Research automático y Spy con IA usan Gemini (BYOK o proxy). <strong>Modo Copiloto, evaluación manual y packs verticales funcionan gratis sin clave.</strong></span>
         </div>
       </div>
       <div class="gemini-key-banner-actions">
@@ -247,14 +247,17 @@
               <div class="research-mode-bar" role="group" aria-label="Profundidad de investigación">
                 <span class="research-mode-label">Profundidad:</span>
                 <div class="research-mode-toggle">
-                  <button type="button" class="research-mode-btn active" data-research-mode="complete" aria-selected="true" title="Secuencia completa — máxima profundidad">
-                    Completo
+                  <button type="button" class="research-mode-btn active" data-research-mode="express" aria-selected="true" title="1 copiar + 1 pegar — recomendado sin API">
+                    Express
                   </button>
-                  <button type="button" class="research-mode-btn" data-research-mode="fast" aria-selected="false" title="Menos pasos Gemini — menos costo / menos profundidad">
+                  <button type="button" class="research-mode-btn" data-research-mode="fast" aria-selected="false" title="2 pasos — reporte base + copys">
                     Rápido
                   </button>
+                  <button type="button" class="research-mode-btn" data-research-mode="complete" aria-selected="false" title="Secuencia completa — máxima profundidad">
+                    Completo
+                  </button>
                 </div>
-                <span class="research-mode-hint" id="research-mode-hint">Secuencia completa (5 pasos Gemini)</span>
+                <span class="research-mode-hint" id="research-mode-hint">Modo Express — 1 pegado (copiloto) · ideal para empezar sin API</span>
               </div>
               <div class="search-wrapper">
                 <i data-lucide="search" class="search-input-icon"></i>
@@ -513,7 +516,7 @@
               </button>
               <button class="sidebar-tab-btn" data-section="section-ab-testing">
                 <span class="tab-num">11</span>
-                <span class="tab-label">Simulador A/B Testing</span>
+                <span class="tab-label">Comparador de titulares</span>
                 <i data-lucide="chevron-right" class="tab-arrow"></i>
               </button>
               <button class="sidebar-tab-btn" data-section="section-competitor-analysis">
@@ -906,7 +909,7 @@
         </div>
         <div class="terminal-body copilot-body">
           <p class="copilot-intro">Producto: <strong id="copilot-product-name">—</strong></p>
-          <ol class="copilot-steps-guide">
+          <ol class="copilot-steps-guide" id="copilot-steps-guide">
             <li><strong>Copiar prompt</strong> → botón abajo</li>
             <li><strong>Pegar en tu chatbot gratis</strong> (ChatGPT, Gemini, Claude, DeepSeek web)</li>
             <li><strong>Pegar aquí la respuesta</strong> → Procesar respuesta</li>

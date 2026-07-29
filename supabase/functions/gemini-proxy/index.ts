@@ -56,9 +56,24 @@ Deno.serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceRoleKey);
 
+    const body = await req.json();
+    const researchSessionId = body.researchSessionId
+      ? String(body.researchSessionId)
+      : null;
+    const sessionUuid = researchSessionId &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          researchSessionId,
+        )
+      ? researchSessionId
+      : null;
+
     const { data: quotaResult, error: quotaError } = await admin.rpc(
       'check_and_increment_gemini_usage',
-      { p_user_id: user.id, p_daily_limit: dailyLimit },
+      {
+        p_user_id: user.id,
+        p_daily_limit: dailyLimit,
+        p_session_id: sessionUuid,
+      },
     );
 
     if (quotaError) {
@@ -71,7 +86,8 @@ Deno.serve(async (req) => {
         {
           error: 'daily_limit_exceeded',
           code: 'proxy_daily_quota',
-          message: 'Cuota diaria agotada. Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.',
+          message:
+            'Cuota diaria agotada (investigaciones completas). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.',
           count: quotaResult?.count ?? dailyLimit,
           limit: quotaResult?.limit ?? dailyLimit,
         },
@@ -79,7 +95,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const body = await req.json();
     const model = String(body.model || 'gemini-2.5-flash');
     const contents = body.contents;
     const useSearch = Boolean(body.useSearch);

@@ -218,6 +218,9 @@ export function exportReportToMarkdown(report) {
   if (report.manualEvaluation) {
     md += `* **Evaluación manual:** ${report.manualEvaluation.verdict} (${report.manualEvaluation.score}/100)\n`;
   }
+  if (report._incompleteSections?.length) {
+    md += `* **Secciones incompletas:** ${report._incompleteSections.join(', ')} — No generado; reintenta o usa Completo/Copiloto.\n`;
+  }
   md += `\n`;
 
   md += `## 📊 Métricas Financieras y de Viabilidad\n\n`;

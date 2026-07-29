@@ -63,8 +63,8 @@ Genera los siguientes 5 bloques con información detallada, verídica y profunda
 
 1. FRASES TEXTUALES (VERBATIMS): 15 expresiones emocionales reales que dirían los compradores frustrados en foros (Reddit, Amazon, Trustpilot) sobre el problema que este producto resuelve.
 2. HISTORIAS DE TERROR: 3 experiencias negativas detalladas con métodos y productos tradicionales anteriores.
-3. MECANISMO ÚNICO DE DOLOR (UMS): La causa raíz biológica, técnica o física por la cual los métodos convencionales fallan.
-4. MECANISMO ÚNICO DE SOLUCIÓN (UMP): La explicación científica o técnica de por qué "${name}" funciona exactamente donde otros fallan.
+3. MECANISMO ÚNICO DE PROBLEMA (UMP): La causa raíz biológica, técnica o física por la cual los métodos convencionales fallan.
+4. MECANISMO ÚNICO DE SOLUCIÓN (UMS): La explicación científica o técnica de por qué "${name}" funciona exactamente donde otros fallan.
 5. 5 ÁNGULOS DE MARKETING Y COPYWRITING:
    - Ángulo 1: Conspiración del Mercado / Revelación
    - Ángulo 2: Sabiduría Ancestral o Método Tradicional Olvidado

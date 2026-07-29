@@ -127,7 +127,7 @@ El **Modo Copiloto** genera el **mismo JSON estructurado** que Deep Research con
 #### Cómo iniciarlo
 
 1. En **Inicio**, deja **Método → Gratis (Copiloto)**.
-2. Elige **Profundidad** (Completo o Rápido).
+2. Elige **Profundidad** (**Express**, Rápido o Completo). **Express** es el recomendado sin API: un solo copiar/pegar.
 3. Escribe el nombre del producto y pulsa **Iniciar Modo Copiloto**.
 
 Se abre el modal **Modo Copiloto Gratis** con tres pasos visibles:
@@ -140,8 +140,11 @@ Se abre el modal **Modo Copiloto Gratis** con tres pasos visibles:
 
 | Profundidad | Pasos del copiloto | Contenido |
 |-------------|-------------------|-----------|
+| **Express** | 1 | Investigación base + copys en un solo JSON (recomendado sin API) |
 | **Completo** | 5 | Reporte base → Avatar Brief → Offer Brief → Creativos (UGC + landing) → Materiales de marketing |
 | **Rápido** | 2 | Reporte base → Copys publicitarios básicos |
+
+En modo **Express**, el único paso es **Reporte express (1 pegado)** — *Express — investigación + copys en un JSON*.
 
 Títulos de cada paso (modo Completo):
 
@@ -284,28 +287,31 @@ Si el sitio tiene `VITE_GEMINI_PROXY=true` y la Edge Function `gemini-proxy` des
 
 1. **Inicia sesión** (**Entrar** / **Crear cuenta** / **Continuar con Google**).
 2. Las llamadas usan la clave del servidor (secreto `GEMINI_API_KEY` en Supabase).
-3. Cuota starter: **2 investigaciones por día** por usuario (configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI muestra `VITE_FREE_TIER_PROXY_DAILY`, default 2).
+3. Cuota starter: **2 investigaciones completas por día** por usuario (no 2 llamadas Gemini sueltas). Una investigación Completo (5 pasos) o Rápido (2 pasos) consume **1** unidad. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI muestra `VITE_FREE_TIER_PROXY_DAILY`, default 2). Tras cada investigación proxy, el hint de profundidad puede mostrar `Proxy: 1/2 investigaciones hoy`.
 
 Sin sesión con proxy configurado, verás:
 
 > *El proxy Gemini requiere iniciar sesión. Entra con tu cuenta, usa Modo Copiloto gratis, o configura BYOK en Ajustes.*
 
-### 5.3 Modo Rápido vs Completo
+### 5.3 Modo Express, Rápido y Completo
 
 Toggle **Profundidad** junto al buscador:
 
 | Modo | Pasos API / Copiloto | Qué obtienes |
 |------|---------------------|--------------|
+| **Express** | 1 (solo copiloto) | Reporte base + copys en un pegado; secciones avanzadas omitidas con mensaje honesto |
 | **Completo** | 5 | Informe máximo: avatar, offer, UGC, landing, emails, ads, Shopify |
 | **Rápido** | 2 | Reporte base + copys básicos; secciones omitidas muestran: *No generado en modo rápido — corre Completo para obtener esta sección.* |
 
-La preferencia se guarda en `localStorage`. En el informe aparece badge **Modo Rápido** cuando aplica.
+Si un paso API falla al parsear, las secciones afectadas muestran *No generado — reintenta o usa Completo/Copiloto* y un banner **Secciones incompletas** en el informe (sin datos inventados).
+
+La preferencia se guarda en `localStorage`. En el informe aparece badge **Modo Rápido** o **Modo Express** cuando aplica.
 
 ### 5.4 Qué cambia respecto al Copiloto
 
 | Aspecto | Copiloto | API automática |
 |---------|----------|----------------|
-| Coste | Chatbot gratis que elijas | Tu cuota Gemini o proxy (2/día starter) |
+| Coste | Chatbot gratis que elijas | Tu cuota Gemini o proxy (**2 investigaciones/día** starter) |
 | Esfuerzo | Copiar/pegar cada paso | Automático en terminal de investigación |
 | Resultado | Mismo esquema JSON | Mismo esquema JSON |
 | Badge | **Generado en modo copiloto** | Sin badge de copiloto |
@@ -381,7 +387,7 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 | 08 | Offer Brief | Oferta, objeciones, big idea | Estructura de landing y precio |
 | 09 | Scripts de Video (UGC) | Guiones 30–60 s | Graba o encarga creativos |
 | 10 | Generador de Landing | Outline + HTML | Base de página de producto |
-| 11 | Simulador A/B Testing | Variantes de titular | Prioriza tests de copy |
+| 11 | Comparador heurístico de titulares | Variantes de titular | Puntuación offline — **no predice CTR** |
 | 12 | Análisis de Competencia | Ganchos vs competidor | Diferenciación |
 | 13 | Proveedores Dropshipping | AliExpress, CJ, etc. | Sourcing y margen real |
 | 14 | Secuencias de Email | 5 emails | Automatización post-compra |
@@ -465,14 +471,14 @@ Mensajes **reales** de la app y qué hacer:
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
 | **Clave API de Gemini no válida** — *La clave guardada fue rechazada por Google...* | Clave incorrecta o revocada | **Abrir Ajustes** → nueva clave desde AI Studio → **Reintentar** |
-| **Sin clave API de Gemini** (banner) | No hay BYOK y no usas proxy | Usa **Modo Copiloto** o configura clave en **Ajustes** |
+| **Sin clave API de Gemini** (banner) | No hay BYOK y no usas proxy | **Modo Copiloto**, evaluación manual y packs funcionan gratis; configura clave solo para Deep Research automático o Spy con IA |
 | *Sin clave API — abriendo Modo Copiloto gratis.* | API seleccionada sin clave | Normal; continúa en copiloto o añade clave |
 
 ### Cuota y proxy
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| **Cuota diaria de proxy agotada** — *Cuota diaria agotada. Pega tu clave Gemini... o vuelve mañana.* | 2/día consumidas | BYOK en **Ajustes** o espera al día siguiente |
+| **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas | BYOK en **Ajustes** o espera al día siguiente |
 | **Cuota o límite de peticiones alcanzado** — *Has superado el límite de tu plan Gemini...* | Límite de Google | Espera minutos; revisa cuota en AI Studio → **Reintentar** |
 | **Sesión requerida para el proxy** — *Inicia sesión para usar el proxy Gemini o configura tu propia clave en Ajustes.* | Proxy activo sin login | **Entrar** o BYOK |
 

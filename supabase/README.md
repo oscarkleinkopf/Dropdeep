@@ -7,14 +7,17 @@ In Supabase Dashboard → **SQL Editor**, paste and run:
 - `supabase/migrations/001_profiles.sql`
 - `supabase/migrations/002_research_reports.sql` (cloud history sync)
 - `supabase/migrations/003_gemini_usage.sql` (daily proxy quota)
+- `supabase/migrations/004_research_session_quota.sql` (quota per investigation session)
 
 `research_reports` stores completed Deep Research JSON per user (RLS by `user_id`). The app merges remote rows with local portfolio/cache on login.
 
-`gemini_usage` tracks per-user daily proxy calls. The Edge Function increments via `check_and_increment_gemini_usage()` (service role only).
+`gemini_usage` tracks per-user daily **investigations** (not individual Gemini RPC calls). The Edge Function increments via `check_and_increment_gemini_usage(user, limit, session_id)` — repeated calls with the same `researchSessionId` in one run do not consume extra quota.
 
 ## 2. Gemini proxy Edge Function
 
-Keeps `GEMINI_API_KEY` on the server. Only authenticated users can call it. Enforces a **daily starter quota** (default **2** calls/user/day).
+Keeps `GEMINI_API_KEY` on the server. Only authenticated users can call it. Enforces a **daily starter quota** (default **2 complete investigations**/user/day — not per Gemini call).
+
+The client sends `researchSessionId` (UUID per Deep Research run). All steps in the same run share one quota unit.
 
 ### Prerequisites
 
@@ -41,7 +44,7 @@ VITE_FREE_TIER_PROXY_DAILY=2
 
 When `true` and the user is logged in, Deep Research uses the Edge Function instead of a browser-held Gemini key. When quota is exhausted, the client shows:
 
-> Cuota diaria agotada. Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.
+> Cuota diaria agotada (investigaciones completas). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.
 
 ## 3. Auth redirect URLs
 

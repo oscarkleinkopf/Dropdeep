@@ -72,6 +72,26 @@ export function openDeepResearchReport(productOrReport) {
     titleContainer.appendChild(modeBadge);
   }
 
+  if (report._researchMode === 'express') {
+    const modeBadge = document.createElement('span');
+    modeBadge.id = 'report-mode-badge';
+    modeBadge.className = 'report-badge-status';
+    modeBadge.style.marginLeft = '0.5rem';
+    modeBadge.textContent = 'Modo Express';
+    titleContainer.appendChild(modeBadge);
+  }
+
+  const oldIncompleteBanner = document.getElementById('report-incomplete-banner');
+  if (oldIncompleteBanner) oldIncompleteBanner.remove();
+  if (report._incompleteSections?.length) {
+    const incompleteBanner = document.createElement('div');
+    incompleteBanner.id = 'report-incomplete-banner';
+    incompleteBanner.className = 'report-incomplete-banner';
+    incompleteBanner.setAttribute('role', 'status');
+    incompleteBanner.innerHTML = `<strong>Secciones incompletas:</strong> ${report._incompleteSections.join(', ')}. No generado — reintenta o usa Completo/Copiloto.`;
+    titleContainer.parentElement?.insertBefore(incompleteBanner, titleContainer.nextSibling);
+  }
+
   if (report._source === 'copilot') {
     const copilotBadge = document.createElement('span');
     copilotBadge.id = 'report-source-badge';
@@ -879,10 +899,10 @@ export function renderReportContent() {
       </div>
     </section>
 
-    <!-- SECTION 11: AB TESTING SIMULATOR -->
+    <!-- SECTION 11: HEADLINE HEURISTIC COMPARATOR -->
     <section id="section-ab-testing" class="report-section hidden">
-      <h2>11. Simulador Científico de A/B Testing</h2>
-      <p class="report-section-desc">Compara dos variaciones de titulares persuasivos. El simulador calculará la relevancia psicográfica contra el avatar ideal para predecir el CTR.</p>
+      <h2>11. Comparador heurístico de titulares (offline)</h2>
+      <p class="report-section-desc">Compara dos titulares con reglas locales de copy (dolor, mecanismo, intriga). <strong>No predice CTR ni ventas reales</strong> — solo ayuda a priorizar pruebas de copy.</p>
       
       <div class="ab-testing-container">
         <div class="ab-form-row">
@@ -898,7 +918,7 @@ export function renderReportContent() {
         
         <div style="display:flex; justify-content:center">
           <button class="btn btn-primary btn-glow" id="run-ab-sim-btn" style="padding:0.75rem 2.5rem; font-size:0.95rem">
-            <i data-lucide="play" style="width:16px; height:16px"></i> Simular CTR de Campaña
+            <i data-lucide="play" style="width:16px; height:16px"></i> Comparar titulares
           </button>
         </div>
         
@@ -910,8 +930,8 @@ export function renderReportContent() {
               <span class="ab-badge variant-a">VARIACIÓN A</span>
               <h4 style="color:var(--text-light); margin-top:1.5rem; font-size:0.95rem; line-height:1.4" id="res-title-a">"..."</h4>
               <div class="ab-ctr-box" style="margin: 1rem 0">
-                <span class="ab-ctr-val" id="ctr-val-a" style="color:var(--accent-cyan)">0.0%</span>
-                <span style="font-size:0.8rem; color:var(--text-secondary)">CTR Est.</span>
+                <span class="ab-ctr-val" id="hook-score-a" style="color:var(--accent-cyan)">0</span>
+                <span style="font-size:0.8rem; color:var(--text-secondary)">Puntuación relativa de gancho</span>
               </div>
               <div class="ab-metrics-bars">
                 <div class="metric-bar-group">
@@ -934,8 +954,8 @@ export function renderReportContent() {
               <span class="ab-badge variant-b">VARIACIÓN B</span>
               <h4 style="color:var(--text-light); margin-top:1.5rem; font-size:0.95rem; line-height:1.4" id="res-title-b">"..."</h4>
               <div class="ab-ctr-box" style="margin: 1rem 0">
-                <span class="ab-ctr-val" id="ctr-val-b" style="color:var(--accent-violet)">0.0%</span>
-                <span style="font-size:0.8rem; color:var(--text-secondary)">CTR Est.</span>
+                <span class="ab-ctr-val" id="hook-score-b" style="color:var(--accent-violet)">0</span>
+                <span style="font-size:0.8rem; color:var(--text-secondary)">Puntuación relativa de gancho</span>
               </div>
               <div class="ab-metrics-bars">
                 <div class="metric-bar-group">
@@ -955,8 +975,9 @@ export function renderReportContent() {
           </div>
           
           <div class="ab-analysis-box">
-            <h4 style="color:var(--accent-emerald); display:flex; align-items:center; gap:0.5rem; margin-top:0"><i data-lucide="award"></i> Veredicto y Recomendación de Optimización</h4>
+            <h4 style="color:var(--accent-emerald); display:flex; align-items:center; gap:0.5rem; margin-top:0"><i data-lucide="award"></i> Veredicto heurístico (offline)</h4>
             <p id="ab-verdict-text" style="font-size:0.9rem; line-height:1.6; color:var(--text-secondary); margin-bottom:0">...</p>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem; margin-bottom:0">Esta puntuación no predice CTR ni ventas. Valida en Meta/TikTok Ads con tráfico real.</p>
           </div>
         </div>
       </div>
@@ -1527,7 +1548,7 @@ export function renderReportContent() {
     });
   }
 
-  // Bind A/B Simulator Button
+  // Bind headline heuristic comparator
   const runAbSimBtn = container.querySelector('#run-ab-sim-btn');
   if (runAbSimBtn) {
     runAbSimBtn.addEventListener('click', () => {
@@ -1535,62 +1556,70 @@ export function renderReportContent() {
       const headlineB = container.querySelector('#ab-headline-b').value.trim();
 
       if (!headlineA || !headlineB) {
-        showToast("Por favor, introduce ambos titulares para realizar la simulación.", "error");
+        showToast('Por favor, introduce ambos titulares para comparar.', 'error');
         return;
       }
 
-      // Show results panel
       const resultsPanel = container.querySelector('#ab-results-panel');
       resultsPanel.classList.remove('hidden');
 
-      // Update text in result cards
       container.querySelector('#res-title-a').textContent = `"${headlineA}"`;
       container.querySelector('#res-title-b').textContent = `"${headlineB}"`;
 
-      // Simular scores heurísticos
-      const evaluateHeadline = (headline, baseType) => {
+      const evaluateHeadline = (headline) => {
         const text = headline.toLowerCase();
-        let painScore = 40 + Math.floor(Math.random() * 40);
-        let umsScore = 30 + Math.floor(Math.random() * 50);
-        let intrigueScore = 40 + Math.floor(Math.random() * 45);
+        let painScore = 35;
+        let umsScore = 30;
+        let intrigueScore = 35;
 
-        // Heurísticas básicas de copy
-        // 1. Alineación de dolor
-        if (text.includes('dolor') || text.includes('sufre') || text.includes('cansado') || text.includes('harto') || text.includes('odias') || text.includes('pánico') || text.includes('miedo')) {
-          painScore += 15;
+        if (
+          text.includes('dolor') ||
+          text.includes('sufre') ||
+          text.includes('cansado') ||
+          text.includes('harto') ||
+          text.includes('odias') ||
+          text.includes('pánico') ||
+          text.includes('miedo')
+        ) {
+          painScore += 25;
         }
-        // 2. Mecanismo único
-        if (text.includes('secreto') || text.includes('por qué') || text.includes('cómo') || text.includes('ciencia') || text.includes('mecanismo') || text.includes('flujo') || text.includes('linfático') || text.includes('descompresión') || text.includes('biológico')) {
-          umsScore += 15;
+        if (
+          text.includes('secreto') ||
+          text.includes('por qué') ||
+          text.includes('cómo') ||
+          text.includes('ciencia') ||
+          text.includes('mecanismo') ||
+          text.includes('flujo') ||
+          text.includes('linfático') ||
+          text.includes('descompresión') ||
+          text.includes('biológico')
+        ) {
+          umsScore += 25;
         }
-        // 3. Intriga
-        if (headline.includes('?') || text.includes('revela') || text.includes('oculta') || text.includes('no quieren') || text.includes('mito')) {
-          intrigueScore += 15;
+        if (
+          headline.includes('?') ||
+          text.includes('revela') ||
+          text.includes('oculta') ||
+          text.includes('no quieren') ||
+          text.includes('mito')
+        ) {
+          intrigueScore += 25;
         }
 
-        // Cap scores to 100
-        painScore = Math.min(painScore, 98);
-        umsScore = Math.min(umsScore, 97);
-        intrigueScore = Math.min(intrigueScore, 99);
+        painScore = Math.min(painScore, 100);
+        umsScore = Math.min(umsScore, 100);
+        intrigueScore = Math.min(intrigueScore, 100);
 
-        // Calculate predicted CTR based on scores (CTR normal en ads va de 1% a 5.5% para buenas campañas)
-        const ctrBase = 1.2;
-        const ctrMultiplier = (painScore * 0.4 + umsScore * 0.45 + intrigueScore * 0.15) / 100;
-        const ctr = Math.round((ctrBase + ctrMultiplier * 3.8) * 100) / 100;
+        const hookScore = Math.round(painScore * 0.4 + umsScore * 0.35 + intrigueScore * 0.25);
 
-        return { painScore, umsScore, intrigueScore, ctr };
+        return { painScore, umsScore, intrigueScore, hookScore };
       };
 
-      const resA = evaluateHeadline(headlineA, 'pain');
-      const resB = evaluateHeadline(headlineB, 'ums');
+      const resA = evaluateHeadline(headlineA);
+      const resB = evaluateHeadline(headlineB);
 
-      // Ensure they are slightly different if randomized identical
-      if (resA.ctr === resB.ctr) resB.ctr += 0.15;
-
-      // Animate progress bars and values
       setTimeout(() => {
-        // Variant A UI
-        container.querySelector('#ctr-val-a').textContent = `${resA.ctr.toFixed(2)}%`;
+        container.querySelector('#hook-score-a').textContent = `${resA.hookScore}/100`;
         container.querySelector('#score-label-pain-a').textContent = `${resA.painScore}%`;
         container.querySelector('#bar-pain-a').style.width = `${resA.painScore}%`;
         container.querySelector('#score-label-ums-a').textContent = `${resA.umsScore}%`;
@@ -1598,8 +1627,7 @@ export function renderReportContent() {
         container.querySelector('#score-label-intrigue-a').textContent = `${resA.intrigueScore}%`;
         container.querySelector('#bar-intrigue-a').style.width = `${resA.intrigueScore}%`;
 
-        // Variant B UI
-        container.querySelector('#ctr-val-b').textContent = `${resB.ctr.toFixed(2)}%`;
+        container.querySelector('#hook-score-b').textContent = `${resB.hookScore}/100`;
         container.querySelector('#score-label-pain-b').textContent = `${resB.painScore}%`;
         container.querySelector('#bar-pain-b').style.width = `${resB.painScore}%`;
         container.querySelector('#score-label-ums-b').textContent = `${resB.umsScore}%`;
@@ -1607,24 +1635,25 @@ export function renderReportContent() {
         container.querySelector('#score-label-intrigue-b').textContent = `${resB.intrigueScore}%`;
         container.querySelector('#bar-intrigue-b').style.width = `${resB.intrigueScore}%`;
 
-        // Verdict logic
         const winnerCardA = container.querySelector('#card-variant-a');
         const winnerCardB = container.querySelector('#card-variant-b');
         winnerCardA.classList.remove('winner');
         winnerCardB.classList.remove('winner');
 
-        let verdict = "";
-        if (resA.ctr > resB.ctr) {
+        let verdict = '';
+        if (resA.hookScore > resB.hookScore) {
           winnerCardA.classList.add('winner');
-          verdict = `🏆 <strong>Variante A gana con un CTR estimado del ${resA.ctr.toFixed(2)}%</strong> (frente al ${resB.ctr.toFixed(2)}% de la Variante B). Su fuerza reside en que apela directamente al dolor profundo del avatar ("${report.avatarBrief.painPoints.p1.name}"). El prospecto siente empatía instantánea. Para optimizarlo aún más, intenta inyectar el mecanismo único (UMS) al final del titular como una solución lógica e inevitable.`;
-        } else {
+          verdict = `🏆 <strong>Variante A puntúa ${resA.hookScore}/100</strong> frente a ${resB.hookScore}/100 de la Variante B (heurística offline). Apela más al dolor del avatar ("${report.avatarBrief.painPoints?.p1?.name || 'dolor principal'}"). Prueba este titular primero en anuncios reales.`;
+        } else if (resB.hookScore > resA.hookScore) {
           winnerCardB.classList.add('winner');
-          verdict = `🏆 <strong>Variante B gana con un CTR estimado del ${resB.ctr.toFixed(2)}%</strong> (frente al ${resA.ctr.toFixed(2)}% de la Variante A). Su gancho es superior porque introduce un Mecanismo Único de la Solución (UMS) claro. El mercado está sofisticado y cansado de falsas promesas; al explicar *por qué* esto funciona biológicamente de manera diferente, el escepticismo disminuye sustancialmente y aumenta el deseo.`;
+          verdict = `🏆 <strong>Variante B puntúa ${resB.hookScore}/100</strong> frente a ${resA.hookScore}/100 de la Variante A (heurística offline). Enfatiza mejor el mecanismo único (UMS). Prueba este titular primero en anuncios reales.`;
+        } else {
+          verdict = `⚖️ <strong>Empate heurístico (${resA.hookScore}/100)</strong>. Ambos titulares tienen un perfil similar en dolor/mecanismo/intriga. Prueba A/B real en Meta o TikTok para decidir.`;
         }
 
         container.querySelector('#ab-verdict-text').innerHTML = verdict;
         lucide.createIcons();
-        showToast("Simulación de CTR finalizada", "success");
+        showToast('Comparación heurística finalizada', 'success');
       }, 300);
     });
   }

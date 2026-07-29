@@ -1,5 +1,8 @@
 /** Deep Research depth preference — persisted locally, no auth required. */
 
+import { formatProxyUsageHint, isGeminiProxyEnabled } from '../research/geminiProxy.js';
+
+export const RESEARCH_MODE_EXPRESS = 'express';
 export const RESEARCH_MODE_FAST = 'fast';
 export const RESEARCH_MODE_COMPLETE = 'complete';
 
@@ -7,19 +10,29 @@ const STORAGE_KEY = 'dropdeep_research_mode';
 
 export function getResearchMode() {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored === RESEARCH_MODE_FAST ? RESEARCH_MODE_FAST : RESEARCH_MODE_COMPLETE;
+  if (stored === RESEARCH_MODE_EXPRESS) return RESEARCH_MODE_EXPRESS;
+  if (stored === RESEARCH_MODE_FAST) return RESEARCH_MODE_FAST;
+  if (stored === RESEARCH_MODE_COMPLETE) return RESEARCH_MODE_COMPLETE;
+  return RESEARCH_MODE_EXPRESS;
 }
 
 export function setResearchMode(mode) {
-  localStorage.setItem(
-    STORAGE_KEY,
-    mode === RESEARCH_MODE_FAST ? RESEARCH_MODE_FAST : RESEARCH_MODE_COMPLETE
-  );
+  const normalized =
+    mode === RESEARCH_MODE_EXPRESS
+      ? RESEARCH_MODE_EXPRESS
+      : mode === RESEARCH_MODE_FAST
+        ? RESEARCH_MODE_FAST
+        : RESEARCH_MODE_COMPLETE;
+  localStorage.setItem(STORAGE_KEY, normalized);
   syncResearchModeUI();
 }
 
 export function isFastResearchMode() {
   return getResearchMode() === RESEARCH_MODE_FAST;
+}
+
+export function isExpressResearchMode() {
+  return getResearchMode() === RESEARCH_MODE_EXPRESS;
 }
 
 export function syncResearchModeUI() {
@@ -32,10 +45,16 @@ export function syncResearchModeUI() {
   });
   const hint = document.getElementById('research-mode-hint');
   if (hint) {
-    const fast = mode === RESEARCH_MODE_FAST;
-    hint.textContent = fast
-      ? 'Modo Rápido — 2 pasos (copiloto o Gemini) · menos profundidad'
-      : 'Modo Completo — 5 pasos (copiloto o Gemini) · máxima profundidad';
+    let text = '';
+    if (mode === RESEARCH_MODE_EXPRESS) {
+      text = 'Modo Express — 1 pegado (copiloto) · ideal para empezar sin API';
+    } else if (mode === RESEARCH_MODE_FAST) {
+      text = 'Modo Rápido — 2 pasos (copiloto o Gemini) · menos profundidad';
+    } else {
+      text = 'Modo Completo — 5 pasos (copiloto o Gemini) · máxima profundidad';
+    }
+    const proxyHint = isGeminiProxyEnabled() ? formatProxyUsageHint() : '';
+    hint.textContent = proxyHint ? `${text} · ${proxyHint}` : text;
   }
 }
 

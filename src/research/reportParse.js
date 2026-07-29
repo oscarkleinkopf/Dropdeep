@@ -51,6 +51,14 @@ export function validateStepPayload(stepId, parsed) {
         throw new Error('Copys rápidos inválidos: falta "adCopy" o "headlines".');
       }
       break;
+    case COPILOT_STEPS.ALL_IN_ONE:
+      if (!parsed.name && !parsed.demographics) {
+        throw new Error('Reporte express inválido: falta "name" o "demographics".');
+      }
+      if (!parsed.adCopy && !Array.isArray(parsed.headlines)) {
+        throw new Error('Reporte express inválido: falta "adCopy" o "headlines".');
+      }
+      break;
     default:
       break;
   }
@@ -113,6 +121,26 @@ export function applyStepToReport(report, stepId, parsed) {
       next._fastMarketing = parsed;
       break;
 
+    case COPILOT_STEPS.ALL_IN_ONE:
+      Object.assign(next, parsed);
+      if (isObject(parsed.demographics)) {
+        next.demographics = { ...(next.demographics || {}), ...parsed.demographics };
+      }
+      if (isObject(parsed.solutions)) {
+        next.solutions = { ...(next.solutions || {}), ...parsed.solutions };
+      }
+      if (isObject(parsed.secrets)) {
+        next.secrets = { ...(next.secrets || {}), ...parsed.secrets };
+      }
+      if (isObject(parsed.eden)) {
+        next.eden = { ...(next.eden || {}), ...parsed.eden };
+      }
+      next._fastMarketing = {
+        headlines: parsed.headlines || [],
+        adCopy: parsed.adCopy || { facebook: [], tiktok: [] },
+      };
+      break;
+
     default:
       break;
   }
@@ -121,20 +149,27 @@ export function applyStepToReport(report, stepId, parsed) {
 }
 
 /** Assemble final report after all copilot steps — same shape as API output. */
-export function assembleCopilotReport(partialReport, { fastMode, competitorUrl, productName }) {
+export function assembleCopilotReport(
+  partialReport,
+  { fastMode, expressMode, competitorUrl, productName }
+) {
   let report = { ...partialReport, name: partialReport.name || productName };
 
-  if (fastMode && partialReport._fastMarketing) {
+  if (expressMode && partialReport._fastMarketing) {
+    report = buildFastModeReport(report, partialReport._fastMarketing, competitorUrl);
+    delete report._fastMarketing;
+    report._researchMode = 'express';
+  } else if (fastMode && partialReport._fastMarketing) {
     report = buildFastModeReport(report, partialReport._fastMarketing, competitorUrl);
     delete report._fastMarketing;
     report._researchMode = 'fast';
-  } else if (!fastMode) {
+  } else if (!fastMode && !expressMode) {
     report._researchMode = 'complete';
   }
 
   report.competitorUrl = competitorUrl || report.competitorUrl || '';
-  report._source = 'copilot';
-  report._generatedAt = new Date().toISOString();
+  report._source = report._source || 'copilot';
+  report._generatedAt = report._generatedAt || new Date().toISOString();
 
   return report;
 }

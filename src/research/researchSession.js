@@ -3,13 +3,20 @@
 let abortController = null;
 let activeProductName = '';
 let activeCompetitorUrl = '';
+let activeSessionId = null;
 
 export function startResearchSession(productName, competitorUrl = '') {
   cancelResearchSession(false);
   abortController = new AbortController();
   activeProductName = productName;
   activeCompetitorUrl = competitorUrl;
+  activeSessionId = crypto.randomUUID();
   return abortController.signal;
+}
+
+/** UUID shared across all Gemini calls in one Deep Research run (proxy quota). */
+export function getResearchSessionId() {
+  return activeSessionId;
 }
 
 export function cancelResearchSession(userInitiated = true) {
@@ -17,6 +24,7 @@ export function cancelResearchSession(userInitiated = true) {
     abortController.abort(userInitiated ? 'user_cancel' : 'replaced');
     abortController = null;
   }
+  activeSessionId = null;
 }
 
 export function getActiveResearchContext() {

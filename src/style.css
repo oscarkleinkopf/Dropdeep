@@ -1390,6 +1390,21 @@ button {
   border-radius: 4px;
 }
 
+.report-incomplete-banner {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.report-incomplete-banner strong {
+  color: var(--accent-amber);
+}
+
 .report-header-actions {
   display: flex;
   gap: 0.75rem;

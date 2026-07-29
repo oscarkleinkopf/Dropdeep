@@ -8,6 +8,22 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Modo Copiloto Express (1 pegado):** profundidad **Express** en Inicio — un solo prompt/respuesta JSON con investigación base + copys; badge **Modo Express** en el informe.
+- Cuota proxy por **investigación completa** (sesión UUID): Completo/Rápido vía proxy consumen 1 unidad/día, no 1 por llamada Gemini. Migración `004_research_session_quota.sql`.
+- Hint `Proxy: N/M investigaciones hoy` tras usar proxy (sessionStorage).
+- Banner **Secciones incompletas** en informes API con pasos fallidos; export MD incluye la nota.
+
+### Cambiado
+
+- Ruta API refactorizada: `gemini.js` reutiliza `reportParse.js` + `buildApiPrompt()` (misma pipeline que copiloto).
+- Fallos de parseo API: placeholders honestos (*No generado — reintenta o usa Completo/Copiloto*) — sin plantillas genéricas inventadas.
+- **Comparador heurístico de titulares (offline):** sin `Math.random()` ni “CTR estimado”; puntuación relativa determinista.
+- Banner sin clave API: aclara que Copiloto, evaluación manual y packs funcionan gratis.
+- Prompt Hub: etiquetas UMP/UMS corregidas en secuencia maestra.
+- Default de profundidad sin preferencia guardada: **Express** (recomendado sin API).
+
+### Añadido (docs previos)
+
 - Manual de usuario en español (`docs/MANUAL.md`) y mecanismo de actualización automática vía regla Cursor.
 - Enlace **Ayuda** en la app hacia el manual en GitHub.
 - Sección **Documentación** en README.
