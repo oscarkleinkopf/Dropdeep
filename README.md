@@ -47,14 +47,18 @@ DropDeep sigue la filosofía **Influ_JSON**: el camino feliz cuesta **$0** al fu
 
 | Gratis sin cuenta | Requiere cuenta (opcional) |
 |-------------------|----------------------------|
-| **Prompt Hub** — copiar/pegar prompts (nunca bloqueado) | Sincronizar portafolio en `research_reports` |
+| **Prompt Hub** — copiar/pegar prompts y **packs por vertical** (nunca bloqueado) | Sincronizar portafolio en `research_reports` |
 | **Portafolio local** — leer/escribir hasta 10 productos | **Proxy Gemini** — créditos diarios starter (default **2**/día) |
 | **Dashboard/feed** — solo datos locales + caché 24 h | Comparar **3** nichos (gratis: máx. **2**) |
 | **Spy Meta** — intereses estáticos curados | |
-| **Exportar** JSON/CSV/MD/PDF desde reportes locales | |
+| **Exportar** JSON/CSV/MD/PDF/**kit de campaña** desde reportes locales | |
 | **Deep Research BYOK** — tu clave Gemini en el navegador | Deep Research vía proxy (cuota diaria) |
 
-**Ruta recomendada (~60 s):** Prompt Hub → copia prompts → pega en ChatGPT/Claude gratis → opcionalmente BYOK Gemini o cuenta para sync/proxy.
+**Ruta recomendada (~60 s):** Prompt Hub → elige pack vertical (Belleza, Pets, Hogar…) → copia → pega en ChatGPT/Claude gratis → opcionalmente BYOK Gemini o cuenta para sync/proxy.
+
+**Packs por vertical:** plantillas copy-ready sin API en Prompt Hub → pestaña *Packs por vertical*. Con un reporte abierto, la secuencia maestra sigue enriquecida con Deep Research; los packs quedan como arranque.
+
+**Kit de campaña:** desde un reporte guardado o abierto, *Descargar kit de campaña* genera un `.md` con resumen, bullets, ángulos, copys Meta/TikTok/email y notas de CTA (sin claves API).
 
 Límites honestos (v1):
 
@@ -106,7 +110,7 @@ Google OAuth: enable **Google** under Authentication → Providers, then use the
 2. In the app, click **Settings** — no sign-in required for BYOK.
 3. Paste your **Gemini API Key** (BYOK), choose model/language, and save.
 
-> **Prompt Hub** works without an API key or login — it generates copy-paste prompts. With an open research report, prompts are prefilled with real niche insights.
+> **Prompt Hub** works without an API key or login — copy-paste prompts and **vertical starter packs** (Beauty, Pets, Home, etc.). With an open research report, the 5-phase master sequence is prefilled with real niche insights.
 
 Deep Research requires BYOK (no account) or the server proxy (account + daily quota). There is no procedural/demo fallback — reports come from live API responses or your saved portfolio/cache.
 
@@ -118,7 +122,7 @@ Deep Research requires BYOK (no account) or the server proxy (account + daily qu
 
 ## Export & compare
 
-- **Export report:** CSV, Markdown (`.md`), or PDF via `window.print()` from the report header.
+- **Export report:** CSV, Markdown (`.md`), **campaign kit** (`.md`), or PDF via `window.print()` from the report header.
 - **Compare niches:** select 2 products free (3 when logged in) in Portafolio → *Comparar*.
 - **History sync:** portfolio + 24h cache + Supabase `research_reports` merge on login.
 
@@ -147,6 +151,7 @@ DropDeep is primarily a **static SPA** (GitHub Pages). Optional Supabase Auth + 
 | `src/utils/geminiStorage.js` | Per-user Gemini key/prefs in localStorage |
 | `src/research/` | Gemini integration, caching, history sync, research flow |
 | `src/ui/` | Views: feed, report, portfolio, prompt hub, spy, auth |
+| `src/data/` | Product categories, Meta interests, vertical prompt packs |
 | `supabase/migrations/` | SQL for `profiles`, `research_reports`, and `gemini_usage` |
 | `public/` | PWA manifest, service worker, icons |
 

@@ -5,6 +5,7 @@ import { openSettingsModal } from './geminiKeyBanner.js';
 import { state } from '../state.js';
 import { switchView } from './navigation.js';
 import { openAuthModal } from './authModal.js';
+import { setPromptHubMode } from './promptHub.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
 
@@ -74,7 +75,7 @@ function renderSteps(panel) {
   const steps = [
     {
       id: 'prompts',
-      label: 'Prompt Hub → copiar prompts (sin API, ~60 s)',
+      label: 'Pack vertical → copiar → pegar en chatbot gratis (~60 s)',
       done: promptsDone,
       action: promptsDone ? null : 'prompts',
       cta: 'Ir a Prompts',
@@ -130,6 +131,7 @@ function renderSteps(panel) {
         }
       } else if (action === 'prompts') {
         switchView('prompt-hub-view');
+        setPromptHubMode('packs');
         markPromptHubDone();
       } else if (action === 'search') {
         document.getElementById('search-input')?.focus();

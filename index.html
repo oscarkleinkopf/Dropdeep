@@ -208,7 +208,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p class="onboarding-copy">Ruta rápida (~60 s): Prompt Hub → copia prompts → pega en ChatGPT/Claude gratis. Luego BYOK Gemini o créditos proxy con cuenta.</p>
+          <p class="onboarding-copy">Ruta rápida (~60 s): elige un <strong>pack vertical</strong> en Prompt Hub → copia → pega en ChatGPT/Claude gratis. Luego opcional: Deep Research BYOK o cuenta para sync/proxy.</p>
           <ol class="onboarding-steps"></ol>
         </div>
 
@@ -395,6 +395,9 @@
             <button class="btn btn-secondary" id="export-markdown-btn" title="Exportar reporte a Markdown/Notion">
               <i data-lucide="file-text"></i> Exportar MD
             </button>
+            <button class="btn btn-secondary" id="export-campaign-kit-btn" title="Descargar kit de campaña (Markdown)">
+              <i data-lucide="briefcase"></i> Descargar kit de campaña
+            </button>
             <button class="btn btn-primary btn-glow" id="export-pdf-btn">
               <i data-lucide="file-down"></i> Exportar PDF Reporte
             </button>
@@ -530,9 +533,20 @@
             </div>
             <h2>Generador de Prompts Maestros para <span class="gradient-text">Chatbots Exteriores</span></h2>
             <p id="prompt-hub-source-badge" class="prompt-hub-source-badge">Prompts genéricos — funcionan mejor después de un Deep Research</p>
-            <p>Obtén secuencias de prompts hiper-específicas de 5 fases para copiar y pegar directamente en ChatGPT, Claude, Gemini o DeepSeek.</p>
+            <p>Secuencia maestra de 5 fases o <strong>packs por vertical</strong> listos para copiar en ChatGPT, Claude, Gemini o DeepSeek — sin login ni API.</p>
           </div>
 
+          <!-- Hub mode: master sequence vs vertical starter packs -->
+          <div class="prompt-hub-mode-tabs" role="tablist" aria-label="Modo Prompt Hub">
+            <button type="button" class="prompt-hub-mode-tab active" data-hub-mode="master" role="tab" aria-selected="true">
+              <i data-lucide="layers"></i> Secuencia maestra (5 fases)
+            </button>
+            <button type="button" class="prompt-hub-mode-tab" data-hub-mode="packs" role="tab" aria-selected="false">
+              <i data-lucide="package-open"></i> Packs por vertical (gratis)
+            </button>
+          </div>
+
+          <div id="prompt-master-section">
           <!-- Configuration Panel -->
           <div class="prompt-config-card">
             <div class="config-inputs-grid">
@@ -624,6 +638,19 @@
                 <span>Consejo: Copia este prompt y pégalo directamente en tu chatbot. Luego de recibir la respuesta, copia el Prompt 2 en el mismo hilo.</span>
               </div>
             </div>
+          </div>
+          </div><!-- /prompt-master-section -->
+
+          <!-- Vertical starter packs (zero API) -->
+          <div id="prompt-packs-section" class="hidden">
+            <div class="vertical-pack-tabs" id="vertical-pack-tabs" role="tablist" aria-label="Verticales">
+              <button type="button" class="vertical-pack-tab active" data-vertical-id="belleza">✨ Belleza</button>
+              <button type="button" class="vertical-pack-tab" data-vertical-id="pets">🐾 Mascotas</button>
+              <button type="button" class="vertical-pack-tab" data-vertical-id="hogar">🏠 Hogar</button>
+              <button type="button" class="vertical-pack-tab" data-vertical-id="fitness">💪 Fitness</button>
+              <button type="button" class="vertical-pack-tab" data-vertical-id="tech">📱 Gadgets</button>
+            </div>
+            <div id="vertical-packs-panel" class="vertical-packs-panel"></div>
           </div>
         </div>
       </section>

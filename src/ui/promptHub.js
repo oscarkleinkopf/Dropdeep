@@ -1,10 +1,20 @@
 import { state } from '../state.js';
+import {
+  verticalPacks,
+  getVerticalPackById,
+  formatPackForCopy,
+  personalizePromptText,
+} from '../data/verticalPacks.js';
+import { showToast } from '../utils/toast.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 // PROMPT HUB STATE & GENERATOR ENGINE
 export let promptHubState = {
   activeStep: 1,
   promptData: null,
   source: 'generic', // 'generic' | 'report'
+  activeVerticalId: verticalPacks[0]?.id ?? 'belleza',
+  hubMode: 'master', // 'master' | 'packs'
 };
 
 function insightBlock(report) {
@@ -195,6 +205,9 @@ export function renderPromptHubOutput(options = {}) {
 
   updatePromptBoxContent();
   updatePromptHubSourceBadge();
+  if (promptHubState.hubMode === 'packs') {
+    renderVerticalPacksPanel();
+  }
 }
 
 export function updatePromptBoxContent() {
@@ -223,4 +236,100 @@ export function updatePromptBoxContent() {
     const s = parseInt(btn.getAttribute('data-prompt-step')) || 1;
     btn.classList.toggle('active', s === step);
   });
+}
+
+function getPackProductName() {
+  const pInput = document.getElementById('prompt-product-input');
+  const fromInput = pInput?.value.trim();
+  if (fromInput) return fromInput;
+  if (state.currentReport?.name) return state.currentReport.name;
+  return '';
+}
+
+export function renderVerticalPacksPanel() {
+  const container = document.getElementById('vertical-packs-panel');
+  if (!container) return;
+
+  const pack = getVerticalPackById(promptHubState.activeVerticalId);
+  const productName = getPackProductName();
+
+  container.innerHTML = `
+    <div class="vertical-packs-intro">
+      <p class="vertical-packs-disclaimer">
+        <i data-lucide="info"></i>
+        ${escapeHtml(pack.framing)}
+      </p>
+      ${
+        state.currentReport?.name
+          ? `<p class="vertical-packs-report-note">Tu reporte activo <strong>${escapeHtml(state.currentReport.name)}</strong> enriquece la secuencia maestra arriba. Estos packs son plantillas de arranque.</p>`
+          : ''
+      }
+    </div>
+    <div class="vertical-pack-actions">
+      <button type="button" class="btn btn-primary btn-glow" id="copy-vertical-pack-btn">
+        <i data-lucide="copy"></i> Copiar pack completo
+      </button>
+    </div>
+    <div class="vertical-prompt-list">
+      ${pack.prompts
+        .map(
+          (p, idx) => `
+        <article class="vertical-prompt-card" data-prompt-index="${idx}">
+          <div class="vertical-prompt-card-header">
+            <span class="vertical-prompt-num">${idx + 1}</span>
+            <h4>${escapeHtml(p.title)}</h4>
+            <button type="button" class="btn btn-secondary btn-sm copy-vertical-prompt-btn" data-prompt-index="${idx}" title="Copiar prompt">
+              <i data-lucide="copy"></i> Copiar
+            </button>
+          </div>
+          <pre class="vertical-prompt-body"><code>${escapeHtml(personalizePromptText(p.text, productName, pack.name))}</code></pre>
+        </article>`
+        )
+        .join('')}
+    </div>
+  `;
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  document.querySelectorAll('.vertical-pack-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.getAttribute('data-vertical-id') === pack.id);
+  });
+
+  container.querySelector('#copy-vertical-pack-btn')?.addEventListener('click', () => {
+    const text = formatPackForCopy(pack, productName);
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`Pack "${pack.name}" copiado al portapapeles.`, 'success');
+      document.dispatchEvent(new CustomEvent('dropdeep:prompt-copied'));
+    });
+  });
+
+  container.querySelectorAll('.copy-vertical-prompt-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-prompt-index'), 10);
+      const prompt = pack.prompts[idx];
+      if (!prompt) return;
+      const text = personalizePromptText(prompt.text, productName, pack.name);
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`Prompt "${prompt.title}" copiado.`, 'success');
+        document.dispatchEvent(new CustomEvent('dropdeep:prompt-copied'));
+      });
+    });
+  });
+}
+
+export function setPromptHubMode(mode) {
+  promptHubState.hubMode = mode;
+  const masterSection = document.getElementById('prompt-master-section');
+  const packsSection = document.getElementById('prompt-packs-section');
+  document.querySelectorAll('.prompt-hub-mode-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.getAttribute('data-hub-mode') === mode);
+  });
+  masterSection?.classList.toggle('hidden', mode !== 'master');
+  packsSection?.classList.toggle('hidden', mode !== 'packs');
+  if (mode === 'packs') renderVerticalPacksPanel();
+}
+
+export function setActiveVerticalPack(verticalId) {
+  promptHubState.activeVerticalId = verticalId;
+  renderVerticalPacksPanel();
 }

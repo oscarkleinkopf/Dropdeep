@@ -4,8 +4,14 @@ import { switchView } from './ui/navigation.js';
 import { runDeepResearchSequence } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
-import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown } from './ui/export.js';
-import { promptHubState, renderPromptHubOutput, updatePromptBoxContent } from './ui/promptHub.js';
+import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown, exportCampaignKit } from './ui/export.js';
+import {
+  promptHubState,
+  renderPromptHubOutput,
+  updatePromptBoxContent,
+  setPromptHubMode,
+  setActiveVerticalPack,
+} from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
@@ -13,6 +19,10 @@ import { upsertProfilePrefs } from './auth/profile.js';
 import { cancelResearchSession } from './research/researchSession.js';
 
 export function setupEventListeners() {
+  document.addEventListener('dropdeep:prompt-copied', () => {
+    markPromptHubDone();
+    updateOnboardingPanel();
+  });
   initGeminiKeyBanner();
 
   // Navigation Routing
@@ -237,6 +247,32 @@ export function setupEventListeners() {
     });
   }
 
+  const exportCampaignKitBtn = document.getElementById('export-campaign-kit-btn');
+  if (exportCampaignKitBtn) {
+    exportCampaignKitBtn.addEventListener('click', () => {
+      exportCampaignKit(state.currentReport);
+    });
+  }
+
+  // Prompt Hub mode tabs (master vs vertical packs)
+  document.querySelectorAll('.prompt-hub-mode-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const mode = tab.getAttribute('data-hub-mode') || 'master';
+      setPromptHubMode(mode);
+      if (mode === 'packs') {
+        markPromptHubDone();
+        updateOnboardingPanel();
+      }
+    });
+  });
+
+  document.querySelectorAll('.vertical-pack-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const verticalId = tab.getAttribute('data-vertical-id');
+      if (verticalId) setActiveVerticalPack(verticalId);
+    });
+  });
+
   // Close Terminal Dot listener (hide modal only — use Cancel to abort API)
   const closeTerminalDot = document.getElementById('close-terminal-dot');
   if (closeTerminalDot) {
@@ -317,6 +353,8 @@ export function setupEventListeners() {
       if (activeText) {
         navigator.clipboard.writeText(activeText).then(() => {
           showToast(`Prompt de la Fase ${promptHubState.activeStep} copiado al portapapeles.`, "success");
+          markPromptHubDone();
+          updateOnboardingPanel();
         });
       }
     });
@@ -333,6 +371,8 @@ export function setupEventListeners() {
       if (allText) {
         navigator.clipboard.writeText(allText).then(() => {
           showToast("Mega System Prompt Completo (All-in-One) copiado al portapapeles.", "success");
+          markPromptHubDone();
+          updateOnboardingPanel();
         });
       }
     });

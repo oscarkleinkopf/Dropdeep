@@ -11,7 +11,7 @@ import {
   FREE_PORTFOLIO_CAP,
   getCompareMax,
 } from '../config/freeTier.js';
-import { exportPortfolioJSON } from './export.js';
+import { exportPortfolioJSON, exportCampaignKit } from './export.js';
 
 export function updatePortfolioBadge() {
   const badge = document.getElementById('portfolio-count');
@@ -231,7 +231,10 @@ export function renderActivePortfolioDetail() {
         </h3>
         <p>${activeItem.category.toUpperCase()}</p>
       </div>
-      <div style="display:flex; gap:0.5rem">
+      <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
+        <button class="btn btn-secondary" id="portfolio-campaign-kit-btn" title="Descargar kit de campaña">
+          <i data-lucide="briefcase"></i> Kit de campaña
+        </button>
         <button class="btn btn-secondary" id="portfolio-open-report">
           <i data-lucide="file-text"></i> Reabrir Reporte
         </button>
@@ -295,6 +298,10 @@ export function renderActivePortfolioDetail() {
   // Open Full Report listener
   document.getElementById('portfolio-open-report').addEventListener('click', () => {
     openDeepResearchReport(activeItem.fullReport);
+  });
+
+  document.getElementById('portfolio-campaign-kit-btn')?.addEventListener('click', () => {
+    exportCampaignKit(activeItem.fullReport);
   });
 
   // Delete Item listener
