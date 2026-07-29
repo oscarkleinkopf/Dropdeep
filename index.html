@@ -57,6 +57,47 @@
     </div>
   </div>
 
+  <!-- Auth Modal (login / signup) — outside app-shell so it stays interactive when app-locked -->
+  <div id="auth-modal" class="terminal-overlay hidden">
+    <div class="terminal-container" style="max-width: 420px">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span class="term-dot red" id="close-auth-dot" style="cursor:pointer"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+        </div>
+        <span class="terminal-title" id="auth-modal-title">Iniciar sesión</span>
+        <i data-lucide="user" class="terminal-header-icon"></i>
+      </div>
+      <div class="terminal-body" style="height: auto; padding: 2rem">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5">
+          Necesitas una cuenta para acceder a DropDeep. Tu clave Gemini queda aislada por usuario en este dispositivo.
+        </p>
+        <div id="auth-error" class="auth-error hidden" role="alert"></div>
+        <form id="auth-form">
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem">
+            <div>
+              <label for="auth-email-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Correo electrónico</label>
+              <input type="email" id="auth-email-input" required autocomplete="email" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+            </div>
+            <div>
+              <label for="auth-password-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Contraseña</label>
+              <input type="password" id="auth-password-input" required minlength="6" autocomplete="current-password" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary auth-google-btn" id="auth-google-btn" style="width: 100%; margin-bottom: 0.75rem">
+            <i data-lucide="chrome"></i> Continuar con Google
+          </button>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem">
+            <button type="submit" class="btn btn-primary" id="auth-submit-btn">Entrar</button>
+            <button type="button" class="btn btn-secondary" id="auth-toggle-mode-btn" style="font-size: 0.85rem">¿No tienes cuenta? Regístrate</button>
+            <button type="button" class="btn btn-secondary" id="close-auth-btn" style="font-size: 0.85rem">Cerrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- App Container -->
   <div class="app-container" id="app-shell">
     
@@ -763,47 +804,6 @@
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end">
               <button type="button" class="btn btn-secondary" id="close-settings-btn">Cancelar</button>
               <button type="submit" class="btn btn-primary">Guardar Clave</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auth Modal (login / signup) -->
-    <div id="auth-modal" class="terminal-overlay hidden">
-      <div class="terminal-container" style="max-width: 420px">
-        <div class="terminal-header">
-          <div class="terminal-dots">
-            <span class="term-dot red" id="close-auth-dot" style="cursor:pointer"></span>
-            <span class="term-dot yellow"></span>
-            <span class="term-dot green"></span>
-          </div>
-          <span class="terminal-title" id="auth-modal-title">Iniciar sesión</span>
-          <i data-lucide="user" class="terminal-header-icon"></i>
-        </div>
-        <div class="terminal-body" style="height: auto; padding: 2rem">
-          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5">
-            Necesitas una cuenta para acceder a DropDeep. Tu clave Gemini queda aislada por usuario en este dispositivo.
-          </p>
-          <div id="auth-error" class="auth-error hidden" role="alert"></div>
-          <form id="auth-form">
-            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem">
-              <div>
-                <label for="auth-email-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Correo electrónico</label>
-                <input type="email" id="auth-email-input" required autocomplete="email" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
-              </div>
-              <div>
-                <label for="auth-password-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Contraseña</label>
-                <input type="password" id="auth-password-input" required minlength="6" autocomplete="current-password" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem">
-              </div>
-            </div>
-            <button type="button" class="btn btn-secondary auth-google-btn" id="auth-google-btn" style="width: 100%; margin-bottom: 0.75rem">
-              <i data-lucide="chrome"></i> Continuar con Google
-            </button>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem">
-              <button type="submit" class="btn btn-primary" id="auth-submit-btn">Entrar</button>
-              <button type="button" class="btn btn-secondary" id="auth-toggle-mode-btn" style="font-size: 0.85rem">¿No tienes cuenta? Regístrate</button>
-              <button type="button" class="btn btn-secondary" id="close-auth-btn" style="font-size: 0.85rem">Cerrar</button>
             </div>
           </form>
         </div>
