@@ -1,8 +1,8 @@
 import {
   isAuthConfigured,
-  isAuthenticated,
   signIn,
   signUp,
+  signInWithGoogle,
   onAuthStateChange
 } from '../auth/auth.js';
 import { showToast } from '../utils/toast.js';
@@ -49,7 +49,7 @@ function updateAuthModalUI() {
   document.getElementById('auth-toggle-mode-btn').textContent = isLogin
     ? '¿No tienes cuenta? Regístrate'
     : '¿Ya tienes cuenta? Inicia sesión';
-  document.getElementById('auth-google-btn')?.classList.add('auth-google-stub');
+  document.getElementById('auth-google-btn')?.classList.remove('auth-google-stub');
 }
 
 function showAuthError(message) {
@@ -65,6 +65,10 @@ function mapAuthError(error) {
   if (msg.includes('User already registered')) return 'Este correo ya está registrado.';
   if (msg.includes('Password should be at least')) return 'La contraseña debe tener al menos 6 caracteres.';
   if (msg.includes('Unable to validate email')) return 'Correo electrónico no válido.';
+  if (msg.includes('Email not confirmed')) return 'Confirma tu correo antes de iniciar sesión.';
+  if (msg.toLowerCase().includes('provider is not enabled')) {
+    return 'Google no está habilitado aún en Supabase (Authentication → Providers).';
+  }
   return msg;
 }
 
@@ -81,8 +85,12 @@ export function initAuthModal() {
     clearAuthForm();
   });
 
-  document.getElementById('auth-google-btn')?.addEventListener('click', () => {
-    showToast('Inicio de sesión con Google estará disponible en una próxima fase.', 'info');
+  document.getElementById('auth-google-btn')?.addEventListener('click', async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      showAuthError(mapAuthError(err));
+    }
   });
 
   document.getElementById('auth-form')?.addEventListener('submit', async (e) => {
@@ -97,9 +105,11 @@ export function initAuthModal() {
 
     try {
       if (authMode === 'signup') {
-        const { user } = await signUp(email, password);
-        if (user && !user.confirmed_at) {
-          showToast('Revisa tu correo para confirmar la cuenta.', 'success');
+        const { user, session } = await signUp(email, password);
+        if (session) {
+          showToast('Cuenta creada e iniciada.', 'success');
+        } else if (user && !user.email_confirmed_at && !user.confirmed_at) {
+          showToast('Revisa tu correo para confirmar la cuenta, luego inicia sesión.', 'success');
         } else {
           showToast('Cuenta creada correctamente.', 'success');
         }

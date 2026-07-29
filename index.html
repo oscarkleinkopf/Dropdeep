@@ -702,7 +702,8 @@
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem">
               <div>
                 <label for="gemini-key-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Gemini API Key:</label>
-                <input type="password" id="gemini-key-input" placeholder="AIzaSy..." required style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off">
+                <input type="password" id="gemini-key-input" placeholder="AIzaSy..." style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off">
+                <p id="gemini-key-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4">Tu clave se guarda solo en este navegador (localStorage), asociada a tu cuenta si iniciaste sesión.</p>
               </div>
               
               <div>
@@ -733,7 +734,7 @@
             </div>
             
             <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.5rem">
-              🔒 <strong>Nota de seguridad:</strong> Tu clave API se almacena solo en este navegador (localStorage), aislada por cuenta cuando inicias sesión. Las solicitudes van directo de tu dispositivo a Google Gen AI — nunca se envían a servidores de DropDeep. Un servidor compartido requeriría backend (no disponible en GitHub Pages estático).
+              🔒 <strong>Nota de seguridad:</strong> En modo BYOK la clave vive en tu navegador. Con proxy Supabase (`VITE_GEMINI_PROXY`) la clave del servidor no pasa por el frontend.
             </div>
             
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end">

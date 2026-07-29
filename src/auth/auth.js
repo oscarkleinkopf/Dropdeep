@@ -1,4 +1,4 @@
-import { supabase, isAuthConfigured } from './supabaseClient.js';
+import { supabase, isAuthConfigured, appRedirectUrl } from './supabaseClient.js';
 import { setGeminiStorageUser } from '../utils/geminiStorage.js';
 
 let currentSession = null;
@@ -59,7 +59,11 @@ export async function initAuth() {
 
 export async function signUp(email, password) {
   if (!supabase) throw new Error('Auth no configurado');
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: appRedirectUrl() },
+  });
   if (error) throw error;
   return data;
 }
@@ -77,12 +81,15 @@ export async function signOut() {
   if (error) throw error;
 }
 
-/** Stub for Phase 2 — Google OAuth via Supabase provider. */
+/** Google OAuth — enable the Google provider in Supabase Auth first. */
 export async function signInWithGoogle() {
   if (!supabase) throw new Error('Auth no configurado');
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + import.meta.env.BASE_URL }
+    options: {
+      redirectTo: appRedirectUrl(),
+      queryParams: { access_type: 'offline', prompt: 'consent' },
+    },
   });
   if (error) throw error;
   return data;

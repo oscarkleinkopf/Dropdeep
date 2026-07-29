@@ -60,7 +60,7 @@ When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured:
 
 See also `supabase/README.md` for Edge Function proxy deploy steps.
 
-Google OAuth is stubbed for a future phase (`signInWithGoogle` in `src/auth/auth.js`).
+Google OAuth: enable **Google** under Authentication → Providers, then use the Google button in the login modal. Redirect URLs must include `https://oscarkleinkopf.github.io/Dropdeep/**` and `http://localhost:3000/**`.
 
 ## Gemini API key (Deep Research)
 

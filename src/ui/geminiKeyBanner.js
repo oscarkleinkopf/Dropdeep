@@ -4,11 +4,13 @@ import {
   getGeminiModel,
   getGeminiLanguage,
   isGeminiGroundingEnabled,
-  saveGeminiSettings
+  saveGeminiSettings,
+  setGeminiPref
 } from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
 import { isAuthConfigured, isAuthenticated } from '../auth/auth.js';
 import { openAuthModal } from './authModal.js';
+import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
 
 const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 
@@ -30,6 +32,11 @@ export function openSettingsModal() {
 export function updateGeminiKeyBanner() {
   const banner = document.getElementById('gemini-key-banner');
   if (!banner) return;
+
+  if (isGeminiProxyEnabled()) {
+    banner.classList.add('hidden');
+    return;
+  }
 
   const shouldShow = !hasGeminiKey() && localStorage.getItem(DISMISS_KEY) !== 'true';
   banner.classList.toggle('hidden', !shouldShow);
@@ -55,7 +62,7 @@ export function initGeminiKeyBanner(onSimulateClick) {
 
 /** Toast + banner when an API flow needs a Gemini key. Returns false if no key. */
 export function requireGeminiKey(message) {
-  if (hasGeminiKey()) return true;
+  if (isGeminiProxyEnabled() || hasGeminiKey()) return true;
 
   updateGeminiKeyBanner();
 
@@ -94,6 +101,17 @@ export function populateSettingsForm() {
   if (geminiModelSelect) geminiModelSelect.value = getGeminiModel();
   if (geminiGroundingInput) geminiGroundingInput.checked = isGeminiGroundingEnabled();
   if (geminiLanguageSelect) geminiLanguageSelect.value = getGeminiLanguage();
+
+  const keyHint = document.getElementById('gemini-key-hint');
+  if (keyHint) {
+    keyHint.textContent = isGeminiProxyEnabled()
+      ? 'Proxy activo: la clave en servidor se usa al estar logueado. Puedes guardar solo preferencias (modelo/idioma).'
+      : 'Tu clave se guarda solo en este navegador (localStorage), asociada a tu cuenta si iniciaste sesión.';
+  }
+  if (geminiKeyInput) {
+    geminiKeyInput.required = !isGeminiProxyEnabled();
+    geminiKeyInput.placeholder = isGeminiProxyEnabled() ? 'Opcional con proxy activo' : 'AIzaSy...';
+  }
 }
 
 /** Persist settings form values (never logs the key). */
@@ -103,8 +121,15 @@ export function saveSettingsFromForm() {
   const grounding = document.getElementById('gemini-grounding-input')?.checked ?? true;
   const lang = document.getElementById('gemini-language-select')?.value || 'es';
 
-  if (!key) return false;
+  const proxy = isGeminiProxyEnabled();
+  if (!key && !proxy) return false;
 
-  saveGeminiSettings({ key, model, grounding, language: lang });
+  if (key) {
+    saveGeminiSettings({ key, model, grounding, language: lang });
+  } else {
+    setGeminiPref('model', model);
+    setGeminiPref('grounding', grounding ? 'true' : 'false');
+    setGeminiPref('language', lang);
+  }
   return { lang, model, grounding };
 }
