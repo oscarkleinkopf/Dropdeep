@@ -18,6 +18,14 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages
+
+The site deploys automatically from the `master` branch via GitHub Actions to:
+
+**https://oscarkleinkopf.github.io/Dropdeep/**
+
+To enable deployment, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions** in the repository on GitHub.
+
 ## Gemini API key (Deep Research)
 
 Features that call Google Gemini (live deep research, competitor scans with AI) need an API key:

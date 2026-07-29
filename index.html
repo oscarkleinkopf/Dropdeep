@@ -28,8 +28,8 @@
   <meta name="theme-color" content="#070a13">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest.json">
 </head>
 <body>
 
@@ -753,25 +753,5 @@
   <!-- App Entry Script -->
   <script type="module" src="/src/main.js"></script>
   
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // Unregister existing service workers in development to prevent caching issues
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister();
-            console.log('Unregistered service worker for local development');
-          }
-        });
-      } else {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('PWA Service Worker registered:', reg.scope))
-            .catch(err => console.error('PWA Service Worker registration failed:', err));
-        });
-      }
-    }
-  </script>
 </body>
 </html>

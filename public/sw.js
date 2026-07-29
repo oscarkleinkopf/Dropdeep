@@ -1,10 +1,11 @@
-const CACHE_NAME = 'dropdeep-cache-v4';
+const CACHE_NAME = 'dropdeep-cache-v5';
+const BASE = new URL('.', self.location.href).pathname;
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-512.png',
-  '/icon-192.png',
+  BASE,
+  `${BASE}index.html`,
+  `${BASE}manifest.json`,
+  `${BASE}icon-512.png`,
+  `${BASE}icon-192.png`,
   'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://unpkg.com/lucide@latest'
@@ -82,7 +83,7 @@ self.addEventListener('fetch', event => {
       }).catch(err => {
         // If offline and request is for page, return cached index
         if (event.request.mode === 'navigate') {
-          return caches.match('/');
+          return caches.match(`${BASE}index.html`) || caches.match(BASE);
         }
         throw err;
       });
