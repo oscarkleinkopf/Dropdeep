@@ -1,0 +1,45 @@
+---
+description: Mantener docs/MANUAL.md y CHANGELOG.md alineados con cambios visibles en DropDeep.
+alwaysApply: true
+---
+
+# Documentación de usuario DropDeep
+
+Cuando modifiques **comportamiento visible** en DropDeep, actualiza la documentación **en el mismo commit** que el cambio de código.
+
+## Cuándo actualizar
+
+Actualiza `docs/MANUAL.md` y añade entrada en `CHANGELOG.md` si cambias cualquiera de:
+
+- Vistas, flujos o modales (Inicio, Copiloto, Evaluación manual, Portafolio, Prompt Hub, Spy, Ajustes, wizard).
+- Etiquetas o textos de UI en **español** (botones, toasts, títulos, badges, mensajes de error).
+- Límites del tier gratis (portafolio, comparar, cuota proxy, caché).
+- Criterios, pesos o veredictos de evaluación manual o Product Score.
+- Pasos de Modo Copiloto / Deep Research (Rápido vs Completo).
+- Packs verticales, exportaciones o formatos de kit de campaña.
+- Requisitos de auth, BYOK, proxy o variables de entorno documentadas (`.env.example`, README).
+- Enlaces de ayuda in-app hacia el manual.
+
+## Checklist por commit con cambio visible
+
+- [ ] Leí el flujo afectado en código (no inventar features).
+- [ ] Actualicé `docs/MANUAL.md` (sección relevante + solución de problemas si hay mensajes nuevos).
+- [ ] Añadí entrada en `CHANGELOG.md` bajo `[Unreleased]` o nueva versión/fecha (español, valor para el usuario, hash de commit si ya existe).
+- [ ] Verifiqué que las cadenas citadas en el manual coinciden con `index.html` / `src/ui/*` / `src/research/errors.js`.
+- [ ] Si cambia URL del manual o ayuda in-app, actualicé `index.html` / README sección Documentación.
+
+## Qué NO documentar aquí
+
+- Refactors internos sin impacto en UI o límites.
+- Detalles de implementación que el usuario no ve.
+- Secretos, claves o `.env` reales.
+
+## Referencia rápida
+
+| Archivo | Propósito |
+|---------|-----------|
+| `docs/MANUAL.md` | Manual de usuario en español (task-oriented) |
+| `CHANGELOG.md` | Historial user-visible, newest first, commits con hash |
+| `README.md` | Setup técnico; enlace a manual y changelog |
+
+Manual público: `https://github.com/oscarkleinkopf/Dropdeep/blob/master/docs/MANUAL.md`

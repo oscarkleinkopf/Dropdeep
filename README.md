@@ -2,6 +2,15 @@
 
 **DropDeep** is a dropshipping and marketing intelligence hub. Search products to generate deep research reports (demographics, copy angles, UGC scripts, ad copy, and more), manage a saved portfolio, generate zero-token prompt sequences for external chatbots, and run competitive intelligence tools — all from a single PWA.
 
+## Documentación
+
+| Recurso | Descripción |
+|---------|-------------|
+| [Manual de usuario (español)](docs/MANUAL.md) | Guía task-oriented: ruta gratis (Copiloto, evaluación manual, packs), API BYOK/proxy, lectura de informes, comparador, privacidad y solución de problemas. |
+| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios visibles para el usuario (newest first). |
+
+En la app en vivo, el botón **Ayuda** (icono `circle-help`) abre el manual en GitHub.
+
 ## Quick start
 
 ```bash
