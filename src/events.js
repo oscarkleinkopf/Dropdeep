@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { showToast } from './utils/toast.js';
 import { switchView } from './ui/navigation.js';
-import { runDeepResearchSequence } from './research/flow.js';
+import { runResearchDirect, runCopilotResearch, runManualEvaluationFlow } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
 import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown, exportCampaignKit } from './ui/export.js';
@@ -57,8 +57,13 @@ export function setupEventListeners() {
     const query = document.getElementById('search-input').value.trim();
     const competitorUrl = document.getElementById('competitor-input') ? document.getElementById('competitor-input').value.trim() : '';
     if (query) {
-      runDeepResearchSequence(query, competitorUrl);
+      runResearchDirect(query, competitorUrl);
     }
+  });
+
+  document.getElementById('manual-eval-cta-btn')?.addEventListener('click', () => {
+    const query = document.getElementById('search-input')?.value.trim() || '';
+    runManualEvaluationFlow(query);
   });
 
   // Suggestion Tags
@@ -67,7 +72,7 @@ export function setupEventListeners() {
       const query = e.target.textContent;
       document.getElementById('search-input').value = query;
       const competitorUrl = document.getElementById('competitor-input') ? document.getElementById('competitor-input').value.trim() : '';
-      runDeepResearchSequence(query, competitorUrl);
+      runResearchDirect(query, competitorUrl);
     });
   });
 

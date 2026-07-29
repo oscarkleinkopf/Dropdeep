@@ -72,6 +72,30 @@ export function openDeepResearchReport(productOrReport) {
     titleContainer.appendChild(modeBadge);
   }
 
+  if (report._source === 'copilot') {
+    const copilotBadge = document.createElement('span');
+    copilotBadge.id = 'report-source-badge';
+    copilotBadge.className = 'report-badge-status';
+    copilotBadge.style.marginLeft = '0.5rem';
+    copilotBadge.style.borderColor = 'var(--accent-violet)';
+    copilotBadge.style.color = 'var(--accent-violet)';
+    copilotBadge.textContent = 'Generado en modo copiloto';
+    titleContainer.appendChild(copilotBadge);
+  }
+
+  if (report.manualEvaluation) {
+    const manualBadge = document.createElement('span');
+    manualBadge.id = 'report-manual-badge';
+    manualBadge.className = 'report-badge-status';
+    manualBadge.style.marginLeft = '0.5rem';
+    const v = report.manualEvaluation.verdict;
+    const color = v === 'Lanzar' ? 'var(--accent-emerald)' : v === 'Validar más' ? 'var(--accent-amber)' : 'var(--accent-red)';
+    manualBadge.style.borderColor = color;
+    manualBadge.style.color = color;
+    manualBadge.textContent = `Evaluación manual: ${v} (${report.manualEvaluation.score}/100)`;
+    titleContainer.appendChild(manualBadge);
+  }
+
   const refreshCacheBtn = document.getElementById('refresh-cache-btn');
   if (refreshCacheBtn) {
     if (loadedFromCache) {

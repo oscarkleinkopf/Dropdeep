@@ -54,24 +54,16 @@ function hasSavedToPortfolio() {
 function shouldShowOnboarding() {
   if (isOnboardingDismissed()) return false;
   const promptsDone = hasUsedPromptHub();
-  const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
   const saveDone = hasSavedToPortfolio();
-  if (promptsDone && geminiDone && researchDone && saveDone) return false;
+  if (promptsDone && researchDone && saveDone) return false;
   return true;
 }
 
 function renderSteps(panel) {
   const promptsDone = hasUsedPromptHub();
-  const geminiDone = isGeminiProxyEnabled() || hasGeminiKey();
   const researchDone = hasCompletedFirstResearch();
   const saveDone = hasSavedToPortfolio();
-
-  const geminiLabel = isGeminiProxyConfigured()
-    ? (geminiDone
-      ? 'Gemini listo (proxy o BYOK)'
-      : 'Opcional: BYOK gratis o créditos proxy con cuenta')
-    : 'Opcional: pegar clave Gemini (BYOK gratis)';
 
   const steps = [
     {
@@ -82,18 +74,18 @@ function renderSteps(panel) {
       cta: 'Ir a Prompts',
     },
     {
-      id: 'gemini',
-      label: geminiLabel,
-      done: geminiDone,
-      action: geminiDone ? null : 'settings',
-      cta: isGeminiProxyConfigured() && !isAuthenticated() ? 'Iniciar sesión' : 'Abrir Ajustes',
-    },
-    {
-      id: 'research',
-      label: 'Lanzar Deep Research (BYOK o proxy)',
+      id: 'copilot',
+      label: 'Modo Copiloto — genera reporte estructurado sin API',
       done: researchDone,
       action: researchDone ? null : 'search',
-      cta: 'Ir al buscador',
+      cta: 'Iniciar Copiloto',
+    },
+    {
+      id: 'manual',
+      label: 'Evaluación manual offline (checklist determinístico)',
+      done: saveDone,
+      action: saveDone ? null : 'manual',
+      cta: 'Evaluar producto',
     },
     {
       id: 'save',
@@ -137,6 +129,8 @@ function renderSteps(panel) {
       } else if (action === 'search') {
         document.getElementById('search-input')?.focus();
         document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (action === 'manual') {
+        document.getElementById('manual-eval-cta-btn')?.click();
       } else if (action === 'portfolio') {
         switchView('portfolio-view');
       }

@@ -13,7 +13,8 @@ import { FREE_PORTFOLIO_CAP, isPortfolioAtCap } from '../config/freeTier.js';
 import { savePortfolioLocal } from '../research/historySync.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { updatePortfolioBadge, renderPortfolioList } from './portfolio.js';
-import { runDeepResearchSequence } from '../research/flow.js';
+import { runResearchDirect, runCopilotResearch } from '../research/flow.js';
+import { setResearchPath, RESEARCH_PATH_COPILOT, RESEARCH_PATH_API } from '../config/researchPath.js';
 
 const STORAGE_PREFIX = 'dropdeep_first_product_wizard_';
 
@@ -303,6 +304,23 @@ export function initFirstProductWizard() {
     closeFirstProductWizard();
   });
 
+  document.getElementById('wizard-copilot-btn')?.addEventListener('click', () => {
+    const name = wizardState.productName.trim();
+    if (wizardState.productName) saveDraftToPortfolio();
+    markWizardCompleted();
+    closeFirstProductWizard();
+    switchView('dashboard-view');
+    if (name) {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = name;
+      setResearchPath(RESEARCH_PATH_COPILOT);
+      runCopilotResearch(name);
+    } else {
+      showToast('Ingresa un nombre de producto en el buscador para Modo Copiloto.', 'info');
+      document.getElementById('search-input')?.focus();
+    }
+  });
+
   document.getElementById('wizard-deep-research-btn')?.addEventListener('click', () => {
     const name = wizardState.productName.trim();
     if (wizardState.productName) saveDraftToPortfolio();
@@ -312,7 +330,8 @@ export function initFirstProductWizard() {
     if (name) {
       const searchInput = document.getElementById('search-input');
       if (searchInput) searchInput.value = name;
-      runDeepResearchSequence(name);
+      setResearchPath(RESEARCH_PATH_API);
+      runResearchDirect(name);
     } else {
       showToast('Ingresa un nombre de producto en el buscador para Deep Research.', 'info');
       document.getElementById('search-input')?.focus();

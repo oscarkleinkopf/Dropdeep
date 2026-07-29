@@ -47,14 +47,18 @@ DropDeep sigue la filosofía **Influ_JSON**: el camino feliz cuesta **$0** al fu
 
 | Gratis sin cuenta | Requiere cuenta (opcional) |
 |-------------------|----------------------------|
-| **Prompt Hub** — copiar/pegar prompts y **packs por vertical** (nunca bloqueado) | Sincronizar portafolio en `research_reports` |
-| **Portafolio local** — leer/escribir hasta 10 productos | **Proxy Gemini** — créditos diarios starter (default **2**/día) |
-| **Dashboard/feed** — solo datos locales + caché 24 h | Comparar **3** nichos (gratis: máx. **2**) |
-| **Spy Meta** — intereses estáticos curados | |
-| **Exportar** JSON/CSV/MD/PDF/**kit de campaña** desde reportes locales | |
-| **Deep Research BYOK** — tu clave Gemini en el navegador | Deep Research vía proxy (cuota diaria) |
+| **Modo Copiloto** — reporte estructurado completo vía chatbot gratis (paste-back loop) | Sincronizar portafolio en `research_reports` |
+| **Evaluación manual** — checklist determinístico offline (Lanzar / Validar / Descartar) | **Proxy Gemini** — créditos diarios starter (default **2**/día) |
+| **Prompt Hub** — packs por vertical (nunca bloqueado) | Comparar **3** nichos (gratis: máx. **2**) |
+| **Portafolio local** — hasta 10 productos | |
+| **Exportar** JSON/CSV/MD/PDF/**kit de campaña** | |
+| **Deep Research BYOK** — acelerador automático (mismo artefacto) | Deep Research vía proxy (cuota diaria) |
 
-**Ruta recomendada (~60 s):** Prompt Hub → elige pack vertical (Belleza, Pets, Hogar…) → copia → pega en ChatGPT/Claude gratis → opcionalmente BYOK Gemini o cuenta para sync/proxy.
+**Ruta recomendada (gratis):** elige producto → **Modo Copiloto** → copia prompt paso a paso → pega en ChatGPT/Gemini/Claude gratis → pega JSON aquí → reporte completo en portafolio. Complementa con **Evaluación manual** (100% offline). Opcional: BYOK Gemini o cuenta para automatizar.
+
+**Modo Copiloto:** genera el mismo JSON que Deep Research API (2 pasos en Rápido, 5 en Completo). Badge honesto: "Generado en modo copiloto". Sin mocks — datos vienen del chatbot que elijas.
+
+**Evaluación manual:** 10 criterios ponderados (margen, wow factor, envío, saturación, proveedores, estacionalidad, políticas de ads, UGC, ticket/AOV, devoluciones). Score 0–100 + veredicto rule-based.
 
 **Packs por vertical:** plantillas copy-ready sin API en Prompt Hub → pestaña *Packs por vertical*. Con un reporte abierto, la secuencia maestra sigue enriquecida con Deep Research; los packs quedan como arranque.
 

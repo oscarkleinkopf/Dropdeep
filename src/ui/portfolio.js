@@ -368,6 +368,8 @@ export function openProductComparison() {
   let supplierCols = '';
   let riskCols = '';
   let opportunityCols = '';
+  let manualEvalCols = '';
+  let sourceCols = '';
   let bestOptionCols = '';
 
   const extractRisk = (p) => {
@@ -412,6 +414,11 @@ export function openProductComparison() {
 
     riskCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractRisk(p)}</td>`;
     opportunityCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractOpportunity(p)}</td>`;
+
+    const me = p.fullReport?.manualEvaluation;
+    manualEvalCols += `<td class="${winnerClass}">${me ? `${me.verdict} (${me.score}/100)` : '—'}</td>`;
+    const src = p.fullReport?._source;
+    sourceCols += `<td class="${winnerClass}">${src === 'copilot' ? 'Copiloto' : src === 'manual' ? 'Manual' : src === 'api' ? 'API' : '—'}</td>`;
 
     bestOptionCols += `<td class="${winnerClass}">
       ${isWinner ? `<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🚀 Lanza primero</span><br><span style="font-size:0.72rem;color:var(--text-muted)">Product Score ${score}/100 — mayor entre los seleccionados</span>` : `<span style="font-size:0.78rem;color:var(--text-muted)">Score ${score}/100 — ${score < bestScore ? `−${bestScore - score} pts vs. ganador` : 'empate'}</span>`}
@@ -464,6 +471,14 @@ export function openProductComparison() {
         <tr>
           <td class="comparator-label-col">Oportunidad / Diferenciación</td>
           ${opportunityCols}
+        </tr>
+        <tr>
+          <td class="comparator-label-col">Evaluación manual</td>
+          ${manualEvalCols}
+        </tr>
+        <tr>
+          <td class="comparator-label-col">Origen del reporte</td>
+          ${sourceCols}
         </tr>
         <tr>
           <td class="comparator-label-col">Cuál lanzar primero</td>

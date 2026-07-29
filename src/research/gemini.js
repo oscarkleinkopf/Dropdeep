@@ -1131,6 +1131,9 @@ export function sanitizeReport(report) {
     },
     competitorUrl: report.competitorUrl || "",
     _researchMode: report._researchMode || 'complete',
+    _source: report._source || 'api',
+    _generatedAt: report._generatedAt || null,
+    manualEvaluation: report.manualEvaluation || null,
     _isDraft: report._isDraft || false,
   };
 

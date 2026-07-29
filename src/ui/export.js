@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { calculateProductScore } from '../research/scoring.js';
+import { getManualEvalSummaryMarkdown } from './manualEvaluation.js';
 
 const SENSITIVE_KEY_PATTERN = /^(api[_-]?key|gemini[_-]?key|password|secret|token)$/i;
 
@@ -212,7 +213,12 @@ export function exportReportToMarkdown(report) {
   let md = `# Deep Research: ${report.name}\n\n`;
   md += `* **Categoría:** ${report.categoryId.toUpperCase()}\n`;
   md += `* **Fecha de Generación:** ${new Date().toLocaleDateString()}\n`;
-  md += `* **Product Score:** ${score}/100\n\n`;
+  md += `* **Product Score:** ${score}/100\n`;
+  if (report._source === 'copilot') md += `* **Origen:** Modo Copiloto (chatbot gratuito)\n`;
+  if (report.manualEvaluation) {
+    md += `* **Evaluación manual:** ${report.manualEvaluation.verdict} (${report.manualEvaluation.score}/100)\n`;
+  }
+  md += `\n`;
 
   md += `## 📊 Métricas Financieras y de Viabilidad\n\n`;
   md += `| Métrica | Valor |\n`;
@@ -375,6 +381,7 @@ export function exportReportToMarkdown(report) {
   }
 
   // Download logic
+  md += getManualEvalSummaryMarkdown(report);
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -410,7 +417,12 @@ export function exportCampaignKit(report) {
   const score = safe.productScore || calculateProductScore(safe);
   let md = `# Kit de Campaña — ${safe.name}\n\n`;
   md += `> Generado con DropDeep · ${new Date().toLocaleDateString('es-ES')}\n\n`;
-  md += `**Product Score:** ${score}/100 · **Categoría:** ${(safe.categoryId || 'general').toUpperCase()}\n\n`;
+  md += `**Product Score:** ${score}/100 · **Categoría:** ${(safe.categoryId || 'general').toUpperCase()}`;
+  if (safe._source === 'copilot') md += ` · **Origen:** Modo Copiloto`;
+  md += `\n\n`;
+  if (safe.manualEvaluation) {
+    md += `**Evaluación manual:** ${safe.manualEvaluation.verdict} (${safe.manualEvaluation.score}/100)\n\n`;
+  }
   md += `---\n\n`;
 
   md += `## Resumen producto / nicho\n\n`;

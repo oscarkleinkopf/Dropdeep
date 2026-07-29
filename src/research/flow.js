@@ -3,9 +3,24 @@ import { showToast } from '../utils/toast.js';
 import { getCacheEntry } from './cache.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
-import { requireGeminiKey } from '../ui/geminiKeyBanner.js';
+import { requireGeminiKey, hasGeminiKey } from '../ui/geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel, getGeminiLanguage } from '../utils/geminiStorage.js';
 import { isGeminiProxyEnabled, isGeminiProxyConfigured } from './geminiProxy.js';
+import { openCopilotPanel } from '../ui/copilotPanel.js';
+import { openManualEvaluation } from '../ui/manualEvaluation.js';
+import {
+  getResearchPath,
+  RESEARCH_PATH_COPILOT,
+  RESEARCH_PATH_API,
+} from '../config/researchPath.js';
+
+export function canUseApiResearch() {
+  if (isGeminiProxyEnabled()) return true;
+  if (isGeminiProxyConfigured() && !hasGeminiKey()) {
+    return false;
+  }
+  return !!getGeminiKey();
+}
 
 export function openCacheModal(productName, competitorUrl, cachedData) {
   const modal = document.getElementById('cache-modal');
@@ -29,7 +44,7 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
   const refreshBtn = document.getElementById('cache-refresh-btn');
   refreshBtn.onclick = () => {
     modal.classList.add('hidden');
-    runApiResearchDirect(productName, competitorUrl);
+    runResearchDirect(productName, competitorUrl);
   };
 }
 
@@ -43,23 +58,31 @@ export function runApiResearchDirect(productName, competitorUrl = '') {
 
   if (isGeminiProxyConfigured() && !isGeminiProxyEnabled()) {
     requireGeminiKey(
-      'El proxy Gemini requiere iniciar sesión. Entra con tu cuenta o configura BYOK en Ajustes.'
+      'El proxy Gemini requiere iniciar sesión. Entra con tu cuenta, usa Modo Copiloto gratis, o configura BYOK en Ajustes.'
     );
     return;
   }
 
   const apiKey = getGeminiKey();
   if (!apiKey) {
-    requireGeminiKey(
-      'Sin clave API de Gemini. Abre Ajustes para ejecutar Deep Research en vivo.'
-    );
+    showToast('Sin clave API — abriendo Modo Copiloto gratis.', 'info');
+    openCopilotPanel(productName, competitorUrl);
     return;
   }
 
   runRealResearchSequence(productName, apiKey, modelName, competitorUrl);
 }
 
-export function runDeepResearchSequence(productName, competitorUrl = '') {
+export function runCopilotResearch(productName, competitorUrl = '') {
+  openCopilotPanel(productName, competitorUrl);
+}
+
+export function runManualEvaluationFlow(productName = '') {
+  openManualEvaluation(productName);
+}
+
+/** Route search submit to copilot or API based on user path + key availability. */
+export function runResearchDirect(productName, competitorUrl = '') {
   const language = getGeminiLanguage();
   state.outputLanguage = language;
 
@@ -69,5 +92,29 @@ export function runDeepResearchSequence(productName, competitorUrl = '') {
     return;
   }
 
-  runApiResearchDirect(productName, competitorUrl);
+  const path = getResearchPath();
+
+  if (path === RESEARCH_PATH_COPILOT) {
+    runCopilotResearch(productName, competitorUrl);
+    return;
+  }
+
+  if (path === RESEARCH_PATH_API) {
+    if (!canUseApiResearch()) {
+      showToast('Sin API configurada — usa Modo Copiloto (gratis) o pega tu clave en Ajustes.', 'info');
+      openCopilotPanel(productName, competitorUrl);
+      return;
+    }
+    runApiResearchDirect(productName, competitorUrl);
+    return;
+  }
+
+  runCopilotResearch(productName, competitorUrl);
 }
+
+/** @deprecated Use runResearchDirect — kept for existing imports */
+export function runDeepResearchSequence(productName, competitorUrl = '') {
+  runResearchDirect(productName, competitorUrl);
+}
+
+export { RESEARCH_PATH_COPILOT, RESEARCH_PATH_API };

@@ -1,6 +1,6 @@
 import { state } from '../state.js';
 import { listCacheEntries } from '../research/cache.js';
-import { runDeepResearchSequence } from '../research/flow.js';
+import { runResearchDirect } from '../research/flow.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { showToast } from '../utils/toast.js';
@@ -77,7 +77,7 @@ export function renderResearchFeed() {
       <div class="empty-portfolio research-feed-empty">
         <i data-lucide="search" class="empty-icon"></i>
         <h3>Sin investigaciones todavía</h3>
-        <p>Ejecuta Deep Research con tu clave Gemini para generar reportes reales. Los resultados aparecerán aquí y en tu portafolio.</p>
+        <p>Ejecuta Modo Copiloto (gratis), Deep Research con API, o Evaluación manual. Los resultados aparecerán aquí.</p>
         <div class="research-feed-empty-actions">
           <button type="button" class="btn btn-primary btn-glow" id="research-feed-cta">
             <i data-lucide="zap"></i> Ir al buscador
@@ -107,6 +107,7 @@ export function renderResearchFeed() {
     else if (score < 75) scoreColor = 'var(--accent-amber)';
 
     const sourceLabel = source === 'portfolio' ? 'Portafolio' : 'Caché (24h)';
+    const sourceBadge = report?._source === 'copilot' ? ' · Copiloto' : report?._source === 'manual' ? ' · Manual' : '';
 
     const isDraft = report?._isDraft;
     const modeLabel = report?._researchMode === 'fast' ? ' · Rápido' : '';
@@ -114,7 +115,7 @@ export function renderResearchFeed() {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <div class="product-card-badge">${sourceLabel}${isDraft ? ' · Borrador' : ''}${modeLabel}</div>
+      <div class="product-card-badge">${sourceLabel}${sourceBadge}${isDraft ? ' · Borrador' : ''}${modeLabel}</div>
       <div class="product-card-body">
         <span class="product-card-category">${report?.categoryId?.toUpperCase() || 'INVESTIGACIÓN'}</span>
         <h3 class="product-card-title">${name}</h3>

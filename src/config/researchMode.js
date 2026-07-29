@@ -32,9 +32,10 @@ export function syncResearchModeUI() {
   });
   const hint = document.getElementById('research-mode-hint');
   if (hint) {
-    hint.textContent = mode === RESEARCH_MODE_FAST
-      ? 'Modo Rápido — 2 pasos Gemini · menos costo / menos profundidad'
-      : 'Modo Completo — secuencia de 5 pasos Gemini';
+    const fast = mode === RESEARCH_MODE_FAST;
+    hint.textContent = fast
+      ? 'Modo Rápido — 2 pasos (copiloto o Gemini) · menos profundidad'
+      : 'Modo Completo — 5 pasos (copiloto o Gemini) · máxima profundidad';
   }
 }
 

@@ -208,7 +208,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p class="onboarding-copy">Ruta rápida (~60 s): elige un <strong>pack vertical</strong> en Prompt Hub → copia → pega en ChatGPT/Claude gratis. Luego opcional: Deep Research BYOK o cuenta para sync/proxy.</p>
+          <p class="onboarding-copy">Dos caminos honestos al mismo reporte: <strong>Modo Copiloto</strong> (gratis, sin API) o <strong>Deep Research automático</strong> (BYOK/proxy). También: evaluación manual offline y packs verticales.</p>
           <button type="button" class="btn btn-secondary btn-sm onboarding-wizard-cta hidden" id="wizard-onboarding-cta">
             <i data-lucide="rocket"></i> Configurar mi primer producto (~60 s)
           </button>
@@ -218,7 +218,7 @@
         <!-- Hero Section -->
         <div class="hero-section">
           <h1 class="hero-title">Investiga productos para <span class="gradient-text">Dropshipping & Marketing</span></h1>
-          <p class="hero-subtitle">Perfiles de comprador, objeciones y copys listos para anuncios. Necesitas Gemini para investigación en vivo.</p>
+          <p class="hero-subtitle">Metodología gratuita con Modo Copiloto + evaluación manual, o acelera con Gemini BYOK/proxy. Mismo reporte estructurado, sin mocks.</p>
           <button type="button" class="wizard-hero-cta hidden" id="wizard-hero-cta">
             <i data-lucide="rocket"></i> ¿Primera vez? Configura tu primer producto (~60 s)
           </button>
@@ -226,6 +226,18 @@
           <!-- Search Bar Container -->
           <div class="search-container">
             <form id="search-form" class="search-form">
+              <div class="research-path-bar" role="group" aria-label="Método de investigación">
+                <span class="research-path-label">Método:</span>
+                <div class="research-path-toggle">
+                  <button type="button" class="research-path-btn active" data-research-path="copilot" aria-selected="true" title="Copia prompts → pega en chatbot gratis → pega respuesta aquí">
+                    <i data-lucide="users"></i> Gratis (Copiloto)
+                  </button>
+                  <button type="button" class="research-path-btn" data-research-path="api" aria-selected="false" title="Automático con clave Gemini o proxy">
+                    <i data-lucide="zap"></i> Con API (Automático)
+                  </button>
+                </div>
+                <span class="research-path-hint" id="research-path-hint">Copiloto gratis — copia prompts → pega en chatbot → pega respuesta aquí</span>
+              </div>
               <div class="research-mode-bar" role="group" aria-label="Profundidad de investigación">
                 <span class="research-mode-label">Profundidad:</span>
                 <div class="research-mode-toggle">
@@ -242,11 +254,15 @@
                 <i data-lucide="search" class="search-input-icon"></i>
                 <input type="text" id="search-input" placeholder="Nombre del producto (ej: Posture Corrector, Smart Water Bottle…)" required autocomplete="off">
                 <button type="submit" class="search-btn search-btn-primary">
-                  <span>Ejecutar Deep Research</span>
-                  <i data-lucide="zap" class="btn-icon"></i>
+                  <span>Iniciar Modo Copiloto</span>
+                  <i data-lucide="users" class="btn-icon"></i>
                 </button>
               </div>
               <div class="search-secondary-row">
+                <button type="button" id="manual-eval-cta-btn" class="search-secondary-btn" title="Checklist determinístico sin IA — 100% offline">
+                  <i data-lucide="clipboard-check" class="btn-icon"></i>
+                  <span>Evaluación manual (sin IA)</span>
+                </button>
                 <button type="button" id="quick-prompt-btn" class="search-secondary-btn" title="Genera prompts para ChatGPT/Claude sin consumir tokens de API">
                   <i data-lucide="sparkles" class="btn-icon"></i>
                   <span>Generar prompts sin API</span>
@@ -307,7 +323,7 @@
         <div class="section-title-bar">
           <div class="title-left">
             <h2>Tus Investigaciones Recientes</h2>
-            <p>Reportes reales generados con Gemini o guardados en tu portafolio.</p>
+            <p>Reportes de copiloto, API o evaluación manual guardados en tu portafolio.</p>
           </div>
         </div>
 
@@ -870,6 +886,88 @@
       </div>
     </div>
 
+    <!-- Copilot Modal (Modo Copiloto Gratis) -->
+    <div id="copilot-modal" class="terminal-overlay hidden">
+      <div class="terminal-container copilot-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="copilot-close-dot" style="cursor:pointer" title="Cerrar"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">Modo Copiloto Gratis</span>
+          <i data-lucide="users" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body copilot-body">
+          <p class="copilot-intro">Producto: <strong id="copilot-product-name">—</strong></p>
+          <ol class="copilot-steps-guide">
+            <li><strong>Copiar prompt</strong> → botón abajo</li>
+            <li><strong>Pegar en tu chatbot gratis</strong> (ChatGPT, Gemini, Claude, DeepSeek web)</li>
+            <li><strong>Pegar aquí la respuesta</strong> → Procesar respuesta</li>
+          </ol>
+          <div class="copilot-step-header">
+            <span id="copilot-step-progress">Paso 1 / 5</span>
+            <h3 id="copilot-step-title">Reporte de mercado</h3>
+          </div>
+          <div class="progress-track copilot-progress-track">
+            <div class="progress-bar-fill" id="copilot-progress-fill" style="width: 0%"></div>
+          </div>
+          <label class="copilot-label" for="copilot-prompt-text">Prompt para el chatbot (paso actual):</label>
+          <textarea id="copilot-prompt-text" class="copilot-textarea" readonly rows="6"></textarea>
+          <button type="button" class="btn btn-secondary btn-sm" id="copilot-copy-prompt-btn">
+            <i data-lucide="copy"></i> Copiar prompt
+          </button>
+          <label class="copilot-label" for="copilot-paste-input">Respuesta del chatbot (JSON):</label>
+          <textarea id="copilot-paste-input" class="copilot-textarea" rows="8" placeholder="Pega aquí la respuesta completa del chatbot…"></textarea>
+          <div id="copilot-error-msg" class="copilot-error hidden" role="alert"></div>
+          <div class="copilot-actions">
+            <button type="button" class="btn btn-secondary" id="copilot-retry-btn">Reintentar</button>
+            <button type="button" class="btn btn-secondary" id="copilot-cancel-btn">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="copilot-process-btn">
+              <i data-lucide="check"></i> Procesar respuesta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Evaluation Modal -->
+    <div id="manual-eval-modal" class="terminal-overlay hidden">
+      <div class="terminal-container manual-eval-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="manual-eval-close-dot" style="cursor:pointer" title="Cerrar"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">Evaluación manual (sin IA)</span>
+          <i data-lucide="clipboard-check" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body manual-eval-body">
+          <p class="manual-eval-intro">Metodología determinística para validar productos de dropshipping — 100% offline, sin API ni login.</p>
+          <label class="manual-eval-label" for="manual-eval-product-input">Nombre del producto</label>
+          <input type="text" id="manual-eval-product-input" class="manual-eval-product-input" placeholder="Ej: Smart Pet Feeder">
+          <div id="manual-eval-criteria" class="manual-eval-criteria"></div>
+          <div class="manual-eval-preview">
+            <div class="manual-eval-preview-row">
+              <span>Score:</span>
+              <strong id="manual-eval-preview-score">—/100</strong>
+            </div>
+            <div class="manual-eval-preview-row">
+              <span>Veredicto:</span>
+              <strong id="manual-eval-preview-verdict">—</strong>
+            </div>
+            <p id="manual-eval-preview-explanation" class="manual-eval-explanation"></p>
+          </div>
+          <div class="manual-eval-actions">
+            <button type="button" class="btn btn-secondary" id="manual-eval-cancel-btn">Cancelar</button>
+            <button type="button" class="btn btn-secondary" id="manual-eval-save-btn">Guardar en portafolio</button>
+            <button type="button" class="btn btn-primary" id="manual-eval-open-report-btn">Guardar y ver reporte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Cache Modal (Restore / Refresh) -->
     <div id="cache-modal" class="terminal-overlay hidden">
       <div class="terminal-container" style="max-width: 500px">
@@ -936,17 +1034,20 @@
           <h3>¿Qué quieres hacer?</h3>
           <div class="wizard-summary" id="wizard-summary"></div>
           <div class="wizard-action-grid">
-            <button type="button" class="btn btn-primary btn-glow" id="wizard-copy-pack-btn">
+            <button type="button" class="btn btn-primary btn-glow" id="wizard-copilot-btn">
+              <i data-lucide="users"></i> Modo Copiloto (gratis)
+            </button>
+            <button type="button" class="btn btn-secondary" id="wizard-copy-pack-btn">
               <i data-lucide="copy"></i> Copiar pack completo
             </button>
             <button type="button" class="btn btn-secondary" id="wizard-prompt-hub-btn">
               <i data-lucide="sparkles"></i> Ir a Prompt Hub
             </button>
             <button type="button" class="btn btn-secondary" id="wizard-deep-research-btn">
-              <i data-lucide="zap"></i> Profundizar con Deep Research
+              <i data-lucide="zap"></i> Deep Research con API (opcional)
             </button>
           </div>
-          <p class="wizard-footnote">Deep Research es opcional — requiere BYOK Gemini o cuenta con proxy.</p>
+          <p class="wizard-footnote">Modo Copiloto y evaluación manual funcionan sin API. Deep Research acelera el mismo reporte con Gemini BYOK o proxy.</p>
         </div>
 
         <div class="wizard-nav">
