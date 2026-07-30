@@ -2,27 +2,71 @@ let trendChartInstance = null;
 let sentimentChartInstance = null;
 let projectionChartInstance = null;
 
-export function initTrendChart() {
+/** @param {string | null | undefined} trendStr */
+export function parseTrendPercent(trendStr) {
+  if (trendStr == null || trendStr === '') return null;
+  const parsed = parseFloat(String(trendStr).replace(/[+%]/g, ''));
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+/**
+ * Deterministic 12-month series from report.trend (e.g. "+120%").
+ * Not Google Trends — illustration only.
+ * @param {string | null | undefined} trendStr
+ * @returns {number[] | null}
+ */
+export function buildTrendSeries(trendStr) {
+  const trendPct = parseTrendPercent(trendStr);
+  if (trendPct == null) return null;
+
+  const start = 35;
+  const end = Math.min(100, Math.max(10, 50 + (trendPct / 150) * 50));
+  const months = 12;
+
+  return Array.from({ length: months }, (_, i) => {
+    const t = months === 1 ? 1 : i / (months - 1);
+    return Math.round(start + (end - start) * t);
+  });
+}
+
+/**
+ * @param {{ trend?: string | null }} [report]
+ */
+export function initTrendChart(report = {}) {
   const ctx = document.getElementById('trend-chart-canvas');
-  if (!ctx) return;
+  const naEl = document.getElementById('trend-chart-na');
+  const wrap = document.getElementById('trend-chart-wrap');
 
   if (trendChartInstance) {
     trendChartInstance.destroy();
+    trendChartInstance = null;
   }
 
-  // Draw simulated line chart
+  const series = buildTrendSeries(report?.trend);
+  const hasData = Array.isArray(series) && series.length > 0;
+
+  if (naEl) {
+    naEl.classList.toggle('hidden', hasData);
+  }
+  if (wrap) {
+    wrap.classList.toggle('trend-chart-empty', !hasData);
+  }
+  if (!ctx || !hasData) {
+    if (ctx) ctx.classList.add('hidden');
+    return;
+  }
+
+  ctx.classList.remove('hidden');
+
   const months = ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
-  const dataValues = Array.from({ length: 12 }, () => Math.round(30 + Math.random() * 70));
-  dataValues[11] = 98; // ensure peak trend at current month
-  dataValues[10] = 85;
 
   trendChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels: months,
       datasets: [{
-        label: 'Volumen de Búsqueda (Google + Foros)',
-        data: dataValues,
+        label: 'Ilustración — tendencia del informe (índice relativo)',
+        data: series,
         borderColor: '#06b6d4',
         backgroundColor: 'rgba(6, 182, 212, 0.05)',
         borderWidth: 2,

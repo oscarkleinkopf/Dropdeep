@@ -8,7 +8,12 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
-- **Manual de usuario refrescado** (`docs/MANUAL.md`): Modo Express, prioridad proxy sobre BYOK con sesión, cuota por investigación (no por llamada Gemini), tabla Express/Rápido/Completo para Copiloto vs API, flujo ~15 min con Express, glosario ampliado y solución de problemas (429, cancelación a mitad).
+- **Prioridad BYOK sobre proxy (T33):** si guardaste clave Gemini en Ajustes, Deep Research y Spy usan BYOK directo a Google aunque tengas sesión y proxy activo; hint en Ajustes y logs de terminal distinguen BYOK vs proxy.
+- **Gráfico de tendencia honesto (T34):** eliminado `Math.random()`; la sección 03 muestra ilustración offline derivada del campo *Tendencia* del informe o mensaje *Sin datos de tendencia verificados* — sin afirmar Google Trends en vivo.
+
+### Añadido (documentación previa)
+
+- **Manual de usuario refrescado** (`docs/MANUAL.md`): Modo Express, cuota por investigación (no por llamada Gemini), tabla Express/Rápido/Completo para Copiloto vs API, flujo ~15 min con Express, glosario ampliado y solución de problemas (429, cancelación a mitad).
 - Entradas de changelog consolidadas para Express, cuota proxy por sesión e informes con secciones incompletas (antes solo en `[Unreleased]` sin manual alineado).
 
 ### Añadido (código previo, ahora documentado en manual)
@@ -20,6 +25,8 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Prioridad Gemini:** BYOK guardada gana sobre proxy con sesión; tabla y troubleshooting del manual actualizados (ya no hace falta cerrar sesión para usar BYOK).
+- **Sección 03 del informe:** copy y gráfico de tendencia dejan de implicar datos reales de Google Trends.
 - Ruta API refactorizada: `gemini.js` reutiliza `reportParse.js` + `buildApiPrompt()` (misma pipeline que copiloto).
 - Fallos de parseo API: placeholders honestos (*No generado — reintenta o usa Completo/Copiloto*) — sin plantillas genéricas inventadas.
 - **Comparador heurístico de titulares (offline):** sin `Math.random()` ni “CTR estimado”; puntuación relativa determinista.

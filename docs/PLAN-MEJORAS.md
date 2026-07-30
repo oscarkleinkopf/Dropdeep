@@ -180,8 +180,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### Deuda / inconsistencias observadas (post-sprint jul 2026)
 
-1. **BYOK pierde frente a proxy con sesión** — `runApiResearchDirect` prioriza proxy aunque exista clave (`flow.js:54-56`). Documentado en MANUAL; pendiente T33.
-2. **Gráfico tendencia simulado** — `charts.js` usa `Math.random()`; copy en `report.js` implica Google Trends real.
+1. ~~**BYOK pierde frente a proxy con sesión**~~ — resuelto T33 (`geminiRoute.js`).
+2. ~~**Gráfico tendencia simulado**~~ — resuelto T34 (`charts.js` + copy `report.js`).
 3. **Sesión copiloto volátil** — `cancelCopilotSession()` pierde progreso; T05 pendiente.
 4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
 5. **`src/data.js` shim roto** — export `generateCompetitorStoreAnalysis` no existe en `data/index.js` (T30).
@@ -1199,6 +1199,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T33 — Prioridad BYOK sobre proxy (o selector explícito)
 
+> **Estado (2026-07-29):** ✅ Hecho — `getGeminiRoute()` en `src/config/geminiRoute.js`; BYOK guardada gana sobre proxy con sesión; logs terminal BYOK/proxy; hint Ajustes + manual actualizado.
+
 **Objetivo:** Si el usuario guardó clave Gemini en Ajustes, Deep Research y Spy usan **BYOK** por defecto aunque haya sesión + `VITE_GEMINI_PROXY=true`. Opcional: selector en Ajustes “Usar: Mi clave | Proxy (cuota diaria)”.
 
 | Campo | Valor |
@@ -1244,6 +1246,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T34 — Gráfico de tendencia honesto (sin random ni copy engañoso)
+
+> **Estado (2026-07-29):** ✅ Hecho — `charts.js` sin `Math.random()`; serie determinista desde `report.trend` o N/A; copy sección 03 + manual honestos.
 
 **Objetivo:** El gráfico de 12 meses no usa datos aleatorios ni afirma “Google Trends en vivo” si no hay fuente real.
 
@@ -1499,8 +1503,8 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | T30 | Limpiar código muerto | P2 | pendiente |
 | T31 | Disclaimer Meta interests | P2 | pendiente |
 | T32 | Enlace ayuda → manual | P2 | ✅ `7aafdea` |
-| T33 | BYOK gana sobre proxy | P0 | **nuevo** |
-| T34 | Gráfico tendencia honesto | P1 | **nuevo** |
+| T33 | BYOK gana sobre proxy | P0 | ✅ jul 2026 |
+| T34 | Gráfico tendencia honesto | P1 | ✅ jul 2026 |
 | T35 | Feedback dogfooding local | P1 | **nuevo** |
 | T36 | CI build + unit tests | P1 | **nuevo** |
 | T37 | Pin acciones GitHub / Node | P2 | **nuevo** |

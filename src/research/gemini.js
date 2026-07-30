@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { state } from '../state.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { isGeminiGroundingEnabled } from '../utils/geminiStorage.js';
-import { isGeminiProxyEnabled, createProxyGenerativeModel } from './geminiProxy.js';
+import { createProxyGenerativeModel } from './geminiProxy.js';
 import { classifyGeminiError } from './errors.js';
 import {
   startResearchSession,
@@ -374,13 +374,14 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
   try {
     let modelWithSearch;
     let modelWithoutSearch;
-    const useProxy = isGeminiProxyEnabled() || apiKey === 'proxy';
+    const useProxy = apiKey === 'proxy';
 
     if (useProxy) {
       addLog(`🔐 Usando proxy seguro Supabase (clave Gemini en servidor)...`, 'info');
       modelWithSearch = createProxyGenerativeModel({ model: modelName, useSearch: isGroundingEnabled });
       modelWithoutSearch = createProxyGenerativeModel({ model: modelName, useSearch: false });
     } else {
+      addLog(`🔑 Usando BYOK — clave Gemini personal (llamadas directas a Google)...`, 'info');
       const genAI = new GoogleGenerativeAI(apiKey);
 
       let tools = [];

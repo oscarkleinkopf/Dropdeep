@@ -5,7 +5,8 @@ import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey, hasGeminiKey } from '../ui/geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel, getGeminiLanguage } from '../utils/geminiStorage.js';
-import { isGeminiProxyEnabled, isGeminiProxyConfigured } from './geminiProxy.js';
+import { isGeminiProxyConfigured } from './geminiProxy.js';
+import { getGeminiRoute, getGeminiApiCredential } from '../config/geminiRoute.js';
 import { openCopilotPanel } from '../ui/copilotPanel.js';
 import { openManualEvaluation } from '../ui/manualEvaluation.js';
 import {
@@ -15,7 +16,8 @@ import {
 } from '../config/researchPath.js';
 
 export function canUseApiResearch() {
-  if (isGeminiProxyEnabled()) return true;
+  const route = getGeminiRoute();
+  if (route === 'byok' || route === 'proxy') return true;
   if (isGeminiProxyConfigured() && !hasGeminiKey()) {
     return false;
   }
@@ -50,13 +52,14 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
 
 export function runApiResearchDirect(productName, competitorUrl = '') {
   const modelName = getGeminiModel();
+  const credential = getGeminiApiCredential();
 
-  if (isGeminiProxyEnabled()) {
-    runRealResearchSequence(productName, 'proxy', modelName, competitorUrl);
+  if (credential) {
+    runRealResearchSequence(productName, credential, modelName, competitorUrl);
     return;
   }
 
-  if (isGeminiProxyConfigured() && !isGeminiProxyEnabled()) {
+  if (isGeminiProxyConfigured() && getGeminiRoute() === 'none') {
     requireGeminiKey(
       'El proxy Gemini requiere iniciar sesión. Entra con tu cuenta, usa Modo Copiloto gratis, o configura BYOK en Ajustes.'
     );

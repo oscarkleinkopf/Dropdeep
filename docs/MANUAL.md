@@ -282,18 +282,21 @@ La clave se guarda **solo en tu navegador** (`localStorage`):
 
 **Nunca** pegues la clave en variables `VITE_*` ni la subas al repositorio.
 
-#### Prioridad proxy vs BYOK (importante)
+#### Prioridad BYOK vs proxy (importante)
 
-Si el despliegue tiene `VITE_GEMINI_PROXY=true` **y** has **iniciado sesión**, Deep Research automático usa **siempre el proxy** (clave del servidor), aunque tengas BYOK guardada en Ajustes. La terminal mostrará *Usando proxy seguro Supabase (clave Gemini en servidor)*.
+Si guardaste una **clave Gemini válida en Ajustes**, Deep Research y Spy usan **BYOK** (llamadas directas a Google), **aunque** tengas sesión iniciada y el sitio tenga `VITE_GEMINI_PROXY=true`. La terminal mostrará *Usando BYOK — clave Gemini personal (llamadas directas a Google)*.
+
+Si **no** hay clave guardada pero sí sesión + proxy activo, se usa el **proxy** (cuota diaria). La terminal mostrará *Usando proxy seguro Supabase (clave Gemini en servidor)*.
 
 | Situación | Qué usa la API automática |
 |-----------|---------------------------|
-| Sesión + proxy activo | **Proxy** (cuota diaria de investigaciones) |
-| Sin sesión + BYOK en Ajustes | **BYOK** (tu cuota Gemini) |
+| BYOK guardada en Ajustes (con o sin sesión) | **BYOK** (tu cuota Gemini) |
+| Sesión + proxy activo, **sin** clave guardada | **Proxy** (cuota diaria de investigaciones) |
+| Sin sesión + BYOK en Ajustes | **BYOK** |
 | Sin sesión + proxy configurado | Mensaje: requiere login o BYOK |
 | Sin sesión + sin clave | Redirige a Modo Copiloto |
 
-Para usar **BYOK** con proxy habilitado en el sitio: cierra sesión o usa otro navegador/dispositivo sin login. Spy con IA sigue la misma regla.
+En **Ajustes**, el hint resume la regla: *Con clave personal se usa BYOK; sin clave y con cuenta se usa el proxy (cuota diaria).*
 
 ### 5.2 Proxy con cuenta y cuota diaria
 
@@ -396,7 +399,7 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 |---|---------|----------------|-------------------|
 | 01 | Demografía y Psicografía | Quién compra, qué cree, qué frustra | ¿Existe un avatar claro para tus ads? |
 | 02 | Soluciones y Reseñas | Qué probó antes el cliente | ¿Tu producto mejora algo concreto vs alternativas? |
-| 03 | Curiosidades y Mecanismos | UMP/UMS narrativos | ¿Tienes historia para el copy? |
+| 03 | Curiosidades y Mecanismos | UMP/UMS narrativos; gráfico de tendencia **ilustrativo** (no Google Trends en vivo) | ¿Tienes historia para el copy? |
 | 04 | La Caída del Edén | Contraste antes/después emocional | ¿Qué transformación vendes? |
 | 05 | Swipe File (Textuales) | Frases literales de compradores | Copia directa para anuncios |
 | 06 | Ángulos y Ganchos de Copy | 5 ángulos con hook y titular | Elige 1–2 ángulos para testear |
@@ -416,7 +419,7 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
----
+**Gráfico de tendencia (sección 03):** muestra una curva **offline** derivada del campo *Tendencia* del informe (ej. `+120%`). **No son datos verificados de Google Trends.** Si falta el dato, verás *Sin datos de tendencia verificados para mostrar el gráfico.*
 
 ## 8. Comparar productos y decidir cuál lanzar primero
 
@@ -495,7 +498,7 @@ Mensajes **reales** de la app y qué hacer:
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas vía proxy | Cierra sesión y usa BYOK, o espera al día siguiente. Con sesión activa el proxy **tiene prioridad** sobre BYOK. |
+| **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas vía proxy | Guarda tu clave BYOK en Ajustes (prioriza BYOK aunque tengas sesión), espera al día siguiente, o usa Modo Copiloto gratis. |
 | **Cuota o límite de peticiones alcanzado** — *Has superado el límite de tu plan Gemini...* | Límite de Google (HTTP 429 / quota) en BYOK | Espera minutos; revisa cuota en AI Studio → **Reintentar** |
 | **Sesión requerida para el proxy** — *Inicia sesión para usar el proxy Gemini o configura tu propia clave en Ajustes.* | Proxy activo sin login | **Entrar** o BYOK |
 

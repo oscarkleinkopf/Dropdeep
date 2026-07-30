@@ -9,6 +9,7 @@ import {
 } from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
 import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
+import { getGeminiRoute } from '../config/geminiRoute.js';
 import { updateOnboardingPanel } from './onboarding.js';
 
 const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
@@ -27,7 +28,7 @@ export function updateGeminiKeyBanner() {
   const banner = document.getElementById('gemini-key-banner');
   if (!banner) return;
 
-  if (isGeminiProxyEnabled()) {
+  if (isGeminiProxyEnabled() && !hasGeminiKey()) {
     banner.classList.add('hidden');
     return;
   }
@@ -52,7 +53,7 @@ export function initGeminiKeyBanner() {
 
 /** Toast + banner when an API flow needs a Gemini key. Returns false if no key. */
 export function requireGeminiKey(message) {
-  if (isGeminiProxyEnabled() || hasGeminiKey()) return true;
+  if (getGeminiRoute() !== 'none') return true;
 
   updateGeminiKeyBanner();
 
@@ -96,13 +97,20 @@ export function populateSettingsForm() {
 
   const keyHint = document.getElementById('gemini-key-hint');
   if (keyHint) {
-    keyHint.textContent = isGeminiProxyEnabled()
-      ? 'Proxy activo: la clave en servidor se usa al estar logueado. Puedes guardar solo preferencias (modelo/idioma).'
-      : 'Tu clave se guarda solo en este navegador (localStorage), asociada a tu cuenta si iniciaste sesión.';
+    if (hasGeminiKey()) {
+      keyHint.textContent =
+        'Con clave personal se usa BYOK (directo a Google). Sin clave y con cuenta se usa el proxy (cuota diaria).';
+    } else if (isGeminiProxyEnabled()) {
+      keyHint.textContent =
+        'Sin clave guardada: con sesión activa se usa el proxy (cuota diaria). Guarda tu clave para usar BYOK.';
+    } else {
+      keyHint.textContent =
+        'Tu clave se guarda solo en este navegador (localStorage), asociada a tu cuenta si iniciaste sesión.';
+    }
   }
   if (geminiKeyInput) {
-    geminiKeyInput.required = !isGeminiProxyEnabled();
-    geminiKeyInput.placeholder = isGeminiProxyEnabled() ? 'Opcional con proxy activo' : 'AIzaSy...';
+    geminiKeyInput.required = getGeminiRoute() === 'none' && !isGeminiProxyEnabled();
+    geminiKeyInput.placeholder = isGeminiProxyEnabled() ? 'Opcional — prioriza BYOK si la guardas' : 'AIzaSy...';
   }
 }
 
@@ -113,8 +121,7 @@ export function saveSettingsFromForm() {
   const grounding = document.getElementById('gemini-grounding-input')?.checked ?? true;
   const lang = document.getElementById('gemini-language-select')?.value || 'es';
 
-  const proxy = isGeminiProxyEnabled();
-  if (!key && !proxy) return false;
+  if (!key && getGeminiRoute() === 'none') return false;
 
   if (key) {
     saveGeminiSettings({ key, model, grounding, language: lang });

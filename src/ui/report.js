@@ -463,7 +463,7 @@ export function switchReportTab(sectionId) {
 
   // If chart needs re-rendering or setup
   if (sectionId === 'section-secrets') {
-    initTrendChart();
+    initTrendChart(state.currentReport);
   }
   if (sectionId === 'section-solutions') {
     initSentimentChart();
@@ -542,10 +542,11 @@ export function renderReportContent() {
       <p><strong>Intentos del Pasado:</strong> ${report.secrets.historical}</p>
       <p><strong>Narrativa de Supresión:</strong> ${report.secrets.conspiracy}</p>
       
-      <h3>2. Gráfico de Búsqueda y Tendencias (Interés 12 Meses)</h3>
-      <p>Volumen de interés recopilado de foros e búsquedas globales de Google Trends en los últimos 12 meses:</p>
-      <div class="report-chart-container">
+      <h3>2. Tendencia del informe (12 meses)</h3>
+      <p>Dato de tendencia del informe: <strong>${report.trend || 'Sin dato'}</strong>. El gráfico siguiente es una <strong>ilustración offline</strong> derivada de ese valor — <strong>no son datos verificados de Google Trends</strong>.</p>
+      <div class="report-chart-container" id="trend-chart-wrap">
         <canvas id="trend-chart-canvas"></canvas>
+        <p id="trend-chart-na" class="trend-chart-na hidden" style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.9rem;">Sin datos de tendencia verificados para mostrar el gráfico.</p>
       </div>
 
       <h3>3. Los Dos Mecanismos Críticos</h3>

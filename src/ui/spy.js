@@ -5,7 +5,8 @@ import { metaHiddenInterestsDatabase } from '../data/metaInterests.js';
 import { updateGeminiKeyBanner, openSettingsModal } from './geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel } from '../utils/geminiStorage.js';
 import { escapeHtml } from '../utils/sanitize.js';
-import { isGeminiProxyEnabled, createProxyGenerativeModel } from '../research/geminiProxy.js';
+import { getGeminiRoute } from '../config/geminiRoute.js';
+import { createProxyGenerativeModel } from '../research/geminiProxy.js';
 import { switchView } from './navigation.js';
 import { classifyGeminiError } from '../research/errors.js';
 
@@ -170,10 +171,11 @@ export async function runCompetitorStoreScan(url) {
     lucide.createIcons();
   }
 
-  const apiKey = getGeminiKey();
-  const useProxy = isGeminiProxyEnabled();
+  const route = getGeminiRoute();
+  const useProxy = route === 'proxy';
+  const apiKey = route === 'byok' ? getGeminiKey() : null;
 
-  if (!useProxy && !apiKey) {
+  if (route === 'none') {
     updateGeminiKeyBanner();
     renderSpyUnavailable(
       'Configura tu clave Gemini en Ajustes o activa el proxy Supabase para escanear tiendas reales.',
@@ -184,7 +186,10 @@ export async function runCompetitorStoreScan(url) {
   }
 
   try {
-    showToast(useProxy ? "Analizando vía proxy seguro..." : "Conectando con Gemini API para análisis en vivo...", "info");
+    showToast(
+      useProxy ? 'Analizando vía proxy seguro...' : 'Conectando con Gemini BYOK para análisis en vivo...',
+      'info'
+    );
     const modelName = getGeminiModel();
     const model = useProxy
       ? createProxyGenerativeModel({ model: modelName, useSearch: false })
