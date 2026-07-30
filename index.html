@@ -909,6 +909,7 @@
         </div>
         <div class="terminal-body copilot-body">
           <p class="copilot-intro">Producto: <strong id="copilot-product-name">—</strong></p>
+          <p id="copilot-resume-note" class="copilot-resume-note hidden" role="status"></p>
           <ol class="copilot-steps-guide" id="copilot-steps-guide">
             <li><strong>Copiar prompt</strong> → botón abajo</li>
             <li><strong>Pegar en tu chatbot gratis</strong> (ChatGPT, Gemini, Claude, DeepSeek web)</li>
@@ -931,7 +932,8 @@
           <div id="copilot-error-msg" class="copilot-error hidden" role="alert"></div>
           <div class="copilot-actions">
             <button type="button" class="btn btn-secondary" id="copilot-retry-btn">Reintentar</button>
-            <button type="button" class="btn btn-secondary" id="copilot-cancel-btn">Cancelar</button>
+            <button type="button" class="btn btn-secondary" id="copilot-discard-btn">Descartar progreso</button>
+            <button type="button" class="btn btn-secondary" id="copilot-cancel-btn">Cancelar sesión</button>
             <button type="button" class="btn btn-primary" id="copilot-process-btn">
               <i data-lucide="check"></i> Procesar respuesta
             </button>

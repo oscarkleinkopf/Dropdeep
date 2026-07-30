@@ -14,7 +14,71 @@ import { calculateProductScore } from './scoring.js';
 import { persistResearchReport } from './historySync.js';
 import { state } from '../state.js';
 
+const STORAGE_KEY = 'dropdeep_copilot_session';
+const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 let session = null;
+
+function persistCopilotSessionToStorage() {
+  if (!session || session.completed) return;
+  const payload = {
+    productName: session.productName,
+    competitorUrl: session.competitorUrl || '',
+    mode: session.mode,
+    fastMode: session.fastMode,
+    expressMode: session.expressMode,
+    steps: session.steps,
+    currentStepIndex: session.currentStepIndex,
+    partialReport: session.partialReport,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    /* quota exceeded — non-fatal */
+  }
+}
+
+function clearStoredCopilotSession() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+export function getStoredCopilotSession() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data?.productName || !Array.isArray(data.steps)) {
+      clearStoredCopilotSession();
+      return null;
+    }
+    const age = Date.now() - new Date(data.updatedAt || 0).getTime();
+    if (Number.isNaN(age) || age > SESSION_MAX_AGE_MS) {
+      clearStoredCopilotSession();
+      return null;
+    }
+    return data;
+  } catch {
+    clearStoredCopilotSession();
+    return null;
+  }
+}
+
+export function restoreCopilotSession(stored) {
+  if (!stored) return null;
+  session = {
+    productName: stored.productName,
+    competitorUrl: stored.competitorUrl || '',
+    mode: stored.mode,
+    fastMode: !!stored.fastMode,
+    expressMode: !!stored.expressMode,
+    steps: stored.steps,
+    currentStepIndex: stored.currentStepIndex ?? 0,
+    partialReport: stored.partialReport || { name: stored.productName },
+    completed: false,
+  };
+  return session;
+}
 
 export function getCopilotSession() {
   return session;
@@ -36,11 +100,19 @@ export function startCopilotSession(productName, competitorUrl = '') {
     completed: false,
   };
 
+  persistCopilotSessionToStorage();
   return session;
 }
 
+/** Explicit cancel/discard — clears memory and localStorage. */
 export function cancelCopilotSession() {
   session = null;
+  clearStoredCopilotSession();
+}
+
+/** Hide panel but keep draft persisted for resume. */
+export function pauseCopilotSession() {
+  persistCopilotSessionToStorage();
 }
 
 export function getCurrentCopilotStep() {
@@ -89,8 +161,11 @@ export function processCopilotPaste(rawText) {
       persistResearchReport(finalReport).catch(() => { /* offline */ });
       const doneSession = session;
       session = null;
+      clearStoredCopilotSession();
       return { ok: true, report: finalReport, done: true, session: doneSession };
     }
+
+    persistCopilotSessionToStorage();
 
     return {
       ok: true,

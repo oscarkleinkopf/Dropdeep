@@ -5,6 +5,8 @@ import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { showToast } from '../utils/toast.js';
 import { updateWizardVisibility } from './firstProductWizard.js';
+import { getStoredCopilotSession } from '../research/copilotFlow.js';
+import { resumeCopilotPanel, discardCopilotPanel } from './copilotPanel.js';
 
 function getRecentResearchItems(limit = 6) {
   const seen = new Set();
@@ -27,6 +29,51 @@ function getRecentResearchItems(limit = 6) {
   });
 
   return items.slice(0, limit);
+}
+
+export function renderCopilotResumeBanner() {
+  const existing = document.getElementById('copilot-resume-banner');
+  if (existing) existing.remove();
+
+  const stored = getStoredCopilotSession();
+  if (!stored) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'copilot-resume-banner';
+  banner.className = 'copilot-resume-banner';
+  banner.innerHTML = `
+    <div class="copilot-resume-banner-inner">
+      <div>
+        <strong>Investigación copiloto en progreso</strong>
+        <p>«${stored.productName}» — paso ${stored.currentStepIndex + 1} de ${stored.steps.length}. Puedes retomar o descartar.</p>
+      </div>
+      <div class="copilot-resume-banner-actions">
+        <button type="button" class="btn btn-primary btn-sm" id="copilot-resume-btn">
+          <i data-lucide="play"></i> Retomar copiloto
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="copilot-resume-discard-btn">Descartar</button>
+      </div>
+    </div>
+  `;
+
+  const feed = document.getElementById('research-feed');
+  feed?.insertAdjacentElement('beforebegin', banner);
+
+  document.getElementById('copilot-resume-btn')?.addEventListener('click', () => {
+    resumeCopilotPanel();
+  });
+  document.getElementById('copilot-resume-discard-btn')?.addEventListener('click', () => {
+    discardCopilotPanel();
+    banner.remove();
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+export function offerCopilotResumeToast() {
+  const stored = getStoredCopilotSession();
+  if (!stored) return;
+  showToast(`Retomar investigación de «${stored.productName}» (paso ${stored.currentStepIndex + 1}/${stored.steps.length}).`, 'info');
 }
 
 export function renderDashboardStats() {
@@ -69,6 +116,8 @@ export function renderDashboardStats() {
 export function renderResearchFeed() {
   const feed = document.getElementById('research-feed');
   if (!feed) return;
+
+  renderCopilotResumeBanner();
 
   const items = getRecentResearchItems(6);
 

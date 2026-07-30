@@ -77,8 +77,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 |---|-----------|----------|---------|
 | 1 | **BYOK ignorada si hay sesión + proxy** — usuario con clave guardada sigue consumiendo cuota proxy | `flow.js:54-56`, `gemini.js:377`, `spy.js:174-190` | Founder dogfooding con BYOK pierde control y cuota |
 | 2 | **Gráfico “Google Trends” simulado con `Math.random()`** — copy afirma datos reales | `charts.js:13-16`, `report.js:545-548` | Fuga de confianza en informe copiloto/API |
-| 3 | **Sin bloque “próxima decisión”** — comparador ignora eval manual para ganador (`Product Score` only) | `report.js` (sin sección decisión), `portfolio.js:423-424` | Principiante no sabe lanzar/validar/descartar |
-| 4 | **Sesión copiloto volátil** — cerrar modal = perder progreso | `copilotFlow.js:42-44` (`cancelCopilotSession`) | Fricción alta en flujo gratis multi-paso |
+| 3 | **Sin bloque “próxima decisión”** — comparador ignora eval manual para ganador (`Product Score` only) | `report.js` (T09 resuelto; comparador T10 pendiente) | Principiante no sabe lanzar/validar/descartar |
+| 4 | **Sesión copiloto volátil** — cerrar modal = perder progreso | `copilotFlow.js` (T05 resuelto) | Fricción alta en flujo gratis multi-paso |
 | 5 | **Sin tests ni CI** — solo deploy Pages | `package.json` (sin `test`), `.github/workflows/deploy-pages.yml` | Regresiones silenciosas en parse/rubric |
 
 ### Otras observaciones
@@ -182,7 +182,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 1. ~~**BYOK pierde frente a proxy con sesión**~~ — resuelto T33 (`geminiRoute.js`).
 2. ~~**Gráfico tendencia simulado**~~ — resuelto T34 (`charts.js` + copy `report.js`).
-3. **Sesión copiloto volátil** — `cancelCopilotSession()` pierde progreso; T05 pendiente.
+3. **Sesión copiloto volátil** — resuelto T05 (`copilotFlow.js` + `copilotPanel.js` + banner Inicio).
 4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
 5. **`src/data.js` shim roto** — export `generateCompetitorStoreAnalysis` no existe en `data/index.js` (T30).
 6. **Sin tests E2E/unit** — paste-back crítico sin regresión automática (T08, T25, T26).
@@ -375,6 +375,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T05 — Persistir progreso parcial del copiloto (localStorage)
 
+> **Estado (2026-07-29):** ✅ Hecho — `copilotFlow.js` (`dropdeep_copilot_session`), `copilotPanel.js` (cerrar vs descartar), banner retomar en `feed.js`, toast al cargar en `main.js`.
+
 **Objetivo:** Si el usuario cierra el modal o recarga, puede retomar el paso N del copiloto.
 
 | Campo | Valor |
@@ -509,6 +511,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T09 — Bloque "Próxima decisión" al final del reporte
+
+> **Estado (2026-07-29):** ✅ Hecho — panel **Próxima decisión** en `report.js` + `getNextDecision()` en `scoring.js`; CTAs guardar, eval manual, kit, comparar, completar secciones.
 
 **Objetivo:** Principiante sabe qué hacer: lanzar, validar más, comparar o evaluar manualmente.
 
@@ -1475,11 +1479,11 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | T02 | Fallbacks API honestos | P0 | ✅ `e3b43d1` |
 | T03 | Cuota proxy por investigación | P0 | ✅ `e3b43d1` + prod |
 | T04 | Copiloto 1 pegado (express) | P0 | ✅ `e3b43d1` |
-| T05 | Persistir sesión copiloto | P1 | pendiente |
+| T05 | Persistir sesión copiloto | P1 | ✅ jul 2026 |
 | T06 | Validación JSON accionable | P1 | pendiente |
 | T07 | Recuperación errores copiloto | P1 | pendiente |
 | T08 | E2E Playwright paste-back | P1 | pendiente |
-| T09 | Bloque "Próxima decisión" en reporte | P1 | pendiente |
+| T09 | Bloque "Próxima decisión" en reporte | P1 | ✅ jul 2026 |
 | T10 | Comparador + eval manual | P1 | pendiente |
 | T11 | Spy honesto / fuente real | P1 | pendiente |
 | T12 | A/B heurístico (no CTR falso) | P1 | ✅ `e3b43d1` |

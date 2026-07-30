@@ -1,4 +1,4 @@
-import { renderDashboardStats, renderResearchFeed } from './ui/feed.js';
+import { renderDashboardStats, renderResearchFeed, offerCopilotResumeToast } from './ui/feed.js';
 import { updatePortfolioBadge } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
 import { initAuth, onAuthStateChange, isAuthenticated } from './auth/auth.js';
@@ -22,6 +22,7 @@ async function bootstrapAppShell() {
   await syncResearchHistoryOnLoad().catch(() => { /* offline */ });
   renderDashboardStats();
   renderResearchFeed();
+  offerCopilotResumeToast();
   updatePortfolioBadge();
   updateWizardVisibility();
   setupEventListeners();

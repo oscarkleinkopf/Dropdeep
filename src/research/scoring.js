@@ -26,6 +26,77 @@ export function scoreROI(roi) {
   return ((roi - 50) / 250) * 100;
 }
 
+import {
+  VERDICT_DISCARD,
+  VERDICT_LAUNCH,
+  VERDICT_VALIDATE,
+} from './manualRubric.js';
+
+export function deriveVerdictFromProductScore(score) {
+  if (score >= 70) return VERDICT_LAUNCH;
+  if (score >= 45) return VERDICT_VALIDATE;
+  return VERDICT_DISCARD;
+}
+
+function buildProductScoreExplanation(score, verdict, report) {
+  const parts = [
+    `Product Score ${score}/100 (margen, saturación, tendencia, envío y ROI del informe).`,
+    'Esta sugerencia orientativa no sustituye la Evaluación manual con tus criterios reales.',
+  ];
+
+  if (verdict === VERDICT_LAUNCH) {
+    parts.push('Indicadores del informe son favorables; valida margen y proveedor antes de escalar ads.');
+  } else if (verdict === VERDICT_VALIDATE) {
+    parts.push('Señales mixtas; confirma costos de proveedor, envío y creativos antes de invertir.');
+  } else {
+    parts.push('Métricas del informe sugieren alto riesgo; considera pivotar o profundizar antes de lanzar.');
+  }
+
+  if (report._researchMode === 'fast' || report._researchMode === 'express') {
+    parts.push('Informe en modo Rápido/Express — faltan secciones; completa con Copiloto 5 pasos o API para decidir con más datos.');
+  }
+
+  if (report._incompleteSections?.length) {
+    parts.push(`Secciones incompletas: ${report._incompleteSections.join(', ')}.`);
+  }
+
+  return parts.join(' ');
+}
+
+/**
+ * Next-step recommendation for the report decision block (T09).
+ * Prefers manual evaluation when present; otherwise derives from Product Score with explicit caveat.
+ */
+export function getNextDecision(report) {
+  const productScore = report.productScore ?? calculateProductScore(report);
+
+  if (report.manualEvaluation) {
+    const me = report.manualEvaluation;
+    return {
+      verdict: me.verdict,
+      score: me.score,
+      source: 'manual',
+      sourceLabel: 'Evaluación manual (checklist offline)',
+      explanation: me.explanation || `Puntuación ${me.score}/100 → ${me.verdict}.`,
+      productScore,
+      needsManualEval: false,
+      needsCompleteSections: report._researchMode === 'fast' || !!report._incompleteSections?.length,
+    };
+  }
+
+  const verdict = deriveVerdictFromProductScore(productScore);
+  return {
+    verdict,
+    score: productScore,
+    source: 'productScore',
+    sourceLabel: 'Product Score del informe (no sustituye evaluación manual)',
+    explanation: buildProductScoreExplanation(productScore, verdict, report),
+    productScore,
+    needsManualEval: true,
+    needsCompleteSections: report._researchMode === 'fast' || report._researchMode === 'express' || !!report._incompleteSections?.length,
+  };
+}
+
 export function calculateProductScore(report) {
   const wMargin = 0.25;
   const wSaturation = 0.20;

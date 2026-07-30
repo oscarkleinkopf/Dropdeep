@@ -2,14 +2,20 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
 import { setCacheEntry } from '../research/cache.js';
-import { calculateProductScore } from '../research/scoring.js';
+import { calculateProductScore, getNextDecision } from '../research/scoring.js';
+import { verdictColor } from '../research/manualRubric.js';
 import { sanitizeReport } from '../research/gemini.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
-import { toggleSaveProduct } from './portfolio.js';
+import { toggleSaveProduct, openProductComparison } from './portfolio.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
+import { openManualEvaluation } from './manualEvaluation.js';
+import { exportCampaignKit } from './export.js';
+import { setResearchMode, RESEARCH_MODE_COMPLETE } from '../config/researchMode.js';
+import { isAuthenticated } from '../auth/auth.js';
+import { getCompareMax } from '../config/freeTier.js';
 
 export function openDeepResearchReport(productOrReport) {
   if (typeof productOrReport === 'string') {
@@ -390,6 +396,7 @@ export function openDeepResearchReport(productOrReport) {
   // Render Report Sections in tab contents & build printable container
   renderReportContent();
   renderPrintableReport();
+  renderNextDecisionBlock(report);
 
   renderDashboardStats();
   renderResearchFeed();
@@ -435,6 +442,120 @@ function showSaveReportBanner(report, loadedFromCache) {
       banner.remove();
     });
     document.getElementById('report-save-banner-dismiss')?.addEventListener('click', () => banner.remove());
+  }
+}
+
+function verdictCssClass(verdict) {
+  if (verdict === 'Lanzar') return 'verdict-launch';
+  if (verdict === 'Validar más') return 'verdict-validate';
+  return 'verdict-discard';
+}
+
+function renderNextDecisionBlock(report) {
+  const existing = document.getElementById('report-next-decision');
+  if (existing) existing.remove();
+
+  const decision = getNextDecision(report);
+  const isSaved = state.portfolio.some((p) => p.name.toLowerCase() === report.name.toLowerCase());
+  const compareMax = getCompareMax(isAuthenticated());
+  const canCompare = (state.selectedCompareIds?.length || 0) >= 2;
+
+  const banner = document.createElement('div');
+  banner.id = 'report-next-decision';
+  banner.className = 'report-next-decision';
+  banner.setAttribute('role', 'region');
+  banner.setAttribute('aria-label', 'Próxima decisión');
+
+  const verdictColorVal = verdictColor(decision.verdict);
+
+  let actionButtons = `
+    <button type="button" class="btn btn-primary btn-sm" id="next-decision-save-btn">
+      <i data-lucide="heart"></i> ${isSaved ? 'En portafolio' : 'Guardar en portafolio'}
+    </button>
+  `;
+
+  if (decision.needsManualEval) {
+    actionButtons += `
+      <button type="button" class="btn btn-secondary btn-sm" id="next-decision-manual-btn">
+        <i data-lucide="clipboard-check"></i> Evaluación manual
+      </button>
+    `;
+  }
+
+  actionButtons += `
+    <button type="button" class="btn btn-secondary btn-sm" id="next-decision-kit-btn">
+      <i data-lucide="package"></i> Exportar kit
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" id="next-decision-compare-btn">
+      <i data-lucide="columns"></i> ${canCompare ? 'Comparar seleccionados' : 'Ir a comparar'}
+    </button>
+  `;
+
+  if (decision.needsCompleteSections) {
+    actionButtons += `
+      <button type="button" class="btn btn-secondary btn-sm" id="next-decision-complete-btn">
+        <i data-lucide="layers"></i> Completar secciones
+      </button>
+    `;
+  }
+
+  banner.innerHTML = `
+    <div class="report-next-decision-inner">
+      <div class="report-next-decision-header">
+        <h3>Próxima decisión</h3>
+        <span class="report-next-decision-source">Fuente: ${decision.sourceLabel}</span>
+      </div>
+      <div class="report-next-decision-verdict ${verdictCssClass(decision.verdict)}" style="--verdict-color: ${verdictColorVal}">
+        <strong>${decision.verdict}</strong>
+        <span class="report-next-decision-score">${decision.score}/100</span>
+      </div>
+      <p class="report-next-decision-explanation">${decision.explanation}</p>
+      ${decision.source === 'productScore' ? '<p class="report-next-decision-caveat">Sugerencia orientativa — completa la Evaluación manual para un veredicto con tus criterios reales.</p>' : ''}
+      <div class="report-next-decision-actions">${actionButtons}</div>
+    </div>
+  `;
+
+  const reportView = document.getElementById('report-view');
+  const headerNav = reportView?.querySelector('.report-header-nav');
+  const saveBanner = document.getElementById('report-save-banner');
+  if (headerNav) {
+    if (saveBanner) {
+      saveBanner.insertAdjacentElement('afterend', banner);
+    } else {
+      headerNav.insertAdjacentElement('afterend', banner);
+    }
+    lucide.createIcons();
+
+    document.getElementById('next-decision-save-btn')?.addEventListener('click', () => {
+      if (!isSaved) toggleSaveProduct();
+      else showToast('Este reporte ya está en tu portafolio.', 'info');
+    });
+
+    document.getElementById('next-decision-manual-btn')?.addEventListener('click', () => {
+      openManualEvaluation(report.name, report);
+    });
+
+    document.getElementById('next-decision-kit-btn')?.addEventListener('click', () => {
+      exportCampaignKit(report);
+    });
+
+    document.getElementById('next-decision-compare-btn')?.addEventListener('click', () => {
+      if (canCompare) {
+        openProductComparison();
+        return;
+      }
+      switchView('portfolio-view');
+      showToast(`Selecciona 2–${compareMax} productos en Portafolio para comparar.`, 'info');
+    });
+
+    document.getElementById('next-decision-complete-btn')?.addEventListener('click', () => {
+      setResearchMode(RESEARCH_MODE_COMPLETE);
+      switchView('dashboard-view');
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = report.name;
+      showToast('Modo Completo activado — reinicia Copiloto o Deep Research para secciones completas.', 'info');
+      searchInput?.focus();
+    });
   }
 }
 

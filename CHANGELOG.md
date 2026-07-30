@@ -10,6 +10,8 @@ Las entradas más recientes van primero.
 
 - **Prioridad BYOK sobre proxy (T33):** si guardaste clave Gemini en Ajustes, Deep Research y Spy usan BYOK directo a Google aunque tengas sesión y proxy activo; hint en Ajustes y logs de terminal distinguen BYOK vs proxy.
 - **Gráfico de tendencia honesto (T34):** eliminado `Math.random()`; la sección 03 muestra ilustración offline derivada del campo *Tendencia* del informe o mensaje *Sin datos de tendencia verificados* — sin afirmar Google Trends en vivo.
+- **Bloque «Próxima decisión» en el informe (T09):** panel con veredicto **Lanzar** / **Validar más** / **Descartar** (evaluación manual si existe; si no, sugerencia orientativa desde Product Score con aviso explícito), fuente etiquetada y acciones: guardar portafolio, evaluación manual, exportar kit, comparar y completar secciones en modo Rápido/Express.
+- **Persistencia sesión copiloto (T05):** progreso parcial guardado en `localStorage` (7 días); cerrar el modal no borra el paso; banner **Retomar copiloto** en Inicio + toast al cargar; **Descartar progreso** / **Cancelar sesión** limpian el borrador; al completar el informe se borra el draft.
 
 ### Añadido (documentación previa)
 

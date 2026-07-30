@@ -196,11 +196,24 @@ Tras **Procesar respuesta**:
 - Si el JSON es válido → toast **Paso procesado correctamente.** y avanzas al siguiente paso.
 - Al terminar → toast **Reporte completo — generado en modo copiloto.** y badge **Generado en modo copiloto** en el informe.
 
+#### Retomar o descartar progreso (T05)
+
+El copiloto guarda automáticamente tu progreso parcial en este navegador (hasta **7 días**):
+
+| Acción | Qué pasa |
+|--------|----------|
+| Cerrar el modal (punto rojo) | Se oculta el panel; el paso y datos pegados **se conservan** |
+| Recargar la página (F5) | Banner **Investigación copiloto en progreso** en Inicio + toast *Retomar investigación de «…»* |
+| **Retomar copiloto** | Abre el modal en el mismo paso con el `partialReport` intacto |
+| **Descartar progreso** / **Cancelar sesión** | Pide confirmación y borra el borrador |
+| Completar todos los pasos | Borra el borrador automáticamente |
+
 #### Consejos para el Copiloto
 
 - Pide al chatbot **solo JSON**, sin texto extra. Si devuelve markdown con \`\`\`json, quita los delimitadores antes de pegar.
 - Si falla el parseo, usa **Reintentar** y pega de nuevo.
-- **Cancelar** cierra la sesión de copiloto sin guardar el informe incompleto.
+- **Cerrar** (punto rojo) pausa la sesión — usa **Retomar copiloto** para continuar.
+- **Cancelar sesión** o **Descartar progreso** elimina el borrador sin guardar informe incompleto.
 
 ### 4.3 Evaluación manual (10 criterios)
 
@@ -393,6 +406,18 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 
 > **Importante:** El **Product Score** del informe y el score de **Evaluación manual** usan criterios distintos. El comparador usa Product Score, no el checklist manual.
 
+### Próxima decisión (panel en el informe)
+
+Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
+
+| Elemento | Descripción |
+|----------|-------------|
+| **Veredicto** | **Lanzar**, **Validar más** o **Descartar** (mismos umbrales que evaluación manual: ≥70 / 45–69 / &lt;45) |
+| **Fuente** | Si completaste **Evaluación manual**, usa ese veredicto y explicación. Si no, muestra sugerencia orientativa desde **Product Score** con aviso de que no sustituye la evaluación manual |
+| **Acciones** | **Guardar en portafolio**, **Evaluación manual** (si falta), **Exportar kit**, **Ir a comparar** / **Comparar seleccionados**, y **Completar secciones** si el informe es Rápido/Express o tiene secciones incompletas |
+
+En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
+
 ### Secciones del sidebar (19 pestañas)
 
 | # | Sección | Para qué sirve | Decisión que ayuda |
@@ -518,7 +543,7 @@ Mensajes **reales** de la app y qué hacer:
 | *Pega la respuesta del chatbot antes de procesar.* | Textarea vacío | Pega la respuesta completa |
 | *No se pudo interpretar la respuesta como JSON válido.* (+ **Reintentar**) | JSON mal formado o con markdown | Pide al chatbot solo JSON; quita \`\`\`; **Reintentar** |
 | *Avatar Brief inválido: falta el objeto "general".* (u otros de validación) | Paso incompleto | Regenera ese paso en el chatbot con el prompt exacto |
-| *No hay sesión de copiloto activa.* | Modal cerrado a medias | Reinicia **Iniciar Modo Copiloto** |
+| *No hay sesión de copiloto activa.* | Modal cerrado sin retomar | Usa **Retomar copiloto** en Inicio o reinicia **Iniciar Modo Copiloto** |
 
 ### Investigación API
 
