@@ -15,7 +15,8 @@ Actualiza `docs/MANUAL.md` y añade entrada en `CHANGELOG.md` si cambias cualqui
 - Etiquetas o textos de UI en **español** (botones, toasts, títulos, badges, mensajes de error).
 - Límites del tier gratis (portafolio, comparar, cuota proxy, caché).
 - Criterios, pesos o veredictos de evaluación manual o Product Score.
-- Pasos de Modo Copiloto / Deep Research (Rápido vs Completo).
+- Pasos de Modo Copiloto / Deep Research (Express / Rápido / Completo).
+- Prioridad proxy vs BYOK cuando hay sesión + `VITE_GEMINI_PROXY=true`.
 - Packs verticales, exportaciones o formatos de kit de campaña.
 - Requisitos de auth, BYOK, proxy o variables de entorno documentadas (`.env.example`, README).
 - Enlaces de ayuda in-app hacia el manual.

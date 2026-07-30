@@ -8,6 +8,11 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Manual de usuario refrescado** (`docs/MANUAL.md`): Modo Express, prioridad proxy sobre BYOK con sesión, cuota por investigación (no por llamada Gemini), tabla Express/Rápido/Completo para Copiloto vs API, flujo ~15 min con Express, glosario ampliado y solución de problemas (429, cancelación a mitad).
+- Entradas de changelog consolidadas para Express, cuota proxy por sesión e informes con secciones incompletas (antes solo en `[Unreleased]` sin manual alineado).
+
+### Añadido (código previo, ahora documentado en manual)
+
 - **Modo Copiloto Express (1 pegado):** profundidad **Express** en Inicio — un solo prompt/respuesta JSON con investigación base + copys; badge **Modo Express** en el informe.
 - Cuota proxy por **investigación completa** (sesión UUID): Completo/Rápido vía proxy consumen 1 unidad/día, no 1 por llamada Gemini. Migración `004_research_session_quota.sql`.
 - Hint `Proxy: N/M investigaciones hoy` tras usar proxy (sessionStorage).

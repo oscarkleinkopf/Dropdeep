@@ -76,7 +76,7 @@ Sé honesto contigo mismo sobre estos límites:
 Tres controles importantes:
 
 1. **Método:** `Gratis (Copiloto)` vs `Con API (Automático)`.
-2. **Profundidad:** `Completo` (5 pasos) vs `Rápido` (2 pasos).
+2. **Profundidad:** `Express` (1 pegado) · `Rápido` (2 pasos) · `Completo` (5 pasos). Por defecto: **Express** (ideal sin API).
 3. **Campo de producto** + URL de competidor opcional.
 
 Botones secundarios:
@@ -114,7 +114,8 @@ Esta es la ruta recomendada si empiezas con **$0** en herramientas de IA de pago
 | Gadgets | **Gadgets & Tech** |
 
 4. Sustituye `[TU PRODUCTO]` por el nombre de tu SKU (ej. “Rodillo de jade”, “Comedero inteligente”).
-5. Copia el prompt que necesites y pégalo en **ChatGPT, Gemini, Claude o DeepSeek** (versión web gratuita).
+5. Cada pack incluye **6 prompts** listos para copiar (investigación, ángulos, Meta, TikTok/UGC, objeciones, email).
+6. Copia el prompt que necesites y pégalo en **ChatGPT, Gemini, Claude o DeepSeek** (versión web gratuita).
 
 > **Nota:** Los packs son **plantillas de arranque**. Para un informe completo dentro de DropDeep, usa **Modo Copiloto** o la API.
 
@@ -281,13 +282,26 @@ La clave se guarda **solo en tu navegador** (`localStorage`):
 
 **Nunca** pegues la clave en variables `VITE_*` ni la subas al repositorio.
 
+#### Prioridad proxy vs BYOK (importante)
+
+Si el despliegue tiene `VITE_GEMINI_PROXY=true` **y** has **iniciado sesión**, Deep Research automático usa **siempre el proxy** (clave del servidor), aunque tengas BYOK guardada en Ajustes. La terminal mostrará *Usando proxy seguro Supabase (clave Gemini en servidor)*.
+
+| Situación | Qué usa la API automática |
+|-----------|---------------------------|
+| Sesión + proxy activo | **Proxy** (cuota diaria de investigaciones) |
+| Sin sesión + BYOK en Ajustes | **BYOK** (tu cuota Gemini) |
+| Sin sesión + proxy configurado | Mensaje: requiere login o BYOK |
+| Sin sesión + sin clave | Redirige a Modo Copiloto |
+
+Para usar **BYOK** con proxy habilitado en el sitio: cierra sesión o usa otro navegador/dispositivo sin login. Spy con IA sigue la misma regla.
+
 ### 5.2 Proxy con cuenta y cuota diaria
 
 Si el sitio tiene `VITE_GEMINI_PROXY=true` y la Edge Function `gemini-proxy` desplegada en Supabase:
 
 1. **Inicia sesión** (**Entrar** / **Crear cuenta** / **Continuar con Google**).
 2. Las llamadas usan la clave del servidor (secreto `GEMINI_API_KEY` en Supabase).
-3. Cuota starter: **2 investigaciones completas por día** por usuario (no 2 llamadas Gemini sueltas). Una investigación Completo (5 pasos) o Rápido (2 pasos) consume **1** unidad. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI muestra `VITE_FREE_TIER_PROXY_DAILY`, default 2). Tras cada investigación proxy, el hint de profundidad puede mostrar `Proxy: 1/2 investigaciones hoy`.
+3. Cuota starter: **2 investigaciones por día** por usuario — **no** 2 llamadas Gemini sueltas. Una sesión Completo (5 pasos internos) o Rápido (2 pasos) consume **1** investigación. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI refleja `VITE_FREE_TIER_PROXY_DAILY` (default **2**). Tras investigar vía proxy, el hint de profundidad puede mostrar `Proxy: 1/2 investigaciones hoy`.
 
 Sin sesión con proxy configurado, verás:
 
@@ -297,11 +311,13 @@ Sin sesión con proxy configurado, verás:
 
 Toggle **Profundidad** junto al buscador:
 
-| Modo | Pasos API / Copiloto | Qué obtienes |
-|------|---------------------|--------------|
-| **Express** | 1 (solo copiloto) | Reporte base + copys en un pegado; secciones avanzadas omitidas con mensaje honesto |
-| **Completo** | 5 | Informe máximo: avatar, offer, UGC, landing, emails, ads, Shopify |
-| **Rápido** | 2 | Reporte base + copys básicos; secciones omitidas muestran: *No generado en modo rápido — corre Completo para obtener esta sección.* |
+| Modo | Pasos Copiloto | Pasos API automática | Qué obtienes |
+|------|----------------|---------------------|--------------|
+| **Express** | 1 | — (API usa **Completo** si eliges Con API) | Reporte base + copys en un pegado; secciones avanzadas omitidas con mensaje honesto |
+| **Rápido** | 2 | 2 | Reporte base + copys básicos; secciones omitidas: *No generado en modo rápido — corre Completo para obtener esta sección.* |
+| **Completo** | 5 | 5 | Informe máximo: avatar, offer, UGC, landing, emails, ads, Shopify |
+
+> **Express es solo para Copiloto.** Con **Con API (Automático)** y profundidad Express seleccionada, la app ejecuta el flujo **Completo** (5 pasos Gemini). Cambia a **Rápido** o **Completo** explícitamente si usas API.
 
 Si un paso API falla al parsear, las secciones afectadas muestran *No generado — reintenta o usa Completo/Copiloto* y un banner **Secciones incompletas** en el informe (sin datos inventados).
 
@@ -333,7 +349,8 @@ Flujo recomendado para principiantes:
 |-----|--------|
 | 0–2 | Abre [DropDeep](https://oscarkleinkopf.github.io/Dropdeep/). Si aparece, pulsa **Continuar gratis** en el banner de tier operativo. |
 | 2–4 | Pulsa **¿Primera vez? Configura tu primer producto (~60 s)** (wizard). Elige vertical (ej. **Mascotas & Pets**), nombre opcional, copia un pack. |
-| 4–12 | En Inicio: **Gratis (Copiloto)** + **Rápido** (o **Completo** si quieres todo). Nombre del producto → **Iniciar Modo Copiloto**. Completa los 2 o 5 pasos copy/pega. |
+| 4–10 | En Inicio: **Gratis (Copiloto)** + **Express** (default). Nombre del producto → **Iniciar Modo Copiloto**. Un solo copy/pega en tu chatbot gratis. |
+| 10–12 | *(Opcional)* Repite con **Rápido** (2 pasos) o **Completo** (5 pasos) si quieres avatar, UGC y emails. |
 | 12–14 | Revisa el informe. Ajusta costo/precio en la barra de snapshot si tienes datos reales del proveedor. |
 | 14–15 | **Guardar en Portafolio** → **Descargar kit de campaña**. |
 
@@ -452,7 +469,7 @@ También verás evaluación manual (si existe) y origen del reporte: **Copiloto*
 | Portafolio local | 10 productos |
 | Comparar sin sesión | 2 productos |
 | Comparar con sesión | 3 productos |
-| Proxy Gemini (starter) | 2 llamadas/día/usuario |
+| Proxy Gemini (starter) | 2 **investigaciones**/día/usuario (no llamadas sueltas) |
 | Caché de investigación | 24 horas |
 
 ### Exportaciones y seguridad
@@ -478,9 +495,11 @@ Mensajes **reales** de la app y qué hacer:
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas | BYOK en **Ajustes** o espera al día siguiente |
-| **Cuota o límite de peticiones alcanzado** — *Has superado el límite de tu plan Gemini...* | Límite de Google | Espera minutos; revisa cuota en AI Studio → **Reintentar** |
+| **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas vía proxy | Cierra sesión y usa BYOK, o espera al día siguiente. Con sesión activa el proxy **tiene prioridad** sobre BYOK. |
+| **Cuota o límite de peticiones alcanzado** — *Has superado el límite de tu plan Gemini...* | Límite de Google (HTTP 429 / quota) en BYOK | Espera minutos; revisa cuota en AI Studio → **Reintentar** |
 | **Sesión requerida para el proxy** — *Inicia sesión para usar el proxy Gemini o configura tu propia clave en Ajustes.* | Proxy activo sin login | **Entrar** o BYOK |
+
+> **Sobre el código 429:** puede significar cuota diaria del **proxy** (investigaciones/día) o rate limit de **Gemini BYOK**. Lee el título del error: *Cuota diaria de proxy agotada* vs *Cuota o límite de peticiones alcanzado*.
 
 ### Red y proxy caído
 
@@ -502,7 +521,7 @@ Mensajes **reales** de la app y qué hacer:
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| **Investigación cancelada** — *Detuviste la investigación...* | Pulsaste **Cancelar investigación** | Relanza cuando quieras |
+| **Investigación cancelada** — *Detuviste la investigación...* | Pulsaste **Cancelar investigación** o la sesión se abortó (cuota/cancel) | Relanza cuando quieras; si cancelaste a mitad, no se guarda informe parcial |
 | **Respuesta de Gemini ilegible** — *El modelo devolvió un formato que no pudimos interpretar...* | Modelo devolvió texto no JSON | Cambia modelo en **Ajustes** → **Reintentar** |
 | **Error en Deep Research** | Error genérico | **Abrir Ajustes** / **Reintentar**; revisa consola si persiste |
 
@@ -529,7 +548,9 @@ Mensajes **reales** de la app y qué hacer:
 | **Proxy** | Servidor Supabase que llama a Gemini por ti (requiere cuenta). |
 | **Product Score** | Puntuación automática del informe (margen, saturación, tendencia, envío, ROI). |
 | **Modo Copiloto** | Flujo gratis copy/pega con chatbot externo. |
+| **Modo Express** | Copiloto en 1 pegado (investigación + copys); default sin API. |
 | **Deep Research** | Investigación automática vía API Gemini (BYOK o proxy). |
+| **Investigación (cuota proxy)** | Una ejecución Completo o Rápido vía proxy = 1 unidad diaria (varios pasos Gemini internos). |
 | **Kit de campaña** | Export `.md` con resumen listo para lanzar ads y emails. |
 | **Verbatim** | Frase textual de un comprador real (foros, reseñas). |
 | **Dropshipping** | Vender sin stock propio; el proveedor envía al cliente final. |
@@ -540,5 +561,6 @@ Mensajes **reales** de la app y qué hacer:
 
 - [CHANGELOG.md](../CHANGELOG.md) — historial de cambios visibles para el usuario.
 - [README.md](../README.md) — instalación, despliegue y configuración técnica.
+- [PLAN-MEJORAS.md](PLAN-MEJORAS.md) — *para desarrolladores*: roadmap interno y tareas técnicas (no es guía de usuario).
 
 *¿Encontraste un error en este manual? Abre un issue en [GitHub](https://github.com/oscarkleinkopf/Dropdeep/issues) o corrige el código y actualiza este archivo en el mismo commit (ver regla `.cursor/rules/docs-manual.mdc`).*
