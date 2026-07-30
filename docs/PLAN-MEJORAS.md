@@ -7,11 +7,12 @@
 ## Tabla de contenidos
 
 1. [Contexto del producto y reglas fijas](#1-contexto-del-producto-y-reglas-fijas)
-2. [Estado actual (qué ya existe)](#2-estado-actual-qué-ya-existe)
-3. [Tareas numeradas (T01–T32)](#3-tareas-numeradas-t01t32)
-4. [Orden sugerido de ejecución](#4-orden-sugerido-de-ejecución)
-5. [Backlog diferido](#5-backlog-diferido)
-6. [Índice rápido de tareas](#6-índice-rápido-de-tareas)
+2. [Evaluación end-to-end (2026-07-29)](#2-evaluación-end-to-end-2026-07-29)
+3. [Estado actual (qué ya existe)](#3-estado-actual-qué-ya-existe)
+4. [Tareas numeradas (T01–T37)](#4-tareas-numeradas-t01t37)
+5. [Orden sugerido de ejecución](#5-orden-sugerido-de-ejecución)
+6. [Backlog diferido](#6-backlog-diferido)
+7. [Índice rápido de tareas](#7-índice-rápido-de-tareas)
 
 ---
 
@@ -36,11 +37,81 @@
 
 ### Dirección reciente (git log)
 
-Commits recientes (`master`): copiloto paste-back + evaluación manual → wizard primer producto + modos Rápido/Completo → packs verticales + kit de campaña → tier operativo gratis + cuota proxy → eliminación de mock research.
+Commits recientes (`master`, jul 2026):
+
+| Commit | Resumen |
+|--------|---------|
+| `031b013` | Manual/CHANGELOG alineados con Express, proxy, cuota por investigación |
+| `e3b43d1` | Pipeline API honesto, cuota proxy por sesión (004), Copiloto Express, parse unificado |
+| `fecd3e4` | Plan de mejoras ejecutable (este documento) |
+| `7aafdea` | Manual español, CHANGELOG, enlace Ayuda in-app |
+| `92e26e6` | Modo Copiloto paste-back + evaluación manual determinista |
+
+**Producción Supabase (jul 2026):** migraciones 001–004 aplicadas, `gemini-proxy` desplegado, secretos `GEMINI_API_KEY` + `GEMINI_PROXY_DAILY_LIMIT`, `VITE_GEMINI_PROXY=true` en GitHub Pages. Cuota 429 verificada en vivo.
 
 ---
 
-## 2. Estado actual (qué ya existe)
+## 2. Evaluación end-to-end (2026-07-29)
+
+> Evaluación crítica previa a fase de **dogfooding solo founder**. Sin implementación — solo diagnóstico para repriorizar tareas.
+
+### Veredicto general
+
+DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado)**, **evaluación manual offline** y **packs verticales** producen un informe accionable sin API pagada. El sprint `e3b43d1` eliminó las mayores fugas de confianza (plantillas API falsas, A/B con CTR aleatorio, cuota proxy por llamada). Quedan **fricciones de dogfooding diario** (BYOK ignorada con sesión, sesión copiloto volátil, gráfico de tendencia simulado presentado como Google Trends) y **cero red de tests**. El producto es **usable hoy** para validar nichos; falta cerrar el loop **decisión → feedback** para iterar con datos propios.
+
+### Fortalezas
+
+| Área | Evidencia |
+|------|-----------|
+| Ruta gratis real | `copilotFlow.js` + `reportSchema.js` (`ALL_IN_ONE`); default Express en `researchMode.js` |
+| Evaluación manual determinista | `manualRubric.js` — veredictos Lanzar/Validar/Descartar sin IA |
+| Pipeline API honesto | `gemini.js` → `reportParse.js` + `reportFallbacks.js`; banner `_incompleteSections` en `report.js` |
+| Cuota proxy por investigación | `004_research_session_quota.sql`, `researchSession.js`, proxy devuelve `usage` |
+| Docs y ayuda | `docs/MANUAL.md` documenta prioridad proxy/BYOK; `#help-manual-btn` en `index.html` |
+| Seguridad base | RLS en `001_profiles.sql`, `002_research_reports.sql`, `003_gemini_usage.sql`; export `stripSensitiveFields` en `export.js` |
+| PWA staleness mitigado | `public/sw.js` v6 — network-first para HTML y `/assets/` hasheados |
+
+### Top 5 debilidades (con evidencia)
+
+| # | Debilidad | Archivos | Impacto |
+|---|-----------|----------|---------|
+| 1 | **BYOK ignorada si hay sesión + proxy** — usuario con clave guardada sigue consumiendo cuota proxy | `flow.js:54-56`, `gemini.js:377`, `spy.js:174-190` | Founder dogfooding con BYOK pierde control y cuota |
+| 2 | **Gráfico “Google Trends” simulado con `Math.random()`** — copy afirma datos reales | `charts.js:13-16`, `report.js:545-548` | Fuga de confianza en informe copiloto/API |
+| 3 | **Sin bloque “próxima decisión”** — comparador ignora eval manual para ganador (`Product Score` only) | `report.js` (sin sección decisión), `portfolio.js:423-424` | Principiante no sabe lanzar/validar/descartar |
+| 4 | **Sesión copiloto volátil** — cerrar modal = perder progreso | `copilotFlow.js:42-44` (`cancelCopilotSession`) | Fricción alta en flujo gratis multi-paso |
+| 5 | **Sin tests ni CI** — solo deploy Pages | `package.json` (sin `test`), `.github/workflows/deploy-pages.yml` | Regresiones silenciosas en parse/rubric |
+
+### Otras observaciones
+
+- **Cuota proxy UI parcial:** hint `Proxy: N/M` solo tras usar proxy (`geminiProxy.js` + `researchMode.js`); no visible al login ni en menú usuario (T16 incompleto).
+- **Spy inferido como verificado:** pixel/GA mostrados Sí/No definitivos (`spy.js:96-98`); disclaimer solo en empty state, no en resultados.
+- **Sync remoto unidireccional:** `historySync.js` upsert al completar; `portfolio.js:308-324` borra solo localStorage.
+- **Caché sin fuente/modo:** `cache.js:1-3` — misma clave para copiloto vs API.
+- **Código muerto:** `src/data.js` exporta `generateCompetitorStoreAnalysis` inexistente en `data/index.js`; `reportGenerator.js` ya eliminado.
+- **CI Node:** workflow ya usa Node **22** (`deploy-pages.yml:28`); falta job **test** separado (T26).
+
+### Coherencia producto (ruta gratis → decisión)
+
+| Paso | ¿Entrega valor? | Nota |
+|------|-----------------|------|
+| Wizard / onboarding | Sí | Empuja pack → copiloto; onboarding alineado (`onboarding.js`) |
+| Copiloto Express | Sí | 1 pegado → Product Score + copys |
+| Eval manual | Sí | Veredicto explícito offline |
+| Reporte → guardar | Sí | Portafolio local + sync opcional |
+| Reporte → decidir | **Parcial** | Score sí; falta CTA decisión integrada (T09) |
+| Comparar | **Parcial** | Muestra eval manual pero ganador = Product Score |
+| Export / kit | Sí | CSV/MD/JSON + sanitización |
+
+### UX walk-through (fricciones)
+
+- **Duplicación CTAs:** Inicio tiene copiloto + eval manual + wizard — coherente pero denso para primer visita.
+- **Express vs API:** Con ruta API + profundidad Express, API ejecuta Completo (documentado en MANUAL) — puede sorprender.
+- **Proxy 429:** Mensaje español correcto (`errors.js`); sugerencia BYOK contradice prioridad proxy actual.
+- **Español:** Consistente en UI principal; título HTML aún en inglés (`index.html:7`).
+
+---
+
+## 3. Estado actual (qué ya existe)
 
 ### Arquitectura de arranque
 
@@ -69,7 +140,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 | `src/research/reportParse.js` | `parseResearchJson`, `validateStepPayload`, `applyStepToReport`, `assembleCopilotReport` |
 | `src/research/fastMode.js` | Placeholders honestos en modo rápido (`FAST_MODE_SKIP_MSG`) |
 | `src/research/scoring.js` | Product Score numérico |
-| `src/research/gemini.js` | `sanitizeReport()`, secuencia API **con prompts duplicados** y merge manual (no usa `reportParse.js`) |
+| `src/research/gemini.js` | `sanitizeReport()`, secuencia API vía `reportParse.js` + `buildApiPrompt()` |
 
 ### Tier gratis y límites
 
@@ -107,26 +178,26 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 - `.github/workflows/deploy-pages.yml` — Node 22, `npm ci`, `npm run build`, secrets Supabase/proxy
 - **Sin tests** en el repo (`package.json` solo `dev`, `build`, `preview`, `icons`)
 
-### Deuda / inconsistencias ya observadas en código
+### Deuda / inconsistencias observadas (post-sprint jul 2026)
 
-1. **`gemini.js` no reutiliza `reportParse.js`** — prompts duplicados respecto a `reportSchema.js`; merge manual distinto al copiloto.
-2. **Cuota proxy por llamada, no por investigación** — ~~cada paso Gemini invoca `gemini-proxy`~~ → **corregido** (T03): sesión UUID, migración 004.
-3. **Fallbacks en API con plantillas genéricas** — ~~`gemini.js` rellena datos placeholder~~ → **corregido** (T02): `reportFallbacks.js`.
-4. **Simulador A/B en reporte** — ~~`Math.random()` + “Simulador Científico”~~ → **corregido** (T12): comparador heurístico offline.
-5. **Spy sin scraping real** — Gemini infiere desde URL; UI lo declara parcialmente (`spy.js` ~143) pero resultados pueden alucinarse.
-6. **Sesión copiloto volátil** — cerrar modal = `cancelCopilotSession()` pierde progreso parcial.
-7. **`src/data.js` shim roto** — exporta `generateCompetitorStoreAnalysis` desde `./data/index.js` pero `index.js` no lo reexporta; `src/data/reportGenerator.js` parece legacy sin imports.
-8. **Sin tests E2E** del paste-back del copiloto.
+1. **BYOK pierde frente a proxy con sesión** — `runApiResearchDirect` prioriza proxy aunque exista clave (`flow.js:54-56`). Documentado en MANUAL; pendiente T33.
+2. **Gráfico tendencia simulado** — `charts.js` usa `Math.random()`; copy en `report.js` implica Google Trends real.
+3. **Sesión copiloto volátil** — `cancelCopilotSession()` pierde progreso; T05 pendiente.
+4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
+5. **`src/data.js` shim roto** — export `generateCompetitorStoreAnalysis` no existe en `data/index.js` (T30).
+6. **Sin tests E2E/unit** — paste-back crítico sin regresión automática (T08, T25, T26).
+7. **Comparador no pondera eval manual** en fila “Cuál lanzar primero” (T10).
+8. **Caché no distingue fuente/modo** — `getCacheKey(query, language)` solo (T28).
 
 ---
 
-## 3. Tareas numeradas (T01–T32)
+## 4. Tareas numeradas (T01–T37)
 
 ---
 
 ### T01 — Refactorizar ruta API para reutilizar `reportParse.js`
 
-> **Estado (2026-07-29):** ✅ Hecho — `gemini.js` usa `parseAndValidateStep`, `applyStepToReport`, `assembleCopilotReport` + `buildApiPrompt()`. Loop unificado por pasos API.
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. `gemini.js` usa `parseAndValidateStep`, `applyStepToReport`, `assembleCopilotReport` + `buildApiPrompt()`. Loop unificado por pasos API.
 
 **Objetivo:** Una sola fuente de verdad para parseo/merge de pasos JSON, igualando forma de salida copiloto ↔ API.
 
@@ -176,7 +247,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T02 — Etiquetar honestamente fallbacks de API (eliminar datos genéricos como si fueran reales)
 
-> **Estado (2026-07-29):** ✅ Hecho — `reportFallbacks.js`, catches sin plantillas; banner `_incompleteSections` + export MD.
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. `reportFallbacks.js`, catches sin plantillas; banner `_incompleteSections` + export MD.
 
 **Objetivo:** Si un paso API falla al parsear, el usuario ve placeholders explícitos (como modo rápido), no copy genérico de "soporte ergonómico".
 
@@ -217,7 +288,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T03 — Cuota proxy: contar por investigación, no por llamada Gemini
 
-> **Estado (2026-07-29):** ✅ Hecho — `004_research_session_quota.sql`, `researchSessionId` en proxy, docs actualizados. **Residual:** desplegar migración + Edge Function en Supabase prod; T16 badge completo pendiente (hint ligero en profundidad).
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. Migración `004_research_session_quota.sql`, `researchSessionId` en proxy, docs actualizados. **Prod:** migración + Edge Function desplegadas; 429 verificado en Pages. **Residual:** badge cuota completo en menú usuario (T16).
 
 **Objetivo:** Con límite 2/día, el usuario puede completar investigaciones enteras (1 consumo = 1 secuencia hasta 5 pasos).
 
@@ -260,7 +331,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T04 — Modo Copiloto "un solo pegado" (Modo Rápido 1-step)
 
-> **Estado (2026-07-29):** ✅ Hecho — `COPILOT_STEPS.ALL_IN_ONE`, toggle **Express**, default sin preferencia previa. **Deferred:** T05 persistencia sesión.
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. `COPILOT_STEPS.ALL_IN_ONE`, toggle **Express**, default sin preferencia previa. **Deferred:** T05 persistencia sesión.
 
 **Objetivo:** Reducir fricción del camino gratis: opción de **1 copiar + 1 pegar** para reporte mínimo viable.
 
@@ -541,7 +612,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T12 — Renombrar simulador A/B a heurística local (sin CTR falso)
 
-> **Estado (2026-07-29):** ✅ Hecho — comparador determinista, sin CTR ni “científico”.
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. Comparador determinista, sin CTR ni “científico”.
 
 **Objetivo:** No presentar CTR como predicción científica.
 
@@ -667,6 +738,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 ---
 
 ### T16 — Mostrar cuota proxy restante en UI
+
+> **Estado (2026-07-29):** 🟡 Parcial — `e3b43d1`. Hint `Proxy: N/M investigaciones hoy` en `#research-mode-hint` tras llamada proxy (`geminiProxy.js` + `researchMode.js`). **Pendiente:** badge persistente en menú usuario al login, estado agotado antes de investigar, CTA BYOK/copiloto.
 
 **Objetivo:** Usuario logueado ve cuántas investigaciones proxy le quedan hoy.
 
@@ -969,7 +1042,7 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T27 — Unificar prompts API con `reportSchema.buildCopilotPrompt`
 
-> **Estado (2026-07-29):** ✅ Hecho — `buildApiPrompt()` en `reportSchema.js`; `gemini.js` sin prompts inline duplicados.
+> **Estado (2026-07-29):** ✅ Hecho — `e3b43d1`. `buildApiPrompt()` en `reportSchema.js`; `gemini.js` sin prompts inline duplicados.
 
 **Objetivo:** Eliminar drift entre prompts copiloto y API (complemento de T01).
 
@@ -1099,6 +1172,8 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ### T32 — Enlace ayuda in-app → manual (cuando exista URL estable)
 
+> **Estado (2026-07-29):** ✅ Hecho — `7aafdea`. `#help-manual-btn` y `#user-menu-help-link` en `index.html` → `docs/MANUAL.md` en GitHub.
+
 **Objetivo:** Principiantes acceden a documentación desde la app.
 
 | Campo | Valor |
@@ -1122,60 +1197,257 @@ Commits recientes (`master`): copiloto paste-back + evaluación manual → wizar
 
 ---
 
-## 4. Orden sugerido de ejecución
+### T33 — Prioridad BYOK sobre proxy (o selector explícito)
 
-### Fase 0 — Integridad y confianza (P0, secuencial)
+**Objetivo:** Si el usuario guardó clave Gemini en Ajustes, Deep Research y Spy usan **BYOK** por defecto aunque haya sesión + `VITE_GEMINI_PROXY=true`. Opcional: selector en Ajustes “Usar: Mi clave | Proxy (cuota diaria)”.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P0 (dogfooding) |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Solapa `flow.js`, `gemini.js`, `spy.js`, `geminiKeyBanner.js` |
+
+**Archivos**
+
+- `src/research/flow.js` — `runApiResearchDirect`: BYOK si `hasGeminiKey()` y preferencia ≠ `proxy`
+- `src/research/gemini.js` — `useProxy` solo si no hay BYOK elegida
+- `src/ui/spy.js` — misma regla que API
+- `src/utils/geminiStorage.js` o nuevo `src/config/geminiRoute.js` — `getGeminiRoute(): 'byok' | 'proxy' | 'auto'`
+- `src/ui/geminiKeyBanner.js`, `index.html` (settings) — toggle ruta Gemini
+- `docs/MANUAL.md`, `CHANGELOG.md` — actualizar tabla prioridad proxy vs BYOK
+
+**Pasos**
+
+1. Definir precedencia: `BYOK guardada` > `proxy con sesión` > fallback copiloto.
+2. Persistir preferencia `dropdeep_gemini_route` (`auto` default = BYOK si existe clave).
+3. Terminal API debe loguear “Usando BYOK” vs “Usando proxy”.
+4. Spy reutiliza helper compartido (no duplicar lógica).
+
+**Criterio de aceptación**
+
+- Logueado + BYOK + proxy activo → Deep Research llama `generativelanguage.googleapis.com`, **no** `gemini-proxy`.
+- Sin BYOK + logueado → proxy como hoy.
+- Selector “Forzar proxy” sigue consumiendo cuota diaria.
+
+**Prueba manual**
+
+1. Login + pegar BYOK en Ajustes + proxy activo en sitio.
+2. Ejecutar Deep Research Completo — network tab sin invoke `gemini-proxy`.
+3. Cambiar a “Usar proxy” — consume cuota, hint N/M actualiza.
+
+**Riesgos / NO romper**
+
+- Anon sin BYOK sigue yendo a copiloto si elige API sin clave.
+- Cuota proxy no debe incrementarse en llamadas BYOK.
+
+---
+
+### T34 — Gráfico de tendencia honesto (sin random ni copy engañoso)
+
+**Objetivo:** El gráfico de 12 meses no usa datos aleatorios ni afirma “Google Trends en vivo” si no hay fuente real.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Solapa `charts.js`, `report.js` |
+
+**Archivos**
+
+- `src/ui/charts.js` — eliminar `Math.random()`; derivar curva determinista de `report.trend` (string %) o línea plana
+- `src/ui/report.js` — copy sección tendencias: “Ilustrativo basado en tendencia del informe — no Google Trends en vivo”
+- `docs/MANUAL.md` — aclarar naturaleza del gráfico
+
+**Pasos**
+
+1. Función `buildTrendSeries(report)` → 12 puntos monotónicos acordes a `report.trend`.
+2. Mismo producto + mismo trend → misma curva en recargas.
+3. Si `report.trend` ausente, mostrar mensaje “Sin dato de tendencia” en lugar de gráfico falso.
+
+**Criterio de aceptación**
+
+- Dos recargas del mismo reporte → gráfico idéntico.
+- Copy no menciona “Google Trends recopilado” sin grounding real.
+
+**Prueba manual:** Abrir reporte copiloto → sección 03 → verificar estabilidad y disclaimer.
+
+**NO romper:** Chart.js sigue renderizando; sentiment/projection charts intactos.
+
+---
+
+### T35 — Captura feedback dogfooding por reporte (local)
+
+**Objetivo:** Tras revisar un informe, el founder (y cualquier usuario) puede registrar “¿Te ayudó a decidir?” sin backend — para iterar producto con señal real.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 (dogfooding) |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Solapa `report.js`, `style.css` |
+
+**Archivos**
+
+- `src/ui/report.js` — panel compacto al final: 👍 Sí / 👎 No / “Aún no sé” + textarea opcional (280 chars)
+- `src/state.js` o `src/utils/feedbackStorage.js` (nuevo) — `localStorage` clave `dropdeep_report_feedback_{slug}`
+- `src/ui/portfolio.js` — icono discreto si hay feedback guardado
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos**
+
+1. Esquema `{ productSlug, helpful: 'yes'|'no'|'unsure', note, updatedAt }`.
+2. Guardar al pulsar; toast confirmación.
+3. Export JSON portafolio **no** incluye feedback (o sección separada opcional).
+
+**Criterio de aceptación**
+
+- Feedback persiste tras F5; no requiere auth ni red.
+- Panel no bloquea scroll ni CTAs existentes.
+
+**Prueba manual:** Completar copiloto → marcar “Sí” + nota → recargar → ver estado restaurado.
+
+**NO romper:** Privacidad — solo localStorage; sin enviar a Supabase.
+
+---
+
+### T36 — CI mínimo: build + unit tests (sin bloquear deploy)
+
+**Objetivo:** Complemento de T26 orientado a dogfooding: detectar roturas en `reportParse` / `manualRubric` en cada push, sin flaky E2E como gate.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | T25 |
+| **Paralelizable** | Sí (workflow nuevo) |
+
+**Archivos**
+
+- `.github/workflows/ci.yml` (nuevo) — `npm ci`, `npm run build`, `npm test`
+- `package.json` — scripts `test`, devDependency `vitest`
+- `tests/reportParse.test.js`, `tests/manualRubric.test.js`
+
+**Pasos**
+
+1. Job en PR/push a `master`; Node 22 (alineado con deploy).
+2. Deploy Pages **independiente** — CI fallido no impide deploy manual si se desea (documentar).
+3. Badge opcional en README.
+
+**Criterio de aceptación**
+
+- Push con test roto → check CI rojo visible en GitHub.
+- Sin secretos Supabase requeridos para unit tests.
+
+**Prueba manual:** `npm test` local pasa; romper assert a propósito → CI falla.
+
+---
+
+### T37 — Pin acciones GitHub y eliminar warnings deprecación
+
+**Objetivo:** Mantener workflow deploy sin warnings Node 20; acciones en majors recientes.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P2 |
+| **Impacto / Esfuerzo** | Bajo / Bajo |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Sí |
+
+**Archivos**
+
+- `.github/workflows/deploy-pages.yml` — verificar `actions/checkout@v5`, `setup-node@v5`, Node 22
+- `.github/workflows/ci.yml` — mismo pin cuando exista (T36)
+
+**Pasos**
+
+1. Ejecutar workflow en GitHub → Actions log sin “Node 20 deprecated”.
+2. Documentar versión Node en README si difiere de local.
+
+**Criterio:** Build log limpio de warnings deprecación Node.
+
+**Nota:** Deploy ya usa Node 22 (`deploy-pages.yml:28`); tarea es verificación + pin consistente en CI nuevo.
+
+---
+
+## 5. Orden sugerido de ejecución
+
+### Fase dogfooding — founder solo (prioridad jul 2026)
+
+Objetivo: **uso diario productivo y honesto** antes de escalar. Orden recomendado:
 
 ```
-T03 → T01 → T02 → T27
-         ↓
-       T04
+T33 → T09 → T05 → T25 → T36 → T16 (completar badge)
+  │      │      │       │
+  │      │      │       └── red de seguridad mientras iteras
+  │      │      └── no perder pegados a medias
+  │      └── cerrar loop decisión en reporte
+  └── BYOK usable con sesión (bloqueo real del founder)
 ```
 
-- **T03** primero: sin esto el proxy es engañoso para usuarios logueados.
-- **T01 + T27 + T02**: pipeline API honesto y unificado.
-- **T04**: mayor impacto en ruta gratis (paralelo a T01 solo si tocan archivos distintos; si no, después de T01).
+**Top 5 para empezar ya**
+
+| Orden | ID | Por qué primero |
+|-------|-----|-----------------|
+| 1 | **T33** | Founder con BYOK no debe gastar cuota proxy ni quedar atrapado en 429 |
+| 2 | **T09** | Reporte debe responder “¿lanzo, valido o descarto?” — núcleo del producto |
+| 3 | **T05** | Copiloto multi-paso frágil; dogfooding diario pierde trabajo |
+| 4 | **T25 + T36** | Tests + CI antes de más cambios en parse/rubric |
+| 5 | **T16** (completar) | Visibilidad cuota proxy restante antes de invertir en investigación |
+
+**Siguiente oleada (P1, paralelo moderado)**
+
+- T10, T34, T35, T08 (E2E paste-back), T06, T07, T11-A, T19, T20
+
+### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
+
+```
+T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase jul 2026)
+```
 
 ### Fase 1 — Calidad camino gratis + tests (P1)
 
 Paralelo posible en **equipos separados**:
 
-| Stream A (copiloto) | Stream B (infra) | Stream C (honestidad UI) |
-|---------------------|------------------|--------------------------|
-| T05, T06, T07 | T25, T26, T08 | T11-A, T12 |
-| T04 (si no hecho) | T16 (post T03) | T09, T10 |
+| Stream A (copiloto + decisión) | Stream B (infra + tests) | Stream C (honestidad UI) |
+|-------------------------------|--------------------------|--------------------------|
+| T05, T06, T07, T09 | T25, T36, T08 | T11-A, T34 |
+| T33 (BYOK) | T16 (badge completo) | T35 (feedback) |
 
-**Solapamiento crítico:** no paralelizar T01 y T27 con T04 en mismos archivos `reportSchema.js`.
+**Solapamiento crítico:** no paralelizar T33 con T16 en `userMenu.js` sin coordinar.
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
 T19, T20 (sync/abuso)  ||  T13, T14, T15 (onboarding/wizard/vacíos)
-T29, T10 (decisiones)  ||  T18 (límites portafolio)
+T10 (comparador + eval manual)  ||  T18 (límites portafolio)
 ```
 
 ### Fase 3 — Polish (P2)
 
 ```
-T22, T23, T24  ||  T28, T29, T30, T31, T32, T21, T17
+T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 ```
 
 ### Matriz de solapamiento de archivos (evitar paralelo)
 
 | Archivo | Tareas que lo tocan |
 |---------|---------------------|
-| `src/research/gemini.js` | T01, T02, T27 |
-| `src/research/reportSchema.js` | T01, T04, T27 |
-| `src/research/copilotFlow.js` | T04, T05, T07 |
-| `src/ui/copilotPanel.js` | T04, T05, T06, T07 |
-| `src/ui/report.js` | T02, T09, T12, T29 |
-| `supabase/functions/gemini-proxy` | T03, T16, T20 |
-| `index.html` | T04, T23, T24, T32 |
-| `.github/workflows/*` | T08, T26 |
+| `src/research/flow.js` | T33 |
+| `src/research/gemini.js` | T33 |
+| `src/ui/spy.js` | T11, T33 |
+| `src/research/copilotFlow.js` | T04✅, T05, T07 |
+| `src/ui/copilotPanel.js` | T04✅, T05, T06, T07 |
+| `src/ui/report.js` | T02✅, T09, T12✅, T29, T34, T35 |
+| `src/ui/charts.js` | T34 |
+| `supabase/functions/gemini-proxy` | T03✅, T16, T20 |
+| `index.html` | T04✅, T23, T24, T32✅, T33 |
+| `.github/workflows/*` | T08, T26, T36, T37 |
 
 ---
 
-## 5. Backlog diferido
+## 6. Backlog diferido
 
 | Item | Razón de postponer |
 |------|-------------------|
@@ -1191,43 +1463,48 @@ T22, T23, T24  ||  T28, T29, T30, T31, T32, T21, T17
 
 ---
 
-## 6. Índice rápido de tareas
+## 7. Índice rápido de tareas
 
-| ID | Título | P |
-|----|--------|---|
-| T01 | Refactor API → `reportParse.js` | P0 |
-| T02 | Fallbacks API honestos (sin datos genéricos) | P0 |
-| T03 | Cuota proxy por investigación | P0 |
-| T04 | Copiloto 1 pegado (express) | P0 |
-| T05 | Persistir sesión copiloto | P1 |
-| T06 | Validación JSON accionable | P1 |
-| T07 | Recuperación errores copiloto | P1 |
-| T08 | E2E Playwright paste-back | P1 |
-| T09 | Bloque "Próxima decisión" en reporte | P1 |
-| T10 | Comparador + eval manual | P1 |
-| T11 | Spy honesto / fuente real | P1 |
-| T12 | A/B heurístico (no CTR falso) | P1 |
-| T13 | Onboarding alineado copiloto | P2 |
-| T14 | Wizard sin dead-ends | P2 |
-| T15 | Estados vacíos CTAs | P2 |
-| T16 | UI cuota proxy restante | P1 |
-| T17 | Errores unificados copiloto | P2 |
-| T18 | UX límite portafolio 10 | P2 |
-| T19 | Sync remoto borrado/conflictos | P1 |
-| T20 | Rate limit abuso proxy | P1 |
-| T21 | Privacidad BYOK | P2 |
-| T22 | Bundle Chart/Lucide | P2 |
-| T23 | Accesibilidad modales | P2 |
-| T24 | Móvil copiloto/reporte | P2 |
-| T25 | Tests unitarios parse/rubric | P1 |
-| T26 | CI build + test | P1 |
-| T27 | Unificar prompts API/schema | P1 |
-| T28 | Caché por fuente/modo | P2 |
-| T29 | Documentar Product Score | P2 |
-| T30 | Limpiar código muerto | P2 |
-| T31 | Disclaimer Meta interests | P2 |
-| T32 | Enlace ayuda → manual | P2 |
+| ID | Título | P | Estado |
+|----|--------|---|--------|
+| T01 | Refactor API → `reportParse.js` | P0 | ✅ `e3b43d1` |
+| T02 | Fallbacks API honestos | P0 | ✅ `e3b43d1` |
+| T03 | Cuota proxy por investigación | P0 | ✅ `e3b43d1` + prod |
+| T04 | Copiloto 1 pegado (express) | P0 | ✅ `e3b43d1` |
+| T05 | Persistir sesión copiloto | P1 | pendiente |
+| T06 | Validación JSON accionable | P1 | pendiente |
+| T07 | Recuperación errores copiloto | P1 | pendiente |
+| T08 | E2E Playwright paste-back | P1 | pendiente |
+| T09 | Bloque "Próxima decisión" en reporte | P1 | pendiente |
+| T10 | Comparador + eval manual | P1 | pendiente |
+| T11 | Spy honesto / fuente real | P1 | pendiente |
+| T12 | A/B heurístico (no CTR falso) | P1 | ✅ `e3b43d1` |
+| T13 | Onboarding alineado copiloto | P2 | pendiente |
+| T14 | Wizard sin dead-ends | P2 | pendiente |
+| T15 | Estados vacíos CTAs | P2 | pendiente |
+| T16 | UI cuota proxy restante | P1 | 🟡 parcial `e3b43d1` |
+| T17 | Errores unificados copiloto | P2 | pendiente |
+| T18 | UX límite portafolio 10 | P2 | pendiente |
+| T19 | Sync remoto borrado/conflictos | P1 | pendiente |
+| T20 | Rate limit abuso proxy | P1 | pendiente |
+| T21 | Privacidad BYOK | P2 | pendiente |
+| T22 | Bundle Chart/Lucide | P2 | pendiente |
+| T23 | Accesibilidad modales | P2 | pendiente |
+| T24 | Móvil copiloto/reporte | P2 | pendiente |
+| T25 | Tests unitarios parse/rubric | P1 | pendiente |
+| T26 | CI build + test (legacy) | P1 | pendiente → ver T36 |
+| T27 | Unificar prompts API/schema | P1 | ✅ `e3b43d1` |
+| T28 | Caché por fuente/modo | P2 | pendiente |
+| T29 | Documentar Product Score | P2 | pendiente |
+| T30 | Limpiar código muerto | P2 | pendiente |
+| T31 | Disclaimer Meta interests | P2 | pendiente |
+| T32 | Enlace ayuda → manual | P2 | ✅ `7aafdea` |
+| T33 | BYOK gana sobre proxy | P0 | **nuevo** |
+| T34 | Gráfico tendencia honesto | P1 | **nuevo** |
+| T35 | Feedback dogfooding local | P1 | **nuevo** |
+| T36 | CI build + unit tests | P1 | **nuevo** |
+| T37 | Pin acciones GitHub / Node | P2 | **nuevo** |
 
 ---
 
-*Generado a partir del estado del repo en rama `master` (commits recientes: copiloto, eval manual, wizard, tier gratis). Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado docs en paralelo.*
+*Actualizado 2026-07-29 tras evaluación end-to-end y sprint `e3b43d1` + prod Supabase. Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado docs en paralelo.*
