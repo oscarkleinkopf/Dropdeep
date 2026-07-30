@@ -38,6 +38,108 @@ export function deriveVerdictFromProductScore(score) {
   return VERDICT_DISCARD;
 }
 
+export function getManualVerdictRank(verdict) {
+  if (verdict === VERDICT_LAUNCH) return 3;
+  if (verdict === VERDICT_VALIDATE) return 2;
+  return 1;
+}
+
+/**
+ * Effective score for a single report — manual eval when present, else Product Score.
+ */
+export function getEffectiveScore(report) {
+  const productScore = report.productScore ?? calculateProductScore(report);
+  const me = report?.manualEvaluation;
+
+  if (me?.score != null) {
+    return {
+      score: me.score,
+      verdict: me.verdict,
+      source: 'manual',
+      productScore,
+    };
+  }
+
+  return {
+    score: productScore,
+    verdict: deriveVerdictFromProductScore(productScore),
+    source: 'productScore',
+    productScore,
+  };
+}
+
+/**
+ * Compare winner among 2–3 portfolio items (T10).
+ * If ALL have manualEvaluation → rank by manual score (tie → verdict rank).
+ * Otherwise → Product Score only (never invent manual scores).
+ */
+export function pickCompareWinner(products) {
+  if (!products?.length) return null;
+
+  const allHaveManual = products.every(
+    (p) => p.fullReport?.manualEvaluation?.score != null
+  );
+  const anyHaveManual = products.some(
+    (p) => p.fullReport?.manualEvaluation?.score != null
+  );
+
+  const source = allHaveManual ? 'manual' : 'productScore';
+  let sourceLabel;
+  if (allHaveManual) {
+    sourceLabel =
+      'Recomendación basada en Evaluación manual — todos los productos tienen checklist completado.';
+  } else if (anyHaveManual) {
+    sourceLabel =
+      'Recomendación basada en Product Score — completa evaluación manual en todos para comparar con tus criterios.';
+  } else {
+    sourceLabel =
+      'Recomendación basada en Product Score — ninguno tiene evaluación manual.';
+  }
+
+  const scoreOf = (p) => {
+    if (allHaveManual) return p.fullReport.manualEvaluation.score;
+    return p.fullReport.productScore ?? calculateProductScore(p.fullReport);
+  };
+
+  const verdictRankOf = (p) => {
+    if (allHaveManual) {
+      return getManualVerdictRank(p.fullReport.manualEvaluation.verdict);
+    }
+    const ps = p.fullReport.productScore ?? calculateProductScore(p.fullReport);
+    return getManualVerdictRank(deriveVerdictFromProductScore(ps));
+  };
+
+  let winner = products[0];
+  let winnerScore = scoreOf(winner);
+  let winnerVerdictRank = verdictRankOf(winner);
+
+  for (let i = 1; i < products.length; i++) {
+    const p = products[i];
+    const score = scoreOf(p);
+    const verdictRank = verdictRankOf(p);
+    if (score > winnerScore || (score === winnerScore && verdictRank > winnerVerdictRank)) {
+      winner = p;
+      winnerScore = score;
+      winnerVerdictRank = verdictRank;
+    }
+  }
+
+  const winnerVerdict = allHaveManual
+    ? winner.fullReport.manualEvaluation.verdict
+    : deriveVerdictFromProductScore(
+        winner.fullReport.productScore ?? calculateProductScore(winner.fullReport)
+      );
+
+  return {
+    winner,
+    winnerScore,
+    winnerVerdict,
+    source,
+    sourceLabel,
+    allHaveManual,
+  };
+}
+
 function buildProductScoreExplanation(score, verdict, report) {
   const parts = [
     `Product Score ${score}/100 (margen, saturación, tendencia, envío y ROI del informe).`,

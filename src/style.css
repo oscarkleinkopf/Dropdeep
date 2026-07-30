@@ -3990,7 +3990,41 @@ button {
   color: var(--text-secondary);
   font-size: 0.82rem;
   cursor: pointer;
-  max-width: 200px;
+  max-width: 280px;
+}
+
+.user-menu-proxy-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  color: var(--accent-cyan);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.user-menu-proxy-badge--byok {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: var(--accent-emerald);
+}
+
+.user-menu-proxy-badge--exhausted {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: var(--accent-red);
+}
+
+.user-menu-proxy-status {
+  margin: 0;
+  padding: 0.45rem 0.75rem 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .user-menu-email {

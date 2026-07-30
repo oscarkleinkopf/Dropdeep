@@ -1,6 +1,7 @@
 /** Deep Research depth preference — persisted locally, no auth required. */
 
-import { formatProxyUsageHint, isGeminiProxyEnabled } from '../research/geminiProxy.js';
+import { formatProxyUsageHint } from '../research/geminiProxy.js';
+import { getGeminiRoute } from '../config/geminiRoute.js';
 
 export const RESEARCH_MODE_EXPRESS = 'express';
 export const RESEARCH_MODE_FAST = 'fast';
@@ -53,7 +54,7 @@ export function syncResearchModeUI() {
     } else {
       text = 'Modo Completo — 5 pasos (copiloto o Gemini) · máxima profundidad';
     }
-    const proxyHint = isGeminiProxyEnabled() ? formatProxyUsageHint() : '';
+    const proxyHint = getGeminiRoute() === 'proxy' ? formatProxyUsageHint() : '';
     hint.textContent = proxyHint ? `${text} · ${proxyHint}` : text;
   }
 }

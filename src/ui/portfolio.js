@@ -2,7 +2,8 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
 import { openDeepResearchReport } from './report.js';
-import { calculateProductScore } from '../research/scoring.js';
+import { calculateProductScore, pickCompareWinner } from '../research/scoring.js';
+import { verdictColor } from '../research/manualRubric.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
@@ -345,17 +346,8 @@ export function openProductComparison() {
   const container = document.getElementById('comparator-grid-container');
   if (!container) return;
 
-  // Let's find the best product by Product Score
-  let bestProduct = products[0];
-  let bestScore = 0;
-  products.forEach(p => {
-    const scoreP = p.fullReport.productScore || calculateProductScore(p.fullReport);
-    const scoreBest = bestProduct.fullReport.productScore || calculateProductScore(bestProduct.fullReport);
-    if (scoreP > scoreBest) {
-      bestProduct = p;
-    }
-  });
-  bestScore = bestProduct.fullReport.productScore || calculateProductScore(bestProduct.fullReport);
+  const { winner: bestProduct, winnerScore: bestScore, winnerVerdict, source, sourceLabel } =
+    pickCompareWinner(products);
 
   let tableHeaderCols = '<th>Criterio</th>';
   let scoreCols = '';
@@ -368,7 +360,8 @@ export function openProductComparison() {
   let supplierCols = '';
   let riskCols = '';
   let opportunityCols = '';
-  let manualEvalCols = '';
+  let manualScoreCols = '';
+  let manualVerdictCols = '';
   let sourceCols = '';
   let bestOptionCols = '';
 
@@ -416,17 +409,24 @@ export function openProductComparison() {
     opportunityCols += `<td class="${winnerClass}" style="font-size:0.85rem; max-width:220px">${extractOpportunity(p)}</td>`;
 
     const me = p.fullReport?.manualEvaluation;
-    manualEvalCols += `<td class="${winnerClass}">${me ? `${me.verdict} (${me.score}/100)` : '—'}</td>`;
+    manualScoreCols += `<td class="${winnerClass}">${me?.score != null ? `${me.score}/100` : 'Sin evaluación'}</td>`;
+    manualVerdictCols += `<td class="${winnerClass}" style="color:${me?.verdict ? verdictColor(me.verdict) : 'var(--text-muted)'}; font-weight:600">${me?.verdict || 'Sin evaluación'}</td>`;
+
     const src = p.fullReport?._source;
     sourceCols += `<td class="${winnerClass}">${src === 'copilot' ? 'Copiloto' : src === 'manual' ? 'Manual' : src === 'api' ? 'API' : '—'}</td>`;
 
+    const winnerDetail =
+      source === 'manual'
+        ? `Evaluación manual ${bestScore}/100 — ${winnerVerdict}`
+        : `Product Score ${bestScore}/100`;
+
     bestOptionCols += `<td class="${winnerClass}">
-      ${isWinner ? `<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🚀 Lanza primero</span><br><span style="font-size:0.72rem;color:var(--text-muted)">Product Score ${score}/100 — mayor entre los seleccionados</span>` : `<span style="font-size:0.78rem;color:var(--text-muted)">Score ${score}/100 — ${score < bestScore ? `−${bestScore - score} pts vs. ganador` : 'empate'}</span>`}
+      ${isWinner ? `<span class="report-badge-status score-excellent" style="font-size:0.75rem; padding:0.3rem 0.6rem">🚀 Lanza primero</span><br><span style="font-size:0.72rem;color:var(--text-muted)">${winnerDetail} — señal: ${source === 'manual' ? 'Evaluación manual' : 'Product Score'}</span>` : `<span style="font-size:0.78rem;color:var(--text-muted)">${source === 'manual' ? `Eval. manual ${me?.score ?? '—'}/100` : `Score ${score}/100`} — ${score < bestScore ? `−${bestScore - score} pts vs. ganador` : 'empate'}</span>`}
     </td>`;
   });
 
   container.innerHTML = `
-    <p class="comparator-verdict-hint">Veredicto basado únicamente en Product Score y métricas del reporte — sin proyecciones de ventas inventadas.</p>
+    <p class="comparator-verdict-hint">${sourceLabel} Sin proyecciones de ventas inventadas.</p>
     <table class="comparator-table">
       <thead>
         <tr>${tableHeaderCols}</tr>
@@ -473,8 +473,12 @@ export function openProductComparison() {
           ${opportunityCols}
         </tr>
         <tr>
-          <td class="comparator-label-col">Evaluación manual</td>
-          ${manualEvalCols}
+          <td class="comparator-label-col">Evaluación manual (puntuación)</td>
+          ${manualScoreCols}
+        </tr>
+        <tr>
+          <td class="comparator-label-col">Evaluación manual (veredicto)</td>
+          ${manualVerdictCols}
         </tr>
         <tr>
           <td class="comparator-label-col">Origen del reporte</td>

@@ -317,7 +317,17 @@ Si el sitio tiene `VITE_GEMINI_PROXY=true` y la Edge Function `gemini-proxy` des
 
 1. **Inicia sesión** (**Entrar** / **Crear cuenta** / **Continuar con Google**).
 2. Las llamadas usan la clave del servidor (secreto `GEMINI_API_KEY` en Supabase).
-3. Cuota starter: **2 investigaciones por día** por usuario — **no** 2 llamadas Gemini sueltas. Una sesión Completo (5 pasos internos) o Rápido (2 pasos) consume **1** investigación. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI refleja `VITE_FREE_TIER_PROXY_DAILY` (default **2**). Tras investigar vía proxy, el hint de profundidad puede mostrar `Proxy: 1/2 investigaciones hoy`.
+3. Cuota starter: **2 investigaciones por día** por usuario — **no** 2 llamadas Gemini sueltas. Una sesión Completo (5 pasos internos) o Rápido (2 pasos) consume **1** investigación. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI refleja `VITE_FREE_TIER_PROXY_DAILY` (default **2**). El contador se renueva cada **día UTC**.
+
+**Dónde ver la cuota restante (logueado + proxy, sin BYOK guardada):**
+
+| Ubicación | Qué muestra |
+|-----------|-------------|
+| **Menú usuario** (cabecera) | Badge persistente, p. ej. `Proxy: 1/2 hoy · 1 restante` o `Proxy agotado` |
+| Desplegable del menú | Detalle: investigaciones restantes hoy (día UTC) |
+| Hint de profundidad (Inicio) | Tras usar proxy: `Proxy: N/M investigaciones hoy` |
+
+Si guardaste **BYOK** en Ajustes, el menú muestra **Usando BYOK** — no implica consumo de cuota proxy. Sin sesión o con proxy desactivado en el sitio, **no** se muestra cuota falsa.
 
 Sin sesión con proxy configurado, verás:
 
@@ -404,7 +414,7 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 | 50–74 | **Viable** |
 | < 50 | **Riesgoso** |
 
-> **Importante:** El **Product Score** del informe y el score de **Evaluación manual** usan criterios distintos. El comparador usa Product Score, no el checklist manual.
+> **Importante:** El **Product Score** del informe y el score de **Evaluación manual** usan criterios distintos. En el **comparador**, si **todos** los productos seleccionados tienen evaluación manual, la fila **Cuál lanzar primero** usa la evaluación manual; si no, usa Product Score (sin mezclar criterios ni inventar scores).
 
 ### Próxima decisión (panel en el informe)
 
@@ -463,11 +473,22 @@ Sin sesión, al intentar más de 2:
 
 > *Plan gratis: compara hasta 2 nichos. Inicia sesión para comparar 3 (Pro próximamente).*
 
-La fila **Cuál lanzar primero** marca **🚀 Lanza primero** al producto con mayor **Product Score** entre los seleccionados. El texto aclara:
+La fila **Cuál lanzar primero** marca **🚀 Lanza primero** según esta regla:
 
-> *Veredicto basado únicamente en Product Score y métricas del reporte — sin proyecciones de ventas inventadas.*
+| Situación | Señal para recomendar |
+|-----------|------------------------|
+| **Todos** tienen evaluación manual | Mayor puntuación manual (desempate por veredicto Lanzar > Validar más > Descartar) |
+| Solo algunos o ninguno con evaluación manual | Mayor **Product Score** |
 
-También verás evaluación manual (si existe) y origen del reporte: **Copiloto**, **API** o **Manual**.
+El texto superior del comparador indica explícitamente qué señal usó la recomendación, p. ej.:
+
+> *Recomendación basada en Evaluación manual — todos los productos tienen checklist completado.*
+
+o
+
+> *Recomendación basada en Product Score — completa evaluación manual en todos para comparar con tus criterios.*
+
+Filas dedicadas: **Evaluación manual (puntuación)**, **Evaluación manual (veredicto)** — muestran *Sin evaluación* si falta. También verás origen del reporte: **Copiloto**, **API** o **Manual**.
 
 ---
 

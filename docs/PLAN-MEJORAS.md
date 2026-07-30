@@ -546,7 +546,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T10 — Integrar evaluación manual con Product Score en comparador
 
-**Objetivo:** Comparar productos prioriza veredicto manual cuando existe, no solo Product Score de IA.
+> **Estado (2026-07-29):** ✅ Hecho — `pickCompareWinner()` en `scoring.js`; comparador con filas manual + hint de señal usada.
 
 | Campo | Valor |
 |-------|-------|
@@ -743,7 +743,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T16 — Mostrar cuota proxy restante en UI
 
-> **Estado (2026-07-29):** 🟡 Parcial — `e3b43d1`. Hint `Proxy: N/M investigaciones hoy` en `#research-mode-hint` tras llamada proxy (`geminiProxy.js` + `researchMode.js`). **Pendiente:** badge persistente en menú usuario al login, estado agotado antes de investigar, CTA BYOK/copiloto.
+> **Estado (2026-07-29):** ✅ Hecho — badge en menú usuario + fetch Supabase al login; hint profundidad; BYOK muestra *Usando BYOK*.
 
 **Objetivo:** Usuario logueado ve cuántas investigaciones proxy le quedan hoy.
 
@@ -1484,13 +1484,13 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | T07 | Recuperación errores copiloto | P1 | pendiente |
 | T08 | E2E Playwright paste-back | P1 | pendiente |
 | T09 | Bloque "Próxima decisión" en reporte | P1 | ✅ jul 2026 |
-| T10 | Comparador + eval manual | P1 | pendiente |
+| T10 | Comparador + eval manual | P1 | ✅ jul 2026 |
 | T11 | Spy honesto / fuente real | P1 | pendiente |
 | T12 | A/B heurístico (no CTR falso) | P1 | ✅ `e3b43d1` |
 | T13 | Onboarding alineado copiloto | P2 | pendiente |
 | T14 | Wizard sin dead-ends | P2 | pendiente |
 | T15 | Estados vacíos CTAs | P2 | pendiente |
-| T16 | UI cuota proxy restante | P1 | 🟡 parcial `e3b43d1` |
+| T16 | UI cuota proxy restante | P1 | ✅ jul 2026 |
 | T17 | Errores unificados copiloto | P2 | pendiente |
 | T18 | UX límite portafolio 10 | P2 | pendiente |
 | T19 | Sync remoto borrado/conflictos | P1 | pendiente |

@@ -8,7 +8,7 @@ import {
   setGeminiPref
 } from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
-import { isGeminiProxyEnabled } from '../research/geminiProxy.js';
+import { isGeminiProxyEnabled, refreshProxyUsageUI } from '../research/geminiProxy.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
 import { updateOnboardingPanel } from './onboarding.js';
 
@@ -78,6 +78,7 @@ export function onGeminiKeySaved() {
   localStorage.removeItem(DISMISS_KEY);
   updateGeminiKeyBanner();
   updateOnboardingPanel();
+  refreshProxyUsageUI();
 }
 
 /** Load stored prefs into the settings form. */
