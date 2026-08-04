@@ -4,7 +4,7 @@ import { switchView } from './ui/navigation.js';
 import { runResearchDirect, runCopilotResearch, runManualEvaluationFlow } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
-import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown, exportCampaignKit } from './ui/export.js';
+import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown, exportCampaignKit, exportReportToShopifyCSV, exportReportToWooCommerceCSV } from './ui/export.js';
 import {
   promptHubState,
   renderPromptHubOutput,
@@ -101,6 +101,30 @@ export function setupEventListeners() {
       showToast("No hay un reporte activo para exportar.", "error");
     }
   });
+
+  // Shopify CSV Export Button
+  const shopifyBtn = document.getElementById('export-shopify-csv-btn');
+  if (shopifyBtn) {
+    shopifyBtn.addEventListener('click', () => {
+      if (state.currentReport) {
+        exportReportToShopifyCSV(state.currentReport);
+      } else {
+        showToast("No hay un reporte activo para exportar.", "error");
+      }
+    });
+  }
+
+  // WooCommerce CSV Export Button
+  const wooBtn = document.getElementById('export-woocommerce-csv-btn');
+  if (wooBtn) {
+    wooBtn.addEventListener('click', () => {
+      if (state.currentReport) {
+        exportReportToWooCommerceCSV(state.currentReport);
+      } else {
+        showToast("No hay un reporte activo para exportar.", "error");
+      }
+    });
+  }
 
   // PDF Export Button
   document.getElementById('export-pdf-btn').addEventListener('click', () => {

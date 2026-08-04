@@ -268,11 +268,15 @@ Límite del tier gratis: **10 productos** en portafolio local. Al llenarse verá
 |--------|---------|-------|
 | **Exportar Portafolio** | JSON | Portafolio |
 | **Exportar CSV** | CSV | Cabecera del reporte |
+| **CSV Shopify** | CSV listo para importar en Shopify | Cabecera del reporte |
+| **CSV WooCommerce** | CSV listo para importar en WooCommerce | Cabecera del reporte |
 | **Exportar MD** | Markdown | Cabecera del reporte |
 | **Descargar kit de campaña** | Markdown (.md) | Cabecera del reporte o detalle en portafolio |
 | **Exportar PDF Reporte** | PDF vía impresión del navegador | Cabecera del reporte |
 
 El **kit de campaña** incluye resumen, bullets, ángulos, copys Meta/TikTok/email y notas de CTA — listo para tu equipo o Notion.
+
+**CSV Shopify / WooCommerce:** generan un producto a partir del informe (título, descripción HTML, precio, coste, SEO). No conectan tu tienda; descargas el archivo y lo importas tú en el admin de cada plataforma.
 
 ---
 
@@ -428,7 +432,7 @@ Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
 
 En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
 
-### Secciones del sidebar (19 pestañas)
+### Secciones del sidebar (23 pestañas)
 
 | # | Sección | Para qué sirve | Decisión que ayuda |
 |---|---------|----------------|-------------------|
@@ -451,6 +455,12 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 17 | Customer Journey Map | Etapas del comprador | Retargeting y secuencias |
 | 18 | Prompts para Mockups | Imágenes de producto | Creativos visuales |
 | 19 | Prompts para Chatbot | Secuencia enriquecida | Iterar con IA externa |
+| 20 | Simulador Montecarlo | Escenarios P10/P50/P90 de beneficio diario (inputs editables: presupuesto, CPC, conversión, AOV, coste) | ¿Cuánto riesgo asumes antes de gastar en ads? |
+| 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
+| 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
+| 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
+
+**Simulador Montecarlo:** es una proyección **orientativa** con 1000 ensayos y variación aleatoria sobre tus inputs; no predice resultados reales de Meta/Google Ads.
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 

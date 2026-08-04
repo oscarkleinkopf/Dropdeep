@@ -8,6 +8,8 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **CSV Shopify y WooCommerce:** botones en la cabecera del informe descargan CSV listo para importar (título, HTML, precio, coste, SEO); sin conexión automática a la tienda.
+- **Secciones 20–23 del informe:** Simulador Montecarlo (P10/P50/P90 con inputs editables), Bundles & Upsells, bloques HTML de conversión (tabla, beneficios, FAQ) y guiones WhatsApp/soporte listos para copiar.
 - **Cuota proxy en menú usuario (T16):** badge persistente al iniciar sesión (`Proxy: N/M hoy`, restantes o agotado, día UTC); detalle en desplegable; se actualiza tras cada investigación proxy; con BYOK guardada muestra **Usando BYOK** sin implicar consumo proxy; oculto si no hay sesión o proxy desactivado.
 - **Comparador + evaluación manual (T10):** filas separadas de puntuación y veredicto manual; **Cuál lanzar primero** usa evaluación manual solo si todos los productos la tienen; si no, Product Score; texto indica qué señal impulsó la recomendación.
 - **Prioridad BYOK sobre proxy (T33):** si guardaste clave Gemini en Ajustes, Deep Research y Spy usan BYOK directo a Google aunque tengas sesión y proxy activo; hint en Ajustes y logs de terminal distinguen BYOK vs proxy.

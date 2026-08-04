@@ -525,6 +525,120 @@ export function exportCampaignKit(report) {
   showToast('Kit de campaña descargado.', 'success');
 }
 
-// ==========================================
-// MÓDULO DE INTELIGENCIA COMPETITIVA & ESPIONAJE
-// ==========================================
+// EXPORT SINGLE REPORT TO SHOPIFY CSV
+export function exportReportToShopifyCSV(report) {
+  if (!report) return;
+
+  const handle = (report.name || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const title = report.shopifyDescription?.title || report.name || "Producto Sin Nombre";
+  const bodyHtml = report.shopifyDescription?.body || `<p>${report.name}</p>`;
+  const vendor = "DropDeep Intelligence";
+  const type = report.categoryId || "General";
+  const tags = "dropshipping, winning-product, dropdeep";
+  const price = typeof report.retail === 'number' ? report.retail.toFixed(2) : (parseFloat(report.retail) || 29.99).toFixed(2);
+  const comparePrice = (parseFloat(price) * 1.35).toFixed(2);
+  const costPerItem = typeof report.cost === 'number' ? report.cost.toFixed(2) : (parseFloat(report.cost) || 10.00).toFixed(2);
+  const metaDesc = report.shopifyDescription?.metaDescription || "";
+
+  const escapeCsv = (str) => {
+    if (str == null) return '""';
+    const s = String(str).replace(/"/g, '""');
+    return `"${s}"`;
+  };
+
+  const headers = [
+    "Handle", "Title", "Body (HTML)", "Vendor", "Product Category", "Type", "Tags",
+    "Published", "Option1 Name", "Option1 Value", "Option2 Name", "Option2 Value",
+    "Option3 Name", "Option3 Value", "Variant SKU", "Variant Grams",
+    "Variant Inventory Tracker", "Variant Inventory Qty", "Variant Inventory Policy",
+    "Variant Fulfillment Service", "Variant Price", "Variant Compare At Price",
+    "Variant Requires Shipping", "Variant Taxable", "Variant Barcode", "Image Src",
+    "Image Position", "Image Alt Text", "Gift Card", "SEO Title", "SEO Description",
+    "Google Shopping / Google Product Category", "Google Shopping / Gender",
+    "Google Shopping / Age Group", "Google Shopping / MPN", "Google Shopping / Condition",
+    "Google Shopping / Custom Product", "Google Shopping / Custom Label 0",
+    "Google Shopping / Custom Label 1", "Google Shopping / Custom Label 2",
+    "Google Shopping / Custom Label 3", "Google Shopping / Custom Label 4",
+    "Variant Image", "Variant Weight Unit", "Variant Tax Code", "Cost per item",
+    "Price / International", "Compare At Price / International", "Status"
+  ];
+
+  const rowData = [
+    handle, title, bodyHtml, vendor, "", type, tags,
+    "TRUE", "Title", "Default Title", "", "",
+    "", "", `${handle}-sku-1`, "500",
+    "shopify", "100", "deny",
+    "manual", price, comparePrice,
+    "TRUE", "FALSE", "", "",
+    "", "", "FALSE", title, metaDesc,
+    "", "", "", "", "new",
+    "FALSE", "", "", "",
+    "", "", "", "kg", "", costPerItem,
+    "", "", "active"
+  ];
+
+  const csvContent = "\uFEFF" + headers.map(escapeCsv).join(",") + "\n" + rowData.map(escapeCsv).join(",");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", url);
+  downloadAnchor.setAttribute("download", `shopify_import_${handle}.csv`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  URL.revokeObjectURL(url);
+  showToast("CSV de Shopify listo para importar descargado exitosamente.", "success");
+}
+
+// EXPORT SINGLE REPORT TO WOOCOMMERCE CSV
+export function exportReportToWooCommerceCSV(report) {
+  if (!report) return;
+
+  const handle = (report.name || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const title = report.name || "Producto Sin Nombre";
+  const shortDesc = report.shopifyDescription?.metaDescription || "";
+  const description = report.shopifyDescription?.body || `<p>${report.name}</p>`;
+  const price = typeof report.retail === 'number' ? report.retail.toFixed(2) : (parseFloat(report.retail) || 29.99).toFixed(2);
+  const regularPrice = (parseFloat(price) * 1.35).toFixed(2);
+  const category = report.categoryId || "General";
+
+  const escapeCsv = (str) => {
+    if (str == null) return '""';
+    const s = String(str).replace(/"/g, '""');
+    return `"${s}"`;
+  };
+
+  const headers = [
+    "Type", "SKU", "Name", "Published", "Is featured?", "Visibility in catalog",
+    "Short description", "Description", "Date sale price starts", "Date sale price ends",
+    "Tax status", "Tax class", "In stock?", "Stock", "Low stock amount",
+    "Backorders allowed?", "Sold individually?", "Weight (kg)", "Length (cm)",
+    "Width (cm)", "Height (cm)", "Allow customer reviews?", "Purchase note",
+    "Sale price", "Regular price", "Categories", "Tags", "Shipping class",
+    "Images", "Download limit", "Download expiry days", "Parent", "Grouped products",
+    "Upsells", "Cross-sells", "External URL", "Button text", "Position"
+  ];
+
+  const rowData = [
+    "simple", `${handle}-sku-1`, title, "1", "0", "visible",
+    shortDesc, description, "", "",
+    "taxable", "", "1", "100", "",
+    "0", "0", "0.5", "",
+    "", "", "1", "",
+    price, regularPrice, category, "dropshipping, dropdeep", "",
+    "", "", "", "", "",
+    "", "", "", "", "0"
+  ];
+
+  const csvContent = "\uFEFF" + headers.map(escapeCsv).join(",") + "\n" + rowData.map(escapeCsv).join(",");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", url);
+  downloadAnchor.setAttribute("download", `woocommerce_import_${handle}.csv`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  URL.revokeObjectURL(url);
+  showToast("CSV de WooCommerce listo para importar descargado exitosamente.", "success");
+}
