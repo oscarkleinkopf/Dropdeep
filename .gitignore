@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+
+# Netlify
+.netlify/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / debug
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Test / coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.local
+.temp/
+.tmp/
