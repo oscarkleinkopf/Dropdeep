@@ -201,7 +201,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 4. ~~**Comparador sin eval manual**~~ — ✅ T10.
 5. ~~**Spy sin verificación**~~ — ✅ T11-A (Opción A).
 6. ~~**`src/data.js` shim roto**~~ — ✅ T30 eliminado.
-7. **Sin E2E Playwright** — ⬜ T08; ~~unit/CI~~ ✅ T25/T36/T44.
+7. ~~**Sin E2E Playwright**~~ — ✅ T08.
 8. **Caché no distingue fuente/modo** — ⬜ T28.
 9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
 10. ~~**Sync delete solo local**~~ — ✅ T19.
@@ -217,9 +217,9 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 23 | T01–T07, T09–T10, T12–T16, T18–T19, T27, T32–T34, T37 |
-| 🟡 Parcial | 5 | T21, T24, T29, T30, T31 |
-| ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
+| ✅ Hecho | 25+ | T01–T10, T12–T16, T18–T21, T25, T27, T29, T31–T37, T08 (E2E), T20 (proxy abuse), … |
+| 🟡 Parcial | ver índice §8 | T24, … |
+| ⬜ No iniciado | ver índice §8 | T17, T22, T23, T28, … |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
 ### Cortes mid-task (alta confianza de “se quedó a medias”)
@@ -549,7 +549,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T08 — Tests E2E paste-back del copiloto (Playwright)
 
-> **Estado (2026-08-05):** ⬜ No iniciado — sin `playwright.config.js`, `e2e/` ni script `test:e2e`.
+> **Estado (2026-08-05):** ✅ Hecho — Playwright + `e2e/copilot-paste.spec.js` (Express 1 pegado + Rápido 2 pegados); `npm run test:e2e`; job `e2e-copilot` en `ci.yml` (Chromium, sin secretos).
 
 **Objetivo:** Regresión automática del flujo gratis crítico.
 
@@ -560,28 +560,28 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | **Dependencias** | Ninguna |
 | **Paralelizable** | Sí (archivos nuevos en `e2e/`) |
 
-**Archivos a crear**
+**Archivos**
 
 - `playwright.config.js`
 - `e2e/copilot-paste.spec.js`
-- `e2e/fixtures/copilot-step1.json`, `copilot-step2-fast.json`
-- `.github/workflows/ci.yml` (job test separado de deploy)
+- `e2e/fixtures/copilot-express.json`, `copilot-step1.json`, `copilot-step2-fast.json`
+- `.github/workflows/ci.yml` — job `e2e-copilot`
 - `package.json` — script `test:e2e`
 
 **Pasos**
 
 1. `npm run build && npm run preview -- --port 4173`.
-2. Test: navegar a `/Dropdeep/`, setear localStorage ruta copiloto, abrir modal, pegar fixtures, procesar, assert `#report-view` visible y título producto.
-3. Modo rápido: 2 fixtures; modo express (T04): 1 fixture.
+2. Test: navegar a `/Dropdeep/`, setear ruta copiloto, abrir modal, pegar fixtures, procesar, assert `#report-view` visible y título producto.
+3. Modo rápido: 2 fixtures; modo express: 1 fixture.
 
 **Criterio de aceptación**
 
-- CI ejecuta E2E en PR/push a `master` (o manual `workflow_dispatch` si sin secretos).
+- CI ejecuta E2E en PR/push a `main`/`master`.
 - Test pasa sin Gemini/red externa.
 
 **Prueba manual:** `npm run test:e2e` local.
 
-**NO romper:** Deploy Pages sigue pasando.
+**NO romper:** Deploy Pages sigue pasando (job E2E separado).
 
 ---
 
@@ -1730,7 +1730,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T08 (T06/T07/T11-A/T13/T14/T18/T19/T20/T35 ✅)
+- (oleada P1 infra: T08/T20 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1742,7 +1742,7 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
-| T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35✅ | T38✅, T39✅ |
+| T06✅, T07✅ | T25✅, T36✅, T08✅, T44✅ | T11✅, T35✅ | T38✅, T39✅ |
 | T13✅, T14✅ | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
@@ -1809,7 +1809,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T05 | Persistir sesión copiloto | P1 | ✅ | Verificado |
 | T06 | Validación JSON accionable | P1 | ✅ | Tips parse + ejemplo JSON en modal |
 | T07 | Recuperación errores copiloto | P1 | ✅ | Peek pasos + caption; error no avanza índice |
-| T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
+| T08 | E2E Playwright paste-back | P1 | ✅ | Express + Rápido en CI |
 | T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |
 | T10 | Comparador + eval manual | P1 | ✅ | Verificado |
 | T11 | Spy honesto / fuente real | P1 | ✅ | Opción A en main; Opción B diferida |

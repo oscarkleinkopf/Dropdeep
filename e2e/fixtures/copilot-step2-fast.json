@@ -1,0 +1,23 @@
+{
+  "headlines": [
+    "24h fría o caliente — sin fugas",
+    "La botella que sobrevive al gym",
+    "Deja el vaso desechable"
+  ],
+  "adCopy": {
+    "facebook": [
+      {
+        "primaryText": "Olvídate del vaso desechable. Acero, sin BPA, 24h.",
+        "headline": "Botella térmica premium",
+        "description": "Envío rápido · Garantía 12 meses"
+      }
+    ],
+    "tiktok": [
+      {
+        "hook": "Tu café ya no llega tibio",
+        "body": "Probé 5 botellas y esta aguanta el día entero",
+        "cta": "Link en bio"
+      }
+    ]
+  }
+}
