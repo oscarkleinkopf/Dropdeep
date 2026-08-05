@@ -230,7 +230,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | **T06** | Tips parse + ejemplo JSON en modal | ✅ Cerrado |
 | **T07** | Peek pasos completados + caption; error no avanza | ✅ Cerrado |
 | **T14** | Badge Borrador en portafolio + CTAs pack-first | ✅ Cerrado |
-| **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
+| **T18** | Modal límite 10 + export/eliminar | ✅ Cerrado |
 | **T19** | Delete remoto + tombstones + badge sync | ✅ Cerrado |
 | **T30** | `reportGenerator.js` ya no existe | Arreglar o eliminar shim `src/data.js` |
 | **T31** | `#meta-interests-disclaimer` en HTML | Empieza `.hidden`; solo se muestra tras búsqueda |
@@ -1726,7 +1726,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T20, T08, T18, T35 (T06/T07/T11-A/T13/T14/T19 ✅)
+- T20, T08, T35 (T06/T07/T11-A/T13/T14/T18/T19 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1745,7 +1745,7 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 ```
 T19 ✅  ||  T13/T14 ✅, T15✅
-T18 (modal límite)  ||  T21🟡
+T18 ✅  ||  T21🟡
 ```
 
 ### Fase 3 — Polish (P2)
@@ -1815,7 +1815,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T15 | Estados vacíos CTAs | P2 | ✅ | Verificado |
 | T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
 | T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
-| T18 | UX límite portafolio 10 | P2 | 🟡 | Toast+export; sin modal |
+| T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
 | T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
