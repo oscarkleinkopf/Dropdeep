@@ -1,0 +1,37 @@
+{
+  "name": "Botella térmica E2E Rápido",
+  "categoryId": "home",
+  "cost": 8.5,
+  "retail": 29.9,
+  "margin": 21.4,
+  "roi": 250,
+  "shipping": 10,
+  "saturation": 35,
+  "trend": "+40%",
+  "demographics": {
+    "who": "Profesionales 25-45 que entrenan o viajan",
+    "belief": "Mantener la temperatura importa más que el diseño"
+  },
+  "solutions": {
+    "current": "Vasos desechables",
+    "experience": "Se enfría en 1h",
+    "likes": "Barato",
+    "dislikes": "Desperdicio",
+    "skepticism": "¿Otra botella más?",
+    "horrorStories": []
+  },
+  "secrets": {
+    "historical": "Termos militares",
+    "conspiracy": "Plásticos baratos",
+    "mechanismProblem": "Pérdida térmica",
+    "mechanismSolution": "Doble pared vacío"
+  },
+  "eden": {
+    "goldenAge": "Café perfecto todo el día",
+    "corruptor": "Vasos de un solo uso",
+    "contrast": "Antes frío / ahora estable"
+  },
+  "verbatims": ["Se mantiene caliente hasta la tarde"],
+  "angles": ["Viaje", "Gym", "Oficina"],
+  "suppliers": []
+}
