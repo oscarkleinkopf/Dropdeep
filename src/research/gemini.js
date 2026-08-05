@@ -149,6 +149,10 @@ function renderResearchErrorUI(
       'Pega tu clave Gemini gratis en AI Studio o vuelve mañana para más investigaciones proxy.',
       'info'
     );
+  } else if (classified.type === 'proxy_rate_limit' || classified.type === 'proxy_session_cooldown') {
+    addLogTerminal(output, 'Tip: BYOK o Modo Copiloto no consumen el rate limit del proxy.', 'info');
+  } else if (classified.type === 'proxy_payload_too_large') {
+    addLogTerminal(output, 'Tip: con BYOK el límite de tamaño lo marca Google, no el proxy.', 'info');
   } else if (classified.type === 'invalid_key') {
     addLogTerminal(output, 'Abre Ajustes → pega una clave válida de Google AI Studio.', 'info');
   } else if (classified.type === 'proxy') {

@@ -33,7 +33,10 @@ export function classifyGeminiError(error) {
     msg.includes('resource_exhausted') ||
     msg.includes('limit') ||
     msg.includes('exhausted') ||
-    msg.includes('rate limit')
+    msg.includes('rate limit') ||
+    msg.includes('proxy_rate') ||
+    msg.includes('proxy_session_cooldown') ||
+    msg.includes('payload_too_large')
   ) {
     if (
       msg.includes('daily_limit') ||
@@ -46,6 +49,33 @@ export function classifyGeminiError(error) {
         title: 'Cuota diaria de proxy agotada',
         message:
           'Cuota diaria agotada. Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.',
+        actions: ['settings'],
+      };
+    }
+    if (msg.includes('proxy_rate') || msg.includes('demasiadas peticiones al proxy')) {
+      return {
+        type: 'proxy_rate_limit',
+        title: 'Demasiadas peticiones al proxy',
+        message:
+          'Protección anti-abuso: espera unos segundos e inténtalo de nuevo, o usa BYOK / Modo Copiloto.',
+        actions: ['retry', 'settings'],
+      };
+    }
+    if (msg.includes('proxy_session_cooldown') || msg.includes('antes de iniciar otra investigación')) {
+      return {
+        type: 'proxy_session_cooldown',
+        title: 'Espera antes de otra investigación',
+        message:
+          'Hay un cooldown de ~30 s entre investigaciones nuevas vía proxy. Espera un momento o usa BYOK.',
+        actions: ['retry', 'settings'],
+      };
+    }
+    if (msg.includes('payload_too_large') || msg.includes('demasiado grande')) {
+      return {
+        type: 'proxy_payload_too_large',
+        title: 'Prompt demasiado grande para el proxy',
+        message:
+          'El contenido supera el límite del proxy. Acorta el contexto o configura BYOK en Ajustes.',
         actions: ['settings'],
       };
     }
