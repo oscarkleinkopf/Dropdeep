@@ -1818,7 +1818,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
-| T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
+| T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
 | T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
 | T24 | Móvil copiloto/reporte | P2 | 🟡 | Reporte OK parcial; copiloto no |
