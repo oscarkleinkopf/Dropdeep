@@ -1809,8 +1809,8 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T10 | Comparador + eval manual | P1 | ✅ | Verificado |
 | T11 | Spy honesto / fuente real | P1 | ✅ | Opción A en main; Opción B diferida |
 | T12 | A/B heurístico (no CTR falso) | P1 | ✅ | Verificado |
-| T13 | Onboarding alineado copiloto | P2 | 🟡 | CTA no setea ruta copiloto |
-| T14 | Wizard sin dead-ends | P2 | 🟡 | Draft en feed; falta portafolio + CTAs |
+| T13 | Onboarding alineado copiloto | P2 | ✅ | CTA setea ruta copiloto + focus |
+| T14 | Wizard sin dead-ends | P2 | ✅ | Pack primario + badge Borrador |
 | T15 | Estados vacíos CTAs | P2 | ✅ | Verificado |
 | T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
 | T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
