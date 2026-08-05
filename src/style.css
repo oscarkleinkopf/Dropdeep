@@ -4806,6 +4806,81 @@ body.auth-locked {
   margin-bottom: 1rem;
 }
 
+.spy-honest-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1rem;
+}
+.spy-honest-banner-compact {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.spy-inferred-badge {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+}
+.spy-inferred-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fcd34d;
+  margin-left: 0.25rem;
+}
+.spy-unverified {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.spy-tech-note {
+  margin-top: 0.65rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.spy-manual-checklist {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  text-align: left;
+  max-width: 560px;
+  margin-inline: auto;
+}
+.spy-manual-checklist h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.spy-manual-checklist ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.2rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.spy-checklist-url {
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
 /* Meta Ads audit (T40) */
 .meta-audit-form-grid {
   display: grid;
