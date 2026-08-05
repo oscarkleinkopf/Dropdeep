@@ -26,9 +26,10 @@ Open [http://localhost:3000/Dropdeep/](http://localhost:3000/Dropdeep/) (base pa
 ```bash
 npm test           # Vitest (reportParse, rúbrica Winner, fórmulas Audisio)
 npm run test:watch
+npm run test:e2e   # Playwright: paste Express/Rápido del copiloto (build + preview)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `npm test` + `npm run build` on PR/push (Node 22, no Supabase secrets required for unit tests).
+CI (`.github/workflows/ci.yml`) runs unit tests + build and job `e2e-copilot` (Chromium) on PR/push (Node 22, no Supabase secrets required).
 
 ### Production build
 

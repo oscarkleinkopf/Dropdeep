@@ -201,7 +201,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 4. ~~**Comparador sin eval manual**~~ — ✅ T10.
 5. ~~**Spy sin verificación**~~ — ✅ T11-A (Opción A).
 6. ~~**`src/data.js` shim roto**~~ — ✅ T30 eliminado.
-7. **Sin E2E Playwright** — ⬜ T08; ~~unit/CI~~ ✅ T25/T36/T44.
+7. ~~**Sin E2E Playwright**~~ — ✅ T08.
 8. **Caché no distingue fuente/modo** — ⬜ T28.
 9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
 10. ~~**Sync delete solo local**~~ — ✅ T19.
@@ -217,9 +217,9 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 23 | T01–T07, T09–T10, T12–T16, T18–T19, T27, T32–T34, T37 |
-| 🟡 Parcial | 5 | T21, T24, T29, T30, T31 |
-| ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
+| ✅ Hecho | 25+ | T01–T10, T12–T16, T18–T21, T25, T27, T29, T31–T37, T08 (E2E), T20 (proxy abuse), … |
+| 🟡 Parcial | ver índice §8 | T24, … |
+| ⬜ No iniciado | ver índice §8 | T17, T22, T23, T28, … |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
 ### Cortes mid-task (alta confianza de “se quedó a medias”)
