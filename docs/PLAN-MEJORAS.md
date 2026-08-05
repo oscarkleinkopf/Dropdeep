@@ -255,7 +255,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | Montecarlo (§20) | ✅ UI + listeners en `report.js` |
 | HTML blocks (§22) | ✅ Usa `htmlBlocks.js` |
 | WhatsApp scripts (§23) | ✅ Usa `whatsappScripts.js` |
-| Bundles (§21) | 🟡 **A medias** — ver tabla mid-task |
+| Bundles (§21) | ✅ Hecho — `generateBundleStructure` en UI (PR #5) |
 
 ---
 
@@ -1838,7 +1838,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T42 | Presupuesto test $300 en Montecarlo | P2 | ✅ | Merge #12 |
 | T43 | MANUAL metodología Audisio | P1 | ✅ | Merge #12 |
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
-| — | Bundles ops §21 wire-up | — | 🟡 | `generateBundleStructure` importado, no llamado |
+| — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
 
 ---
 
