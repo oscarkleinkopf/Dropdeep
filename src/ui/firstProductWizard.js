@@ -15,8 +15,10 @@ import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { updatePortfolioBadge, renderPortfolioList, openPortfolioLimitModal } from './portfolio.js';
 import { runResearchDirect, runCopilotResearch } from '../research/flow.js';
 import { setResearchPath, RESEARCH_PATH_COPILOT, RESEARCH_PATH_API } from '../config/researchPath.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 
 const STORAGE_PREFIX = 'dropdeep_first_product_wizard_';
+let releaseWizardA11y = null;
 
 /** T14 — draft created by wizard / incomplete research. */
 export function isPortfolioDraft(item) {
@@ -258,9 +260,17 @@ export function openFirstProductWizard() {
   modal.classList.remove('hidden');
   renderVerticalStep();
   renderWizardStep();
+  releaseWizardA11y?.();
+  releaseWizardA11y = bindModalA11y(modal, {
+    onClose: closeFirstProductWizard,
+    initialFocus: '.wizard-vertical-card',
+    label: 'Tu primer producto',
+  });
 }
 
 export function closeFirstProductWizard() {
+  releaseWizardA11y?.();
+  releaseWizardA11y = null;
   getModal()?.classList.add('hidden');
 }
 

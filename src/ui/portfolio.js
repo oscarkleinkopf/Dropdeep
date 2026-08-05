@@ -20,6 +20,9 @@ import {
 } from '../config/freeTier.js';
 import { exportPortfolioJSON, exportCampaignKit } from './export.js';
 import { helpfulLabel, getReportFeedback } from '../utils/feedbackStorage.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
+
+let releasePortfolioLimitA11y = null;
 
 function isDraftPortfolioItem(item) {
   return !!(item?.fullReport?._isDraft || item?._isDraft);
@@ -631,6 +634,8 @@ function renderPortfolioLimitList() {
 }
 
 export function closePortfolioLimitModal() {
+  releasePortfolioLimitA11y?.();
+  releasePortfolioLimitA11y = null;
   getLimitModal()?.classList.add('hidden');
   limitModalOnFreed = null;
 }
@@ -661,6 +666,12 @@ export function openPortfolioLimitModal(opts = {}) {
 
   renderPortfolioLimitList();
   modal.classList.remove('hidden');
+  releasePortfolioLimitA11y?.();
+  releasePortfolioLimitA11y = bindModalA11y(modal, {
+    onClose: closePortfolioLimitModal,
+    initialFocus: '#portfolio-limit-export-btn',
+    labelledBy: 'portfolio-limit-title',
+  });
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 

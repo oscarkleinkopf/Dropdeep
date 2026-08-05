@@ -6,8 +6,10 @@ import {
   onAuthStateChange
 } from '../auth/auth.js';
 import { showToast } from '../utils/toast.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 
 let authMode = 'login';
+let releaseAuthA11y = null;
 
 export function openAuthModal(mode = 'login') {
   if (!isAuthConfigured) {
@@ -19,11 +21,18 @@ export function openAuthModal(mode = 'login') {
   if (!modal) return;
   modal.classList.remove('hidden');
   updateAuthModalUI();
-  document.getElementById('auth-email-input')?.focus();
+  releaseAuthA11y?.();
+  releaseAuthA11y = bindModalA11y(modal, {
+    onClose: closeAuthModal,
+    initialFocus: '#auth-email-input',
+    labelledBy: 'auth-modal-title',
+  });
   lucide.createIcons();
 }
 
 export function closeAuthModal() {
+  releaseAuthA11y?.();
+  releaseAuthA11y = null;
   document.getElementById('auth-modal')?.classList.add('hidden');
   clearAuthForm();
 }

@@ -11,17 +11,30 @@ import { showToast } from '../utils/toast.js';
 import { isGeminiProxyEnabled, refreshProxyUsageUI } from '../research/geminiProxy.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
 import { updateOnboardingPanel } from './onboarding.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 
 const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 
 export { hasGeminiKey };
 
+let releaseSettingsA11y = null;
+
 export function openSettingsModal() {
   const settingsModal = document.getElementById('settings-modal');
-  if (settingsModal) {
-    settingsModal.classList.remove('hidden');
-    document.getElementById('gemini-key-input')?.focus();
-  }
+  if (!settingsModal) return;
+  settingsModal.classList.remove('hidden');
+  releaseSettingsA11y?.();
+  releaseSettingsA11y = bindModalA11y(settingsModal, {
+    onClose: closeSettingsModal,
+    initialFocus: '#gemini-key-input',
+    label: 'Configuración de API',
+  });
+}
+
+export function closeSettingsModal() {
+  releaseSettingsA11y?.();
+  releaseSettingsA11y = null;
+  document.getElementById('settings-modal')?.classList.add('hidden');
 }
 
 export function updateGeminiKeyBanner() {

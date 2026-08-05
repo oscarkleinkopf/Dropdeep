@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Accesibilidad modales (T23):** focus trap y Escape en copiloto/ajustes/auth/caché/eval/wizard/terminal/límite; `role="dialog"`; anillo `:focus-visible`; contraste de `--text-muted` mejorado.
 - **Móvil copiloto/reporte (T24):** modales a pantalla completa bajo 640px; botones ≥44px; textarea 16px (sin zoom iOS); tabs del informe ya horizontales bajo 900px.
 - **Errores copiloto unificados (T17):** pegados JSON inválidos muestran título «Respuesta JSON ilegible» (paridad con terminal API); validación estructural T06 se conserva.
 - **Caché por fuente/modo (T28):** la clave local incluye ruta (API/Copiloto) y modo (Express/Rápido/Completo); el modal indica el origen y no reutiliza informes cruzados.

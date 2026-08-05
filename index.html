@@ -64,7 +64,7 @@
   </div>
 
   <!-- Auth Modal (login / signup) — outside app-shell so it stays interactive when app-locked -->
-  <div id="auth-modal" class="terminal-overlay hidden">
+  <div id="auth-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
     <div class="terminal-container" style="max-width: 420px">
       <div class="terminal-header">
         <div class="terminal-dots">
@@ -922,7 +922,7 @@
     </main>
 
     <!-- Terminal Overlay (Deep Research progress) -->
-    <div id="terminal-modal" class="terminal-overlay hidden">
+    <div id="terminal-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Deep Research">
       <div class="terminal-container">
         <div class="terminal-header">
           <div class="terminal-dots">
@@ -958,7 +958,7 @@
     </div>
 
     <!-- Settings Modal (API Keys) -->
-    <div id="settings-modal" class="terminal-overlay hidden">
+    <div id="settings-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Configuración de API">
       <div class="terminal-container" style="max-width: 500px">
         <div class="terminal-header">
           <div class="terminal-dots">
@@ -1026,7 +1026,7 @@
     </div>
 
     <!-- Copilot Modal (Modo Copiloto Gratis) -->
-    <div id="copilot-modal" class="terminal-overlay hidden">
+    <div id="copilot-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Modo Copiloto Gratis">
       <div class="terminal-container copilot-container">
         <div class="terminal-header">
           <div class="terminal-dots">
@@ -1093,7 +1093,7 @@
     </div>
 
     <!-- Manual Evaluation Modal -->
-    <div id="manual-eval-modal" class="terminal-overlay hidden">
+    <div id="manual-eval-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Evaluación manual Audisio">
       <div class="terminal-container manual-eval-container">
         <div class="terminal-header">
           <div class="terminal-dots">
@@ -1132,7 +1132,7 @@
     </div>
 
     <!-- Cache Modal (Restore / Refresh) -->
-    <div id="cache-modal" class="terminal-overlay hidden">
+    <div id="cache-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Investigación en Caché">
       <div class="terminal-container" style="max-width: 500px">
         <div class="terminal-header">
           <div class="terminal-dots">
@@ -1193,7 +1193,7 @@
   </div>
 
   <!-- First Product Wizard (works without login) -->
-  <div id="first-product-wizard" class="terminal-overlay hidden">
+  <div id="first-product-wizard" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-label="Tu primer producto">
     <div class="terminal-container wizard-container">
       <div class="terminal-header">
         <div class="terminal-dots">
