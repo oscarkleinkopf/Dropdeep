@@ -15,6 +15,12 @@ import { openManualEvaluation } from './manualEvaluation.js';
 import { exportCampaignKit } from './export.js';
 import { setResearchMode, RESEARCH_MODE_COMPLETE } from '../config/researchMode.js';
 import { runMonteCarloSimulation } from '../research/montecarlo.js';
+import {
+  AUDISIO_DEFAULT_MC_CPC_USD,
+  AUDISIO_LAUNCH_BUDGET_BEGINNER_USD,
+  AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD,
+  AUDISIO_TEST_AD_BUDGET_USD,
+} from '../config/audisioRules.js';
 import { generateBundleStructure } from '../research/bundles.js';
 import { generateHTMLConversionBlocks } from '../research/htmlBlocks.js';
 import { generateWhatsAppSalesScripts } from '../research/whatsappScripts.js';
@@ -1574,7 +1580,16 @@ export function renderReportContent() {
     <!-- SECTION 20: MONTE CARLO FINANCIAL SIMULATOR -->
     <section id="section-montecarlo-finance" class="report-section hidden">
       <h2>20. Simulador Financiero Probabilístico Montecarlo (1,000 Escenarios)</h2>
-      <p class="report-section-desc">Ejecuta 1,000 simulaciones estocásticas con variaciones de CPC y conversión para estimar la probabilidad real de rentabilidad (%) y proyectar 3 escenarios financieros antes de invertir.</p>
+      <p class="report-section-desc">Proyección orientativa (no predice Meta/Google). Anclado al <strong>presupuesto de testeo del método</strong>: $${AUDISIO_TEST_AD_BUDGET_USD} USD el primer mes / mes y medio; después el negocio debería autofinanciarse.</p>
+
+      <div class="mc-audisio-banner" id="mc-audisio-banner">
+        <p class="mc-audisio-banner-lead">Pool de test Audisio: <strong>$${AUDISIO_TEST_AD_BUDGET_USD} USD</strong></p>
+        <p class="mc-audisio-banner-sub">A $${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}/día ≈ ${Math.round(AUDISIO_TEST_AD_BUDGET_USD / AUDISIO_LAUNCH_BUDGET_BEGINNER_USD)} días · A $${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}/día ≈ ${Math.round(AUDISIO_TEST_AD_BUDGET_USD / AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD)} días. Tras el test: autofinanciar con margen, no seguir inyectando a ciegas.</p>
+        <div class="mc-preset-row">
+          <button type="button" class="btn btn-secondary btn-sm mc-budget-preset" data-mc-budget="${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}">$${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}/día principiante</button>
+          <button type="button" class="btn btn-secondary btn-sm mc-budget-preset" data-mc-budget="${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}">$${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}/día experimentado</button>
+        </div>
+      </div>
 
       <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
         <h4 style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--accent-cyan);">Parámetros de Entrada para la Simulación</h4>
@@ -1583,14 +1598,14 @@ export function renderReportContent() {
             <label>Presupuesto Ads ($/día)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-budget" value="50" min="5" step="5">
+              <input type="number" id="mc-budget" value="${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}" min="5" step="5">
             </div>
           </div>
           <div class="input-row">
             <label>CPC Esperado ($)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-cpc" value="0.80" min="0.05" step="0.05">
+              <input type="number" id="mc-cpc" value="${AUDISIO_DEFAULT_MC_CPC_USD}" min="0.05" step="0.05">
             </div>
           </div>
           <div class="input-row">
@@ -1616,6 +1631,8 @@ export function renderReportContent() {
           </div>
         </div>
       </div>
+
+      <div id="mc-test-plan-container" class="mc-test-plan"></div>
 
       <!-- Monte Carlo Results Grid -->
       <div id="mc-results-container">
@@ -1799,10 +1816,11 @@ export function renderReportContent() {
   // Bind Monte Carlo recalculations
   const updateMonteCarloUI = () => {
     const mcContainer = container.querySelector('#mc-results-container');
+    const planContainer = container.querySelector('#mc-test-plan-container');
     if (!mcContainer) return;
 
-    const budgetVal = container.querySelector('#mc-budget')?.value || 50;
-    const cpcVal = container.querySelector('#mc-cpc')?.value || 0.80;
+    const budgetVal = container.querySelector('#mc-budget')?.value || AUDISIO_LAUNCH_BUDGET_BEGINNER_USD;
+    const cpcVal = container.querySelector('#mc-cpc')?.value || AUDISIO_DEFAULT_MC_CPC_USD;
     const convVal = container.querySelector('#mc-conv')?.value || 2.5;
     const aovVal = container.querySelector('#mc-aov')?.value || (typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99);
     const costVal = container.querySelector('#mc-cost')?.value || (typeof report.cost === 'number' ? report.cost : parseFloat(report.cost) || 10.00);
@@ -1814,6 +1832,29 @@ export function renderReportContent() {
       aov: aovVal,
       cost: costVal
     });
+
+    const plan = res.testPlan;
+    if (planContainer && plan) {
+      const flagHtml = (plan.flags || [])
+        .map(
+          (f) =>
+            `<li class="mc-plan-flag mc-plan-flag-${f.level === 'error' ? 'error' : f.level === 'warn' ? 'warn' : 'info'}">${f.message}</li>`,
+        )
+        .join('');
+      planContainer.innerHTML = `
+        <div class="mc-test-plan-card">
+          <h4>Plan de testeo Audisio ($${plan.totalTestBudgetUsd})</h4>
+          <div class="mc-test-plan-metrics">
+            <div><span class="mc-metric-label">Runway</span><span class="mc-metric-val">${plan.daysRunway} días</span><span class="mc-metric-sub">${plan.weeksRunway} sem · ${plan.paceLabel}</span></div>
+            <div><span class="mc-metric-label">CPA proyectado</span><span class="mc-metric-val">$${plan.projectedCpaUsd}</span><span class="mc-metric-sub">CPC ÷ conversión</span></div>
+            <div><span class="mc-metric-label">Pedidos estimados</span><span class="mc-metric-val">${plan.estimatedOrdersFromTest}</span><span class="mc-metric-sub">con el pool de $${plan.totalTestBudgetUsd} (mín. aprendizaje ${plan.minLearningOrders})</span></div>
+          </div>
+          <p class="mc-test-plan-note">${plan.methodNote}</p>
+          <p class="mc-test-plan-note">${plan.autofinanceNote}</p>
+          ${flagHtml ? `<ul class="mc-plan-flags">${flagHtml}</ul>` : '<p class="mc-test-plan-ok">CPA y volumen de pedidos del test se ven razonables con estos inputs.</p>'}
+        </div>
+      `;
+    }
 
     mcContainer.innerHTML = `
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
@@ -1847,6 +1888,17 @@ export function renderReportContent() {
   ['#mc-budget', '#mc-cpc', '#mc-conv', '#mc-aov', '#mc-cost'].forEach(id => {
     const inputEl = container.querySelector(id);
     if (inputEl) inputEl.addEventListener('input', updateMonteCarloUI);
+  });
+
+  container.querySelectorAll('.mc-budget-preset').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const budgetInput = container.querySelector('#mc-budget');
+      const val = btn.getAttribute('data-mc-budget');
+      if (budgetInput && val) {
+        budgetInput.value = val;
+        updateMonteCarloUI();
+      }
+    });
   });
 
   updateMonteCarloUI();

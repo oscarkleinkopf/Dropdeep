@@ -480,13 +480,13 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 17 | Customer Journey Map | Etapas del comprador | Retargeting y secuencias |
 | 18 | Prompts para Mockups | Imágenes de producto | Creativos visuales |
 | 19 | Prompts para Chatbot | Secuencia enriquecida | Iterar con IA externa |
-| 20 | Simulador Montecarlo | Escenarios P10/P50/P90 de beneficio diario (inputs editables: presupuesto, CPC, conversión, AOV, coste) | ¿Cuánto riesgo asumes antes de gastar en ads? |
+| 20 | Simulador Montecarlo | Escenarios P10/P50/P90 + plan de test Audisio ($300, ritmo $10–20/día, aviso CPA/aprendizaje) | ¿Cuánto riesgo asumes antes de gastar en ads? |
 | 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
 | 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
 | 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
 | 24 | VSL & Lanzamiento Audisio | 3 guiones Hook→Body→CTA + specs CapCut/Canva/ElevenLabs + checklist de lanzamiento | ¿Tienes creativos y presupuesto listos antes de gastar? |
 
-**Simulador Montecarlo:** es una proyección **orientativa** con 1000 ensayos y variación aleatoria sobre tus inputs; no predice resultados reales de Meta/Google Ads.
+**Simulador Montecarlo:** proyección **orientativa** con 1000 ensayos; no predice resultados reales de Meta/Google Ads. Defaults del método: presupuesto **$10/día** (o preset **$20**), CPC ~$0.15 (banda Chile), pool de test **$300 USD** el primer mes / mes y medio y luego **autofinanciar**. Si el CPA proyectado (CPC ÷ conversión) deja pocos pedidos en esos $300, verás un aviso de riesgo de quemar el budget sin aprendizaje.
 
 ### Kit VSL & checklist de lanzamiento (sección 24)
 

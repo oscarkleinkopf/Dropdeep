@@ -5037,6 +5037,114 @@ body.auth-locked {
   }
 }
 
+/* Section 20 — Audisio test budget + Montecarlo */
+.mc-audisio-banner {
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+.mc-audisio-banner-lead {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+.mc-audisio-banner-sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.mc-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.mc-test-plan {
+  margin-bottom: 1.25rem;
+}
+.mc-test-plan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+}
+.mc-test-plan-card h4 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--accent-cyan);
+}
+.mc-test-plan-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+.mc-metric-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.mc-metric-val {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.15rem;
+}
+.mc-metric-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+  line-height: 1.35;
+}
+.mc-test-plan-note {
+  margin: 0.35rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.mc-test-plan-ok {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: #6ee7b7;
+}
+.mc-plan-flags {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.mc-plan-flag {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.mc-plan-flag-warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+.mc-plan-flag-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.mc-plan-flag-info {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--text-secondary);
+}
+
 .terminal-cancel-btn {
   margin-top: 0.75rem;
   width: 100%;

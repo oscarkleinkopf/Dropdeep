@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Presupuesto de testeo $300 en Montecarlo (T42):** sección 20 ancla el pool Audisio ($300 primer mes / mes y medio), presets $10/$20 por día con runway, panel de CPA proyectado / pedidos estimados, avisos si el CPA agota el budget sin aprendizaje, y nota de autofinanciamiento. Defaults CPC alineados a banda Chile.
 - **Kit VSL & lanzamiento Audisio (T41):** sección 24 del informe con 3 guiones Hook→Body→CTA (20–60 s), specs CapCut/Canva/ElevenLabs, checklist de lanzamiento (5 videos, calentamiento, presupuestos) persistida en el navegador, y el mismo bloque en el export del kit de campaña. Prompt Hub fase 4 menciona las reglas Audisio.
 - **Auditoría Meta Ads Chile (T40):** pestaña en Spy para pegar CTR/CPC/ATC/CPM/CPA y calcular CPA máximo Audisio (IVA AliExpress, pasarela, Shopify, IVA venta). Semáforo offline con umbrales Chile; alerta si el CPA de campaña supera el máximo. Sin API Meta.
 - **Tests + CI (T25/T44/T36):** Vitest con suite offline de `reportParse`, evaluación manual/gates Winner y fórmulas Audisio (`npm test`); workflow `.github/workflows/ci.yml` (Node 22) corre tests + build en PR/push sin secretos.

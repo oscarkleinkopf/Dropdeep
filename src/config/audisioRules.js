@@ -24,6 +24,12 @@ export const AUDISIO_GROSS_MARGIN_MIN_USD = 15;
 export const AUDISIO_TEST_AD_BUDGET_USD = 300;
 
 /**
+ * CPC por defecto del simulador Montecarlo (USD).
+ * Aproxima el punto medio de la banda ideal Chile (100–200 CLP) a FX ~950.
+ */
+export const AUDISIO_DEFAULT_MC_CPC_USD = 0.15;
+
+/**
  * Tipo de cambio por defecto CLP por 1 USD (editable por el usuario).
  * No es feed en vivo — documentado como referencia editable.
  */
@@ -104,3 +110,13 @@ export const AUDISIO_LAUNCH_BUDGET_BEGINNER_USD = 10;
 export const AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD = 20;
 export const AUDISIO_LAUNCH_MIN_DAYS = 4;
 export const AUDISIO_VSL_CHECKLIST_STORAGE_PREFIX = 'dropdeep_vsl_checklist_';
+
+/**
+ * Pedidos estimados mínimos en el presupuesto de test ($300) para no “quemar”
+ * el budget sin señal de aprendizaje (heurística offline, no Meta API).
+ */
+export const AUDISIO_TEST_MIN_LEARNING_ORDERS = 20;
+
+/** Ventana típica del presupuesto de testeo (meses). */
+export const AUDISIO_TEST_BUDGET_WINDOW_MIN_MONTHS = 1;
+export const AUDISIO_TEST_BUDGET_WINDOW_MAX_MONTHS = 1.5;
