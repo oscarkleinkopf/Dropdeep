@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Plan de mejoras (higiene):** T01–T44 marcados cerrados; §4/§6/§9.5 actualizados (sin “oleadas” pendientes); siguiente ciclo = ops proxy `005` + dogfooding → T45+ solo si hace falta.
 - **Bundles (sección 21):** la UI usa el motor `generateBundleStructure` (packs, upsell y % AOV desde el retail del informe). Se eliminó el “+45% AOV” fijo hardcodeado; el boost mostrado es heurístico (mix 35/50/15), no predicción de ventas.
 
 ### Añadido
