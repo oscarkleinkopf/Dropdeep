@@ -6,6 +6,10 @@ Las entradas más recientes van primero.
 
 ## [Unreleased]
 
+### Cambiado
+
+- **Bundles (sección 21):** la UI usa el motor `generateBundleStructure` (packs, upsell y % AOV desde el retail del informe). Se eliminó el “+45% AOV” fijo hardcodeado; el boost mostrado es heurístico (mix 35/50/15), no predicción de ventas.
+
 ### Añadido
 
 - **CSV Shopify y WooCommerce:** botones en la cabecera del informe descargan CSV listo para importar (título, HTML, precio, coste, SEO); sin conexión automática a la tienda.

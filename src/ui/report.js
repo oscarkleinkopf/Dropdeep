@@ -599,7 +599,8 @@ export function switchReportTab(sectionId) {
 export function renderReportContent() {
   const container = document.getElementById('report-content-container');
   const report = state.currentReport;
-  
+  const bundles = generateBundleStructure(report);
+
   container.innerHTML = `
     <!-- SECTION 1: DEMOGRAPHICS & PSYCHOGRAPHICS -->
     <section id="section-demographics" class="report-section">
@@ -1599,55 +1600,53 @@ export function renderReportContent() {
     <!-- SECTION 21: BUNDLES & UPSELLS ENGINE -->
     <section id="section-bundle-builder" class="report-section hidden">
       <h2>21. Estructurador de Ofertas Irresistibles (Bundles & Upsells Engine)</h2>
-      <p class="report-section-desc">Diseño de paquetes de producto (1x, 2x, 3x) para disparar el Ticket Medio (AOV) e incrementar el margen neto acumulado por comprador.</p>
+      <p class="report-section-desc">Diseño de paquetes de producto (1x, 2x, 3x) para disparar el Ticket Medio (AOV). Precios y AOV salen del motor de bundles según el retail del informe (heurística offline, no predicción de ventas).</p>
 
       <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-violet); font-weight: 600;">Incremento Proyectado de Ticket Medio (AOV)</span>
-          <h3 style="font-size: 1.4rem; color: var(--accent-emerald); margin: 0.2rem 0 0 0;">+45% AOV Boost Estimado</h3>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-violet); font-weight: 600;">Incremento proyectado de ticket medio (AOV)</span>
+          <h3 style="font-size: 1.4rem; color: var(--accent-emerald); margin: 0.2rem 0 0 0;">+${bundles.aovBoostPercent}% AOV estimado</h3>
         </div>
         <div style="font-size: 0.85rem; color: var(--text-secondary); max-width: 400px;">
-          Al ofrecer la opción de 2x unidades con un 20% OFF y 3x unidades con 35% OFF, el Ticket Medio sube de <strong>$${(typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99).toFixed(2)}</strong> a <strong>$${((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 1.45).toFixed(2)}</strong>.
+          Con mix heurístico 35% / 50% / 15% entre packs 1x / 2x / 3x, el ticket medio sube de <strong>$${bundles.pack1.totalPrice.toFixed(2)}</strong> a <strong>$${bundles.weightedAov.toFixed(2)}</strong>.
         </div>
       </div>
 
-      <!-- Bundles Grid -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
         <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; position: relative;">
-          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">Estándar</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">1x Unidad</h4>
-          <p style="font-size: 0.8rem; color: var(--text-muted);">Prueba Inicial de Producto</p>
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-cyan); margin: 0.75rem 0;">$${(typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99).toFixed(2)}</div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ Sin Descuento<br>✓ Envío Estándar ($4.99)</div>
+          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${bundles.pack1.badge}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack1.title}</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">${bundles.name}</p>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-cyan); margin: 0.75rem 0;">$${bundles.pack1.totalPrice.toFixed(2)}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ Descuento ${bundles.pack1.discount}<br>✓ ${bundles.pack1.shipping}</div>
         </div>
 
         <div style="background: var(--bg-card); border: 2px solid var(--accent-emerald); border-radius: 8px; padding: 1.25rem; position: relative; box-shadow: 0 0 15px rgba(16,185,129,0.15);">
-          <span class="report-badge-status score-excellent" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">MÁS POPULAR</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">2x Unidades</h4>
-          <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete Pareja / Repuesto</p>
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-emerald); margin: 0.75rem 0;">$${((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 1.60).toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(20% OFF)</span></div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${(((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 1.60) / 2).toFixed(2)} / unidad<br>✓ <strong>Envío Gratis Garantizado</strong></div>
+          <span class="report-badge-status score-excellent" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${bundles.pack2.badge}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack2.title}</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete pareja / repuesto</p>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-emerald); margin: 0.75rem 0;">$${bundles.pack2.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${bundles.pack2.discount})</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack2.unitPrice.toFixed(2)} / unidad<br>✓ <strong>${bundles.pack2.shipping}</strong></div>
         </div>
 
         <div style="background: var(--bg-card); border: 1px solid var(--accent-violet); border-radius: 8px; padding: 1.25rem; position: relative;">
-          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem; background: rgba(139,92,246,0.2); color: var(--accent-violet);">MEJOR VALOR</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">3x Unidades</h4>
-          <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete Familiar / Regalo</p>
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-violet); margin: 0.75rem 0;">$${((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 1.95).toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(35% OFF)</span></div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${(((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 1.95) / 3).toFixed(2)} / unidad<br>✓ Envío VIP + Regalo Sorpresa</div>
+          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem; background: rgba(139,92,246,0.2); color: var(--accent-violet);">${bundles.pack3.badge}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack3.title}</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete familiar / regalo</p>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-violet); margin: 0.75rem 0;">$${bundles.pack3.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${bundles.pack3.discount})</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack3.unitPrice.toFixed(2)} / unidad<br>✓ ${bundles.pack3.shipping}</div>
         </div>
       </div>
 
-      <!-- Post-Purchase One-Click Upsell Copy Script -->
       <div class="prompt-card" style="border-color: var(--accent-cyan);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-          <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Guion de One-Click Upsell Post-Compra (Post-Purchase Copy)</h4>
-          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(`¡ESPERA! Tu pedido de "${report.name}" ha sido confirmado con éxito.\n\nComo cliente de hoy, puedes agregar una SEGUNDA UNIDAD para un familiar por solo $${((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 0.50).toFixed(2)} adicionales (50% OFF de 1 sola vez).\n\nEsta oferta especial vencerá al cerrar esta página.`)}">
+          <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Guion de One-Click Upsell Post-Compra</h4>
+          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(bundles.upsellScript)}">
             <i data-lucide="copy"></i> Copiar Guion
           </button>
         </div>
-        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Págalo e insértalo inmediatamente después del Checkout para capturar un 15-25% adicional de conversiones espontáneas.</p>
-        <div class="prompt-code" style="max-height: 140px; overflow-y: auto;">¡ESPERA! Tu pedido de "${report.name}" ha sido confirmado con éxito.<br><br>Como cliente de hoy, puedes agregar una SEGUNDA UNIDAD para un familiar por solo <strong>$${((typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99) * 0.50).toFixed(2)}</strong> adicionales (50% OFF de 1 sola vez).<br><br>Esta oferta especial vencerá al cerrar esta página.</div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Insértalo justo después del checkout. Precio upsell: <strong>$${bundles.upsellPrice.toFixed(2)}</strong> (50% OFF una sola vez).</p>
+        <div class="prompt-code" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap;">${bundles.upsellScript.replace(/</g, '&lt;')}</div>
       </div>
     </section>
 

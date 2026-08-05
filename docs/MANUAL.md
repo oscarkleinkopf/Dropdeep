@@ -456,11 +456,13 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 18 | Prompts para Mockups | Imágenes de producto | Creativos visuales |
 | 19 | Prompts para Chatbot | Secuencia enriquecida | Iterar con IA externa |
 | 20 | Simulador Montecarlo | Escenarios P10/P50/P90 de beneficio diario (inputs editables: presupuesto, CPC, conversión, AOV, coste) | ¿Cuánto riesgo asumes antes de gastar en ads? |
-| 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
+| 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell generados desde el **retail del informe** (mix heurístico 35/50/15); el % AOV estimado no es predicción de ventas reales | Subir AOV en checkout |
 | 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
 | 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
 
 **Simulador Montecarlo:** es una proyección **orientativa** con 1000 ensayos y variación aleatoria sobre tus inputs; no predice resultados reales de Meta/Google Ads.
+
+**Bundles & Upsells (sección 21):** los precios de packs y el incremento de AOV se calculan offline con `generateBundleStructure` a partir del precio retail del informe (2x ≈ 1.60× retail con “20% OFF”, 3x ≈ 1.95× con “35% OFF”, upsell post-compra al 50%). El boost de AOV asume un mix de compra 35% / 50% / 15% entre packs — úsalo como plantilla de oferta, no como forecast.
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
