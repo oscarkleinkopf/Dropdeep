@@ -131,8 +131,56 @@ export function getCurrentCopilotStep() {
   };
 }
 
+/** Pasos ya aceptados (índices &lt; currentStepIndex). No muta la sesión. */
+export function getCompletedCopilotSteps() {
+  if (!session) return [];
+  const completed = [];
+  for (let i = 0; i < session.currentStepIndex; i++) {
+    const stepId = session.steps[i];
+    completed.push({
+      index: i,
+      stepId,
+      meta: getCopilotStepMeta(stepId),
+      prompt: buildCopilotPrompt(stepId, {
+        productName: session.productName,
+        competitorUrl: session.competitorUrl,
+        priorReport: session.partialReport,
+      }),
+    });
+  }
+  return completed;
+}
+
+/** Prompt de un paso ya completado (solo lectura). null si el índice no es válido. */
+export function peekCompletedCopilotStep(stepIndex) {
+  if (!session) return null;
+  const idx = Number(stepIndex);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= session.currentStepIndex) {
+    return null;
+  }
+  const stepId = session.steps[idx];
+  return {
+    index: idx,
+    total: session.steps.length,
+    stepId,
+    meta: getCopilotStepMeta(stepId),
+    prompt: buildCopilotPrompt(stepId, {
+      productName: session.productName,
+      competitorUrl: session.competitorUrl,
+      priorReport: session.partialReport,
+    }),
+    readOnly: true,
+  };
+}
+
+/** True si aún hay pasos completados que se pueden revisar. */
+export function canPeekPreviousCopilotStep() {
+  return !!session && session.currentStepIndex > 0;
+}
+
 /**
  * Process pasted chatbot response for the current step.
+ * On validation/parse error the index is NOT advanced (T07).
  * @returns {{ ok: true, report?: object, done: boolean, nextStep?: object } | { ok: false, error: string }}
  */
 export function processCopilotPaste(rawText) {
@@ -141,6 +189,7 @@ export function processCopilotPaste(rawText) {
   }
 
   const stepId = session.steps[session.currentStepIndex];
+  const indexBefore = session.currentStepIndex;
 
   try {
     const parsed = parseAndValidateStep(stepId, rawText);
@@ -173,9 +222,14 @@ export function processCopilotPaste(rawText) {
       nextStep: getCurrentCopilotStep(),
     };
   } catch (err) {
+    // Do not advance — preserve partialReport and currentStepIndex
+    if (session.currentStepIndex !== indexBefore) {
+      session.currentStepIndex = indexBefore;
+    }
     return {
       ok: false,
       error: err.message || 'No se pudo interpretar la respuesta como JSON válido.',
+      currentStepIndex: session.currentStepIndex,
     };
   }
 }

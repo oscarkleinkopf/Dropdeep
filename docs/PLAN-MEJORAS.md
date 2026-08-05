@@ -205,7 +205,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 8. **Caché no distingue fuente/modo** — ⬜ T28.
 9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
 10. **Sync delete solo local** — 🟡 T19.
-11. **Validación JSON copiloto incompleta** — 🟡 T06/T07 (campo sí; ejemplos/pasos completados no).
+11. **Validación JSON copiloto incompleta** — ✅ T06/T07 (tips + ejemplo JSON + UI pasos completados).
 
 ---
 
@@ -217,8 +217,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 17 | T01–T05, T09–T10, T12, T15, T16, T27, T32–T34, T37 |
-| 🟡 Parcial | 11 | T06, T07, T13, T14, T18, T19, T21, T24, T29, T30, T31 |
+| ✅ Hecho | 19 | T01–T07, T09–T10, T12, T15, T16, T27, T32–T34, T37 |
+| 🟡 Parcial | 9 | T13, T14, T18, T19, T21, T24, T29, T30, T31 |
 | ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
@@ -227,8 +227,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | Ítem | Qué hay | Qué falta |
 |------|---------|-----------|
 | **Bundles (ops §21)** | `bundles.js` + uso en `report.js` + tab en `index.html` | ✅ UI usa `generateBundleStructure(report)` (PR #5) |
-| **T06** | Errores por campo en `validateStepPayload` | Tips de `SyntaxError` (markdown/truncado) + “Ver ejemplo de JSON” en UI |
-| **T07** | Catch no avanza índice; botón Reintentar | UI “Ver pasos completados” / “Paso anterior” |
+| **T06** | Tips parse + ejemplo JSON en modal | ✅ Cerrado |
+| **T07** | Peek pasos completados + caption; error no avanza | ✅ Cerrado |
 | **T14** | `_isDraft` + badge en **feed** | Badge “Borrador” en **portafolio**; CTAs wizard (pack debería ser primario) |
 | **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
 | **T19** | Upsert + merge al login | `delete` remoto al borrar local |
@@ -515,7 +515,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T07 — Recuperación de errores en copiloto (reintentar paso sin perder anteriores)
 
-> **Estado (2026-08-05):** 🟡 Parcial — catch no avanza índice + botón Reintentar; falta UI “Ver pasos completados” / “Paso anterior”.
+> **Estado (2026-08-05):** ✅ Hecho — catch no avanza índice; caption + barra de completados; **Ver pasos completados** / **Paso anterior** (peek solo lectura); **Volver al paso actual**; tests en `tests/copilotRecovery.test.js`. “Editar paso anterior” queda P2.
 
 **Objetivo:** Tras error de validación, el usuario no pierde pasos ya completados.
 
@@ -528,14 +528,15 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/research/copilotFlow.js` — verificar que `processCopilotPaste` en catch **no** incrementa índice (ya correcto; auditar)
-- `src/ui/copilotPanel.js` — botón "Paso anterior" solo lectura para revisar prompts completados
+- `src/research/copilotFlow.js` — `processCopilotPaste` no incrementa índice en error; `getCompletedCopilotSteps` / `peekCompletedCopilotStep`
+- `src/ui/copilotPanel.js` + `index.html` — lista colapsable, peek, caption de progreso
+- `tests/copilotRecovery.test.js`
 
 **Pasos**
 
 1. Auditoría: confirmar que error no avanza `currentStepIndex`.
 2. Añadir UI "Ver pasos completados" (lista colapsable).
-3. Opcional: "Editar paso anterior" (avanzado, P2).
+3. Opcional: "Editar paso anterior" (avanzado, P2) — diferido.
 
 **Criterio de aceptación**
 
@@ -1722,7 +1723,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T06/T07 (cerrar copiloto), T19, T20, T08, T13/T14, T18, T35, T11-A
+- T19, T20, T08, T13/T14, T18, T35 (T06/T07/T11-A ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1734,7 +1735,7 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
-| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜, T44⬜ | T11⬜, T35⬜ | T38⬜, T39⬜ |
+| T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
 | T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
@@ -1800,7 +1801,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T04 | Copiloto 1 pegado (express) | P0 | ✅ | Verificado |
 | T05 | Persistir sesión copiloto | P1 | ✅ | Verificado |
 | T06 | Validación JSON accionable | P1 | ✅ | Tips parse + ejemplo JSON en modal |
-| T07 | Recuperación errores copiloto | P1 | 🟡 | Reintentar OK; falta UI pasos completados |
+| T07 | Recuperación errores copiloto | P1 | ✅ | Peek pasos + caption; error no avanza índice |
 | T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
 | T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |
 | T10 | Comparador + eval manual | P1 | ✅ | Verificado |

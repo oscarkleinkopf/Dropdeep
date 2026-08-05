@@ -1050,11 +1050,26 @@
           <div class="progress-track copilot-progress-track">
             <div class="progress-bar-fill" id="copilot-progress-fill" style="width: 0%"></div>
           </div>
+          <p id="copilot-progress-caption" class="copilot-progress-caption" aria-live="polite">0 pasos completados</p>
+          <details class="copilot-completed-details" id="copilot-completed-details">
+            <summary id="copilot-completed-summary">Ver pasos completados (0)</summary>
+            <ul id="copilot-completed-list" class="copilot-completed-list"></ul>
+            <p class="copilot-completed-hint">Puedes revisar el prompt de un paso anterior (solo lectura). El pegado sigue en el paso actual — no se pierden datos ya validados.</p>
+          </details>
+          <p id="copilot-peek-banner" class="copilot-peek-banner hidden" role="status"></p>
           <label class="copilot-label" for="copilot-prompt-text">Prompt para el chatbot (paso actual):</label>
           <textarea id="copilot-prompt-text" class="copilot-textarea" readonly rows="6"></textarea>
-          <button type="button" class="btn btn-secondary btn-sm" id="copilot-copy-prompt-btn">
-            <i data-lucide="copy"></i> Copiar prompt
-          </button>
+          <div class="copilot-prompt-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="copilot-copy-prompt-btn">
+              <i data-lucide="copy"></i> Copiar prompt
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm hidden" id="copilot-prev-step-btn">
+              <i data-lucide="arrow-left"></i> Paso anterior
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm hidden" id="copilot-back-current-btn">
+              Volver al paso actual
+            </button>
+          </div>
           <label class="copilot-label" for="copilot-paste-input">Respuesta del chatbot (JSON):</label>
           <textarea id="copilot-paste-input" class="copilot-textarea" rows="8" placeholder="Pega aquí la respuesta completa del chatbot…"></textarea>
           <details class="copilot-json-example" id="copilot-json-example">
