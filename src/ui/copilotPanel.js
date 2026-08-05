@@ -3,6 +3,7 @@ import { openDeepResearchReport } from './report.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { getCopilotStepJsonExample } from '../research/reportSchema.js';
+import { escapeHtml } from '../utils/sanitize.js';
 import {
   startCopilotSession,
   cancelCopilotSession,
@@ -12,7 +13,13 @@ import {
   getStoredCopilotSession,
   restoreCopilotSession,
   getCopilotSession,
+  getCompletedCopilotSteps,
+  peekCompletedCopilotStep,
+  canPeekPreviousCopilotStep,
 } from '../research/copilotFlow.js';
+
+/** null = editing current step; number = peeking completed step index */
+let peekStepIndex = null;
 
 function getModal() {
   return document.getElementById('copilot-modal');
@@ -26,7 +33,128 @@ function updateJsonExample(step) {
   if (details) details.open = false;
 }
 
+function setPasteEnabled(enabled) {
+  const pasteEl = document.getElementById('copilot-paste-input');
+  const processBtn = document.getElementById('copilot-process-btn');
+  const retryBtn = document.getElementById('copilot-retry-btn');
+  const example = document.getElementById('copilot-json-example');
+  if (pasteEl) {
+    pasteEl.disabled = !enabled;
+    pasteEl.classList.toggle('copilot-readonly-dim', !enabled);
+  }
+  if (processBtn) processBtn.disabled = !enabled;
+  if (retryBtn) retryBtn.disabled = !enabled;
+  if (example) example.classList.toggle('hidden', !enabled);
+}
+
+function updateProgressChrome(step) {
+  const fill = document.getElementById('copilot-progress-fill');
+  const caption = document.getElementById('copilot-progress-caption');
+  const completedCount = step?.index ?? 0;
+  const total = step?.total ?? 1;
+  if (fill) {
+    fill.style.width = `${Math.round((completedCount / total) * 100)}%`;
+  }
+  if (caption) {
+    caption.textContent =
+      completedCount === 0
+        ? `0 pasos completados · trabajando en el paso 1 de ${total}`
+        : `${completedCount} de ${total} pasos completados · paso actual ${completedCount + 1}`;
+  }
+}
+
+function renderCompletedStepsList() {
+  const list = document.getElementById('copilot-completed-list');
+  const summary = document.getElementById('copilot-completed-summary');
+  const details = document.getElementById('copilot-completed-details');
+  const prevBtn = document.getElementById('copilot-prev-step-btn');
+  const completed = getCompletedCopilotSteps();
+
+  if (summary) {
+    summary.textContent = `Ver pasos completados (${completed.length})`;
+  }
+  if (details) {
+    details.classList.toggle('hidden', completed.length === 0);
+    if (completed.length === 0) details.open = false;
+  }
+  if (prevBtn) {
+    prevBtn.classList.toggle('hidden', !canPeekPreviousCopilotStep() || peekStepIndex !== null);
+  }
+
+  if (!list) return;
+  if (completed.length === 0) {
+    list.innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = completed
+    .map(
+      (s) => `
+      <li>
+        <button type="button" class="copilot-completed-item" data-peek-index="${s.index}">
+          <span class="copilot-completed-num">${s.index + 1}</span>
+          <span class="copilot-completed-title">${escapeHtml(s.meta.short || s.meta.title)}</span>
+          <span class="copilot-completed-action">Ver prompt</span>
+        </button>
+      </li>`,
+    )
+    .join('');
+
+  list.querySelectorAll('[data-peek-index]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.getAttribute('data-peek-index'));
+      enterPeekMode(idx);
+    });
+  });
+}
+
+function enterPeekMode(stepIndex) {
+  const peeked = peekCompletedCopilotStep(stepIndex);
+  if (!peeked) {
+    showToast('Ese paso aún no está completado.', 'info');
+    return;
+  }
+  peekStepIndex = stepIndex;
+  const titleEl = document.getElementById('copilot-step-title');
+  const progressEl = document.getElementById('copilot-step-progress');
+  const promptEl = document.getElementById('copilot-prompt-text');
+  const banner = document.getElementById('copilot-peek-banner');
+  const backBtn = document.getElementById('copilot-back-current-btn');
+  const prevBtn = document.getElementById('copilot-prev-step-btn');
+  const label = document.querySelector('label[for="copilot-prompt-text"]');
+
+  if (titleEl) titleEl.textContent = peeked.meta.title;
+  if (progressEl) {
+    progressEl.textContent = `Revisión ${peeked.index + 1} / ${peeked.total} — ${peeked.meta.short}`;
+  }
+  if (promptEl) promptEl.value = peeked.prompt;
+  if (label) label.textContent = 'Prompt del paso anterior (solo lectura):';
+  if (banner) {
+    banner.textContent = `Revisando paso ${peeked.index + 1} (solo lectura). Los datos ya validados se conservan. Vuelve al paso actual para pegar JSON.`;
+    banner.classList.remove('hidden');
+  }
+  if (backBtn) backBtn.classList.remove('hidden');
+  if (prevBtn) prevBtn.classList.add('hidden');
+  setPasteEnabled(false);
+  hideError();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function exitPeekMode() {
+  peekStepIndex = null;
+  const banner = document.getElementById('copilot-peek-banner');
+  const backBtn = document.getElementById('copilot-back-current-btn');
+  const label = document.querySelector('label[for="copilot-prompt-text"]');
+  if (banner) banner.classList.add('hidden');
+  if (backBtn) backBtn.classList.add('hidden');
+  if (label) label.textContent = 'Prompt para el chatbot (paso actual):';
+  setPasteEnabled(true);
+  const step = getCurrentCopilotStep();
+  if (step) renderStepUI(step);
+}
+
 function renderStepUI(step) {
+  peekStepIndex = null;
   const titleEl = document.getElementById('copilot-step-title');
   const progressEl = document.getElementById('copilot-step-progress');
   const promptEl = document.getElementById('copilot-prompt-text');
@@ -35,6 +163,14 @@ function renderStepUI(step) {
   const productEl = document.getElementById('copilot-product-name');
   const guideEl = document.getElementById('copilot-steps-guide');
   const resumeNote = document.getElementById('copilot-resume-note');
+  const banner = document.getElementById('copilot-peek-banner');
+  const backBtn = document.getElementById('copilot-back-current-btn');
+  const label = document.querySelector('label[for="copilot-prompt-text"]');
+
+  if (banner) banner.classList.add('hidden');
+  if (backBtn) backBtn.classList.add('hidden');
+  if (label) label.textContent = 'Prompt para el chatbot (paso actual):';
+  setPasteEnabled(true);
 
   if (titleEl) titleEl.textContent = step.meta.title;
   if (progressEl) progressEl.textContent = `${step.index + 1} / ${step.total} — ${step.meta.short}`;
@@ -45,9 +181,12 @@ function renderStepUI(step) {
     errorEl.classList.add('hidden');
   }
   updateJsonExample(step);
+  updateProgressChrome(step);
+  renderCompletedStepsList();
+
   if (resumeNote) {
     if (step.index > 0) {
-      resumeNote.textContent = `Progreso guardado — retomando paso ${step.index + 1} de ${step.total}.`;
+      resumeNote.textContent = `Progreso guardado — ${step.index} paso(s) completado(s). Retomando paso ${step.index + 1} de ${step.total}.`;
       resumeNote.classList.remove('hidden');
     } else {
       resumeNote.classList.add('hidden');
@@ -68,11 +207,6 @@ function renderStepUI(step) {
   }
   if (productEl) productEl.textContent = step.prompt.includes('"') ? '' : '';
 
-  const fill = document.getElementById('copilot-progress-fill');
-  if (fill) {
-    fill.style.width = `${Math.round(((step.index) / step.total) * 100)}%`;
-  }
-
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -81,11 +215,14 @@ function showError(message) {
   if (!errorEl) return;
   errorEl.textContent = message;
   errorEl.classList.remove('hidden');
-  // Expand example when validation mentions it
   if (/Ver ejemplo de JSON/i.test(message)) {
     const details = document.getElementById('copilot-json-example');
     if (details) details.open = true;
   }
+  // Refresh completed list so user sees prior steps still count
+  renderCompletedStepsList();
+  const step = getCurrentCopilotStep();
+  if (step) updateProgressChrome(step);
 }
 
 function hideError() {
@@ -162,6 +299,7 @@ export function openCopilotPanel(productName, competitorUrl = '') {
 }
 
 export function closeCopilotPanel() {
+  peekStepIndex = null;
   pauseCopilotSession();
   getModal()?.classList.add('hidden');
 }
@@ -174,6 +312,7 @@ export function discardCopilotPanel() {
   if (!confirmDiscard('¿Descartar el progreso del copiloto? No podrás retomarlo.')) {
     return;
   }
+  peekStepIndex = null;
   cancelCopilotSession();
   getModal()?.classList.add('hidden');
   renderResearchFeed();
@@ -189,29 +328,70 @@ export function initCopilotPanel() {
   document.getElementById('copilot-discard-btn')?.addEventListener('click', discardCopilotPanel);
 
   document.getElementById('copilot-copy-prompt-btn')?.addEventListener('click', () => {
-    const step = getCurrentCopilotStep();
-    if (!step?.prompt) return;
-    navigator.clipboard.writeText(step.prompt).then(() => {
-      showToast('Prompt copiado — pégalo en tu chatbot gratuito.', 'success');
+    const promptEl = document.getElementById('copilot-prompt-text');
+    const text = promptEl?.value;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(
+        peekStepIndex !== null
+          ? 'Prompt del paso anterior copiado.'
+          : 'Prompt copiado — pégalo en tu chatbot gratuito.',
+        'success',
+      );
     });
   });
 
+  document.getElementById('copilot-prev-step-btn')?.addEventListener('click', () => {
+    const completed = getCompletedCopilotSteps();
+    if (!completed.length) return;
+    enterPeekMode(completed[completed.length - 1].index);
+  });
+
+  document.getElementById('copilot-back-current-btn')?.addEventListener('click', () => {
+    exitPeekMode();
+    showToast('De vuelta en el paso actual — puedes pegar el JSON.', 'info');
+  });
+
   document.getElementById('copilot-retry-btn')?.addEventListener('click', () => {
+    if (peekStepIndex !== null) {
+      exitPeekMode();
+    }
     hideError();
     document.getElementById('copilot-paste-input').value = '';
     document.getElementById('copilot-paste-input')?.focus();
   });
 
   document.getElementById('copilot-process-btn')?.addEventListener('click', () => {
+    if (peekStepIndex !== null) {
+      showToast('Estás revisando un paso anterior. Vuelve al paso actual para pegar JSON.', 'info');
+      return;
+    }
     const raw = document.getElementById('copilot-paste-input')?.value || '';
     if (!raw.trim()) {
       showError('Pega la respuesta del chatbot antes de procesar.');
       return;
     }
 
+    const sessionBefore = getCopilotSession();
+    const indexBefore = sessionBefore?.currentStepIndex ?? 0;
+    const partialKeysBefore = sessionBefore?.partialReport
+      ? Object.keys(sessionBefore.partialReport)
+      : [];
+
     const result = processCopilotPaste(raw);
     if (!result.ok) {
+      const sessionAfter = getCopilotSession();
+      if (sessionAfter && sessionAfter.currentStepIndex !== indexBefore) {
+        console.warn('T07 invariant: step index advanced on error');
+      }
       showError(result.error);
+      // Confirm prior data still present
+      if (sessionAfter && partialKeysBefore.length) {
+        const stillThere = partialKeysBefore.every((k) => k in (sessionAfter.partialReport || {}));
+        if (stillThere && indexBefore > 0) {
+          showToast('Pasos anteriores intactos — corrige el pegado y reintenta.', 'info');
+        }
+      }
       return;
     }
 
@@ -221,6 +401,8 @@ export function initCopilotPanel() {
     if (result.done && result.report) {
       const fill = document.getElementById('copilot-progress-fill');
       if (fill) fill.style.width = '100%';
+      const caption = document.getElementById('copilot-progress-caption');
+      if (caption) caption.textContent = 'Todos los pasos completados';
       markFirstResearchDone();
       updateOnboardingPanel();
       renderDashboardStats();

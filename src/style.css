@@ -3713,6 +3713,96 @@ button {
   height: 4px;
 }
 
+.copilot-progress-track {
+  margin-bottom: 0.35rem;
+}
+
+.copilot-progress-caption {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.copilot-completed-details {
+  margin: 0 0 0.85rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.copilot-completed-details.hidden {
+  display: none;
+}
+.copilot-completed-details summary {
+  cursor: pointer;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+.copilot-completed-list {
+  list-style: none;
+  margin: 0.55rem 0 0.35rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.copilot-completed-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.copilot-completed-item:hover {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+}
+.copilot-completed-num {
+  font-weight: 700;
+  color: var(--accent-cyan);
+  min-width: 1.2rem;
+}
+.copilot-completed-title {
+  flex: 1;
+}
+.copilot-completed-action {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.copilot-completed-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.copilot-peek-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.copilot-peek-banner.hidden {
+  display: none;
+}
+.copilot-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.45rem 0 0.75rem;
+}
+.copilot-readonly-dim {
+  opacity: 0.55;
+}
+
 .copilot-label {
   display: block;
   font-size: 0.75rem;

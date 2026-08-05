@@ -198,6 +198,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido. Sin markdown, sin b
 Tras **Procesar respuesta**:
 
 - Si el JSON es válido → toast **Paso procesado correctamente.** y avanzas al siguiente paso.
+- Si falla → el paso **no avanza**; los datos ya validados de pasos anteriores se conservan. Usa **Reintentar**, **Ver ejemplo de JSON**, o revisa **Ver pasos completados** / **Paso anterior** (solo lectura del prompt).
 - Al terminar → toast **Reporte completo — generado en modo copiloto.** y badge **Generado en modo copiloto** en el informe.
 
 #### Retomar o descartar progreso (T05)
@@ -215,7 +216,8 @@ El copiloto guarda automáticamente tu progreso parcial en este navegador (hasta
 #### Consejos para el Copiloto
 
 - Pide al chatbot **solo JSON**, sin texto extra. Si devuelve markdown con \`\`\`json, quita los delimitadores antes de pegar (o pega igual: si falla, el error te lo indica).
-- Si falla el parseo, lee el mensaje: tip de **JSON truncado**/markdown o campo faltante (`demographics.who`, etc.). Usa **Reintentar** y, si hace falta, **Ver ejemplo de JSON**.
+- Si falla el parseo, lee el mensaje: tip de **JSON truncado**/markdown o campo faltante (`demographics.who`, etc.). Usa **Reintentar** y, si hace falta, **Ver ejemplo de JSON**. La barra de progreso y **Ver pasos completados** confirman cuántos pasos ya quedaron guardados.
+- **Paso anterior** muestra el prompt de un paso ya aceptado (solo lectura); **Volver al paso actual** reactiva el pegado. No edita datos previos (eso sería un flujo avanzado).
 - **Cerrar** (punto rojo) pausa la sesión — usa **Retomar copiloto** para continuar.
 - **Cancelar sesión** o **Descartar progreso** elimina el borrador sin guardar informe incompleto.
 
