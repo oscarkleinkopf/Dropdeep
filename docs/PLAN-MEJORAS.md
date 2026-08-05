@@ -87,7 +87,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 - **Spy inferido como verificado:** pixel/GA mostrados Sí/No definitivos (`spy.js:96-98`); disclaimer solo en empty state, no en resultados.
 - **Sync remoto unidireccional:** `historySync.js` upsert al completar; `portfolio.js:308-324` borra solo localStorage.
 - **Caché sin fuente/modo:** `cache.js:1-3` — misma clave para copiloto vs API.
-- **Código muerto:** `src/data.js` exporta `generateCompetitorStoreAnalysis` inexistente en `data/index.js`; `reportGenerator.js` ya eliminado.
+- ~~**Código muerto:**~~ ✅ T30 — eliminados `reportGenerator.js` (ya ausente) y shim `src/data.js` (export fantasma; cero imports). Usar `src/data/index.js`.
 - **CI Node:** workflow ya usa Node **22** (`deploy-pages.yml:28`); falta job **test** separado (T26).
 
 ### Coherencia producto (ruta gratis → decisión)
@@ -184,7 +184,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 2. ~~**Gráfico tendencia simulado**~~ — resuelto T34 (`charts.js` + copy `report.js`).
 3. **Sesión copiloto volátil** — resuelto T05 (`copilotFlow.js` + `copilotPanel.js` + banner Inicio).
 4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
-5. **`src/data.js` shim roto** — export `generateCompetitorStoreAnalysis` no existe en `data/index.js` (T30).
+5. ~~**`src/data.js` shim roto**~~ — ✅ T30 (2026-08-05): shim eliminado.
 6. **Sin tests E2E/unit** — paste-back crítico sin regresión automática (T08, T25, T26).
 7. **Comparador no pondera eval manual** en fila “Cuál lanzar primero” (T10).
 8. **Caché no distingue fuente/modo** — `getCacheKey(query, language)` solo (T28).
@@ -1124,6 +1124,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T30 — Limpiar código muerto (`reportGenerator.js`, shim `data.js`)
 
+> **Estado (2026-08-05):** ✅ Hecho — `reportGenerator.js` ya ausente; eliminado shim `src/data.js` (cero imports; exportaba `generateCompetitorStoreAnalysis` inexistente). Preferir `src/data/index.js`.
+
 **Objetivo:** Reducir confusión para futuros agentes.
 
 | Campo | Valor |
@@ -1504,7 +1506,7 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | T27 | Unificar prompts API/schema | P1 | ✅ `e3b43d1` |
 | T28 | Caché por fuente/modo | P2 | pendiente |
 | T29 | Documentar Product Score | P2 | pendiente |
-| T30 | Limpiar código muerto | P2 | pendiente |
+| T30 | Limpiar código muerto | P2 | ✅ 2026-08-05 |
 | T31 | Disclaimer Meta interests | P2 | pendiente |
 | T32 | Enlace ayuda → manual | P2 | ✅ `7aafdea` |
 | T33 | BYOK gana sobre proxy | P0 | ✅ jul 2026 |
