@@ -357,6 +357,7 @@ export function renderMetaHiddenInterests(query = '', category = 'all') {
     return;
   }
 
+  // Disclaimer stays visible by default (T31); keep class toggle for safety if HTML regresses
   const disclaimer = document.getElementById('meta-interests-disclaimer');
   if (disclaimer) disclaimer.classList.remove('hidden');
 

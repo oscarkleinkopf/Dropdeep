@@ -804,8 +804,8 @@
 
           <!-- SUBTAB 2: META HIDDEN INTERESTS -->
             <div id="subtab-meta-panel" class="hidden">
-            <p id="meta-interests-disclaimer" class="spy-disclaimer hidden">
-              <i data-lucide="info"></i> Base de referencia estática curada — no son datos en vivo de Meta Ads Manager.
+            <p id="meta-interests-disclaimer" class="spy-disclaimer">
+              <i data-lucide="info"></i> Lista curada offline para inspiración — no son audiencias Meta en vivo. Verifica siempre en Meta Ads Manager.
             </p>
             <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
               <div class="config-inputs-grid" style="grid-template-columns: 1fr auto;">
@@ -979,8 +979,10 @@
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem">
               <div>
                 <label for="gemini-key-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Gemini API Key:</label>
-                <input type="password" id="gemini-key-input" placeholder="AIzaSy..." style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off">
-                <p id="gemini-key-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4">Tu clave se guarda solo en este navegador (localStorage), asociada a tu cuenta si iniciaste sesión.</p>
+                <input type="password" id="gemini-key-input" name="gemini-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off" spellcheck="false">
+                <p id="gemini-key-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4">
+                  <strong>Privacidad BYOK:</strong> la clave <em>no se envía a DropDeep</em>. Solo viaja a Google (<code>generativelanguage.googleapis.com</code>) desde tu navegador, o al proxy Supabase si usas sesión sin BYOK. Se guarda en <code>localStorage</code> de este dispositivo.
+                </p>
               </div>
               
               <div>
@@ -1010,8 +1012,8 @@
               </div>
             </div>
             
-            <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.5rem">
-              🔒 <strong>Nota de seguridad:</strong> En modo BYOK la clave vive en tu navegador. Con proxy Supabase (`VITE_GEMINI_PROXY`) la clave del servidor no pasa por el frontend.
+            <div id="gemini-privacy-note" style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 1.5rem">
+              <strong>Nota de seguridad:</strong> En modo BYOK la clave vive en tu navegador y <strong>no se envía a los servidores de DropDeep</strong> — solo a Google. Con proxy Supabase (<code>VITE_GEMINI_PROXY</code>) usas la clave del servidor tras iniciar sesión; tu BYOK no viaja al proxy si está guardada (prioridad BYOK).
             </div>
             
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end">

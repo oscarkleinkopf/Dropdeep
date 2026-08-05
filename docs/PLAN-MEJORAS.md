@@ -976,7 +976,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T21 — Privacidad BYOK: aclaraciones y no loguear claves
 
-> **Estado (2026-08-05):** 🟡 Parcial — input password + nota de seguridad; falta copy explícito “no se envía a DropDeep…”.
+> **Estado (2026-08-05):** ✅ Hecho — copy explícito en Ajustes/hint (*no se envía a DropDeep; solo a Google o proxy*); input password + `autocomplete=off`; sin `console.log` de claves; MANUAL §5.1.
 
 **Objetivo:** Usuario entiende dónde vive la clave; auditoría de fugas.
 
@@ -989,9 +989,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/geminiKeyBanner.js`, `index.html` (settings modal)
-- `src/utils/geminiStorage.js`
-- Grep repo: `console.log.*key`, `VITE_.*GEMINI`
+- `index.html` (settings modal)
+- `docs/MANUAL.md`
 
 **Pasos**
 
@@ -1206,7 +1205,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T29 — Product Score: documentar y alinear con eval manual
 
-> **Estado (2026-08-05):** 🟡 Parcial — pesos en MANUAL + comentarios `scoring.js`; badge del informe sin tooltip.
+> **Estado (2026-08-05):** ✅ Hecho — `PRODUCT_SCORE_WEIGHTS` + tooltip en badge; enlace **Completar evaluación manual**; pesos ya en MANUAL.
 
 **Objetivo:** Principiante entiende diferencia Product Score (datos reporte) vs eval manual (criterios propios).
 
@@ -1219,8 +1218,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/report.js` — tooltip Product Score
-- `src/research/scoring.js` — comentario exportable
+- `src/ui/report.js` — tooltip Product Score + enlace eval manual
+- `src/research/scoring.js` — `PRODUCT_SCORE_WEIGHTS` / `getProductScoreTooltip`
 - `docs/MANUAL.md`
 
 **Pasos**
@@ -1263,7 +1262,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T31 — Meta Hidden Interests: disclaimer visible por defecto
 
-> **Estado (2026-08-05):** 🟡 Parcial — disclaimer en HTML pero `.hidden` hasta que hay resultados de búsqueda.
+> **Estado (2026-08-05):** ✅ Hecho — `#meta-interests-disclaimer` visible al abrir el tab (sin `.hidden`); copy “lista curada offline… verifica en Meta Ads Manager”.
 
 **Objetivo:** Datos curados estáticos (`metaInterests.js`) no parecen audiencias Meta en vivo.
 
@@ -1276,8 +1275,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/spy.js` — `#meta-interests-disclaimer`
 - `index.html`
+- `docs/MANUAL.md`
 
 **Pasos**
 
@@ -1746,13 +1745,13 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 ```
 T19 ✅  ||  T13/T14 ✅, T15✅
-T18 ✅  ||  T21🟡
+T18 ✅  ||  T21 ✅
 ```
 
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24🟡  ||  T28⬜, T29🟡, T30🟡, T31🟡, T17⬜
+T22⬜, T23⬜, T24🟡  ||  T28⬜, T29✅, T30✅, T31✅, T17⬜
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1819,7 +1818,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
-| T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
+| T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
 | T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
 | T24 | Móvil copiloto/reporte | P2 | 🟡 | Reporte OK parcial; copiloto no |
@@ -1827,9 +1826,9 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |
 | T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |
 | T28 | Caché por fuente/modo | P2 | ⬜ | Clave solo query+lang |
-| T29 | Documentar Product Score | P2 | 🟡 | Docs sí; tooltip UI no |
+| T29 | Documentar Product Score | P2 | ✅ | Tooltip + enlace eval manual |
 | T30 | Limpiar código muerto | P2 | ✅ | Shim eliminado (#4) |
-| T31 | Disclaimer Meta interests | P2 | 🟡 | Hidden hasta búsqueda |
+| T31 | Disclaimer Meta interests | P2 | ✅ | Visible al abrir tab |
 | T32 | Enlace ayuda → manual | P2 | ✅ | Verificado |
 | T33 | BYOK gana sobre proxy | P0 | ✅ | Verificado |
 | T34 | Gráfico tendencia honesto | P1 | ✅ | Verificado |
