@@ -23,6 +23,7 @@ export function exportPortfolioJSON() {
     return;
   }
 
+  // Feedback dogfooding (T35) vive en claves dropdeep_report_feedback_* — no se incluye aquí.
   const safePortfolio = stripSensitiveFields(state.portfolio);
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(safePortfolio, null, 2));
   const downloadAnchor = document.createElement('a');

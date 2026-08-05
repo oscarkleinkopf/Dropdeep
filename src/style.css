@@ -1105,6 +1105,20 @@ button {
   color: var(--text-light);
 }
 
+.portfolio-feedback-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 40%, var(--border-color));
+  color: var(--accent-cyan);
+  vertical-align: middle;
+}
+
 .portfolio-draft-badge {
   display: inline-block;
   font-size: 0.65rem;
@@ -4876,6 +4890,92 @@ body.auth-locked {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.85rem;
+}
+
+.report-feedback-panel {
+  margin: 0 1.25rem 1rem;
+}
+
+.report-feedback-inner {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 1rem 1.15rem;
+}
+
+.report-feedback-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.report-feedback-header h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.report-feedback-privacy {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.report-feedback-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.report-feedback-choice.active {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.report-feedback-note-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.report-feedback-note {
+  width: 100%;
+  resize: vertical;
+  min-height: 2.5rem;
+  max-height: 6rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.5rem 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.report-feedback-note:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+.report-feedback-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.report-feedback-status {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 /* Copiloto resume banner (T05) */

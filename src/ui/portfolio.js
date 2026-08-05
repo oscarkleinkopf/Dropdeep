@@ -19,6 +19,7 @@ import {
   getCompareMax,
 } from '../config/freeTier.js';
 import { exportPortfolioJSON, exportCampaignKit } from './export.js';
+import { helpfulLabel, getReportFeedback } from '../utils/feedbackStorage.js';
 
 function isDraftPortfolioItem(item) {
   return !!(item?.fullReport?._isDraft || item?._isDraft);
@@ -159,6 +160,10 @@ export function renderPortfolioList() {
     const draftBadge = isDraftPortfolioItem(item)
       ? '<span class="portfolio-draft-badge" title="Borrador del wizard — completa con Copiloto o API">Borrador</span>'
       : '';
+    const fb = getReportFeedback(item.name);
+    const feedbackBadge = fb
+      ? `<span class="portfolio-feedback-badge" title="Feedback local: ${escapeHtml(helpfulLabel(fb.helpful))}${fb.note ? ` — ${escapeHtml(fb.note.slice(0, 80))}` : ''}" aria-label="Tiene feedback de dogfooding">FB</span>`
+      : '';
 
     const itemContainer = document.createElement('div');
     itemContainer.className = `portfolio-item-container ${activeClass}`;
@@ -168,7 +173,7 @@ export function renderPortfolioList() {
       <input type="checkbox" class="portfolio-compare-checkbox" data-id="${item.id}" ${isChecked} style="width: 16px; height: 16px; accent-color: var(--accent-cyan); cursor: pointer;">
       <div class="portfolio-item-info" style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:0.35rem;">
-          <span style="font-family: var(--font-display); font-weight:700; color:var(--text-light); font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">${escapeHtml(item.name)}${draftBadge}</span>
+          <span style="font-family: var(--font-display); font-weight:700; color:var(--text-light); font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">${escapeHtml(item.name)}${draftBadge}${feedbackBadge}</span>
           <span style="font-family: var(--font-mono); font-size: 0.7rem; color: ${scoreColor}; font-weight:700;">${score} pts</span>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted);">
@@ -252,6 +257,10 @@ export function renderActivePortfolioDetail() {
   const draftBadge = isDraftPortfolioItem(activeItem)
     ? '<span class="portfolio-draft-badge" title="Borrador del wizard — completa con Copiloto o API">Borrador</span>'
     : '';
+  const fb = getReportFeedback(activeItem.name);
+  const feedbackBadge = fb
+    ? `<span class="portfolio-feedback-badge" title="Feedback local: ${escapeHtml(helpfulLabel(fb.helpful))}">FB · ${escapeHtml(helpfulLabel(fb.helpful))}</span>`
+    : '';
 
   detailPanel.innerHTML = `
     <div class="portfolio-detail-header">
@@ -259,6 +268,7 @@ export function renderActivePortfolioDetail() {
         <h3 style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
           ${escapeHtml(activeItem.name)}
           ${draftBadge}
+          ${feedbackBadge}
           <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 0.15rem 0.4rem; border-radius: 4px; color: ${scoreColor}">${score} pts</span>
         </h3>
         <p>
