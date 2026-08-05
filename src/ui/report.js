@@ -9,7 +9,6 @@ import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { toggleSaveProduct, openProductComparison, renderPortfolioList } from './portfolio.js';
-import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { openManualEvaluation } from './manualEvaluation.js';
 import { exportCampaignKit } from './export.js';
@@ -47,6 +46,10 @@ import {
   saveReportFeedback,
 } from '../utils/feedbackStorage.js';
 import { escapeHtml } from '../utils/sanitize.js';
+
+async function loadCharts() {
+  return import('./charts.js');
+}
 
 export function openDeepResearchReport(productOrReport) {
   if (typeof productOrReport === 'string') {
@@ -375,7 +378,9 @@ export function openDeepResearchReport(productOrReport) {
     monthlyProfitVal.textContent = `${monthlyProfit >= 0 ? '+' : ''}$${monthlyProfit.toFixed(2)}`;
     monthlyProfitVal.className = monthlyProfit >= 0 ? 'calc-metric-val green' : 'calc-metric-val red';
 
-    initProjectionChart(dailyProfit);
+    void loadCharts().then(({ initProjectionChart }) => {
+      initProjectionChart(dailyProfit);
+    });
   };
 
   const updateSnapshotCalculations = () => {
@@ -740,12 +745,16 @@ export function switchReportTab(sectionId) {
     targetSec.classList.remove('hidden');
   }
 
-  // If chart needs re-rendering or setup
+  // If chart needs re-rendering or setup (lazy Chart.js — T22)
   if (sectionId === 'section-secrets') {
-    initTrendChart(state.currentReport);
+    void loadCharts().then(({ initTrendChart }) => {
+      initTrendChart(state.currentReport);
+    });
   }
   if (sectionId === 'section-solutions') {
-    initSentimentChart();
+    void loadCharts().then(({ initSentimentChart }) => {
+      initSentimentChart();
+    });
   }
 }
 

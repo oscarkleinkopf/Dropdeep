@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Chart.js + Lucide locales (T22):** deps npm; iconos vía `icons.js` (sin unpkg); gráficos con `import()` diferido en el informe; CSP sin CDN de scripts.
 - **Accesibilidad modales (T23):** focus trap y Escape en copiloto/ajustes/auth/caché/eval/wizard/terminal/límite; `role="dialog"`; anillo `:focus-visible`; contraste de `--text-muted` mejorado.
 - **Móvil copiloto/reporte (T24):** modales a pantalla completa bajo 640px; botones ≥44px; textarea 16px (sin zoom iOS); tabs del informe ya horizontales bajo 900px.
 - **Errores copiloto unificados (T17):** pegados JSON inválidos muestran título «Respuesta JSON ilegible» (paridad con terminal API); validación estructural T06 se conserva.
