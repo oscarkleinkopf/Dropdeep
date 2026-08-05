@@ -1,5 +1,5 @@
 import { renderDashboardStats, renderResearchFeed, offerCopilotResumeToast } from './ui/feed.js';
-import { updatePortfolioBadge } from './ui/portfolio.js';
+import { updatePortfolioBadge, initPortfolioLimitModal } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
 import { initAuth, onAuthStateChange, isAuthenticated } from './auth/auth.js';
 import { initAuthModal } from './ui/authModal.js';
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAuthGate();
   initOnboarding();
   initFirstProductWizard();
+  initPortfolioLimitModal();
   initResearchModeToggle();
   initResearchPathToggle();
   initCopilotPanel();

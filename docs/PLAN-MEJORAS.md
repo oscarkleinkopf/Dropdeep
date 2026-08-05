@@ -217,8 +217,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 22 | T01–T07, T09–T10, T12–T16, T19, T27, T32–T34, T37 |
-| 🟡 Parcial | 6 | T18, T21, T24, T29, T30, T31 |
+| ✅ Hecho | 23 | T01–T07, T09–T10, T12–T16, T18–T19, T27, T32–T34, T37 |
+| 🟡 Parcial | 5 | T21, T24, T29, T30, T31 |
 | ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
@@ -885,7 +885,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T18 — Límite portafolio: UX export + eliminar rápido
 
-> **Estado (2026-08-05):** 🟡 Parcial — toast + auto-export al tope; falta modal con listado/eliminar.
+> **Estado (2026-08-05):** ✅ Hecho — modal `#portfolio-limit-modal` al tope (10): listado antiguo→reciente con checkboxes, export JSON, eliminar (sync remoto T19); reintento de guardado al liberar espacio; wired desde save/wizard/eval manual.
 
 **Objetivo:** Al llegar a 10 productos, flujo claro sin frustración.
 
@@ -898,8 +898,9 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/portfolio.js` — `toggleSaveProduct` ya llama `exportPortfolioJSON` al límite
-- Modal confirmación nuevo en `index.html` o reutilizar toast + modal
+- `src/ui/portfolio.js` — `openPortfolioLimitModal` / `getPortfolioItemsOldestFirst`
+- `index.html` — `#portfolio-limit-modal`
+- `tests/portfolioLimit.test.js`
 
 **Pasos**
 

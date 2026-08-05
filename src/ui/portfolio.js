@@ -60,11 +60,14 @@ export function toggleSaveProduct() {
     });
   } else {
     if (state.portfolio.length >= FREE_PORTFOLIO_CAP) {
-      showToast(
-        `Portafolio local limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno para liberar espacio.`,
-        'info'
-      );
-      exportPortfolioJSON();
+      openPortfolioLimitModal({
+        reason: 'save',
+        onFreed: () => {
+          if (state.portfolio.length < FREE_PORTFOLIO_CAP) {
+            toggleSaveProduct();
+          }
+        },
+      });
       return;
     }
     // Add to portfolio
@@ -535,4 +538,174 @@ export function openProductComparison() {
   switchView('comparator-view');
 }
 
-// EXPORT PORTFOLIO JSON FILE
+/** Prefer oldest first for “liberar espacio” (T18). */
+export function getPortfolioItemsOldestFirst(items = []) {
+  return [...items]
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const ta = portfolioItemSortTime(a.item, a.index);
+      const tb = portfolioItemSortTime(b.item, b.index);
+      if (ta !== tb) return ta - tb;
+      return a.index - b.index;
+    })
+    .map(({ item }) => item);
+}
+
+function portfolioItemSortTime(item, fallbackIndex) {
+  if (item?._remoteUpdatedAt) {
+    const t = Date.parse(item._remoteUpdatedAt);
+    if (!Number.isNaN(t)) return t;
+  }
+  if (item?.savedAt) {
+    const t = Date.parse(item.savedAt);
+    if (!Number.isNaN(t)) return t;
+  }
+  return fallbackIndex;
+}
+
+let limitModalOnFreed = null;
+let limitModalBound = false;
+
+function getLimitModal() {
+  return document.getElementById('portfolio-limit-modal');
+}
+
+function selectedLimitIds() {
+  const list = document.getElementById('portfolio-limit-list');
+  if (!list) return [];
+  return [...list.querySelectorAll('input[type="checkbox"]:checked')].map((el) => el.value);
+}
+
+function updateLimitDeleteButton() {
+  const btn = document.getElementById('portfolio-limit-delete-btn');
+  if (!btn) return;
+  const n = selectedLimitIds().length;
+  btn.disabled = n === 0;
+  btn.innerHTML = `<i data-lucide="trash-2"></i> Eliminar seleccionados${n ? ` (${n})` : ''}`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderPortfolioLimitList() {
+  const list = document.getElementById('portfolio-limit-list');
+  const countEl = document.getElementById('portfolio-limit-count');
+  if (!list) return;
+
+  const ordered = getPortfolioItemsOldestFirst(state.portfolio);
+  if (countEl) {
+    countEl.textContent = `${state.portfolio.length} / ${FREE_PORTFOLIO_CAP} productos · listados del más antiguo al más reciente`;
+  }
+
+  list.innerHTML = ordered
+    .map((item) => {
+      const draft = isDraftPortfolioItem(item)
+        ? '<span class="portfolio-draft-badge">Borrador</span>'
+        : '';
+      const meta = item.savedAt ? escapeHtml(String(item.savedAt)) : '—';
+      return `
+      <li class="portfolio-limit-item">
+        <label>
+          <input type="checkbox" value="${escapeHtml(item.id)}" data-name="${escapeHtml(item.name)}" />
+          <span class="portfolio-limit-item-main">
+            <span class="portfolio-limit-item-name">${escapeHtml(item.name)} ${draft}</span>
+            <span class="portfolio-limit-item-meta">${meta}</span>
+          </span>
+        </label>
+      </li>`;
+    })
+    .join('');
+
+  list.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+    cb.addEventListener('change', updateLimitDeleteButton);
+  });
+  updateLimitDeleteButton();
+}
+
+export function closePortfolioLimitModal() {
+  getLimitModal()?.classList.add('hidden');
+  limitModalOnFreed = null;
+}
+
+/**
+ * Modal when portafolio hits FREE_PORTFOLIO_CAP (T18).
+ * @param {{ reason?: string, onFreed?: () => void }} [opts]
+ */
+export function openPortfolioLimitModal(opts = {}) {
+  const modal = getLimitModal();
+  if (!modal) {
+    showToast(
+      `Portafolio local limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno.`,
+      'info',
+    );
+    exportPortfolioJSON();
+    return;
+  }
+
+  limitModalOnFreed = typeof opts.onFreed === 'function' ? opts.onFreed : null;
+  const copy = document.getElementById('portfolio-limit-copy');
+  if (copy) {
+    copy.textContent =
+      opts.reason === 'save'
+        ? `No se pudo guardar: el portafolio local está en el tope de ${FREE_PORTFOLIO_CAP}. Exporta un JSON o elimina productos antiguos y vuelve a intentar.`
+        : `El portafolio local está lleno (${FREE_PORTFOLIO_CAP}). Exporta un JSON de respaldo o elimina productos antiguos para liberar espacio.`;
+  }
+
+  renderPortfolioLimitList();
+  modal.classList.remove('hidden');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function deleteSelectedFromLimitModal() {
+  const ids = selectedLimitIds();
+  if (!ids.length) return;
+
+  const toRemove = state.portfolio.filter((p) => ids.includes(p.id));
+  const names = toRemove.map((p) => p.name);
+
+  state.portfolio = state.portfolio.filter((p) => !ids.includes(p.id));
+  if (state.activePortfolioId && ids.includes(state.activePortfolioId)) {
+    state.activePortfolioId = state.portfolio[0]?.id ?? null;
+  }
+  state.selectedCompareIds = (state.selectedCompareIds || []).filter((id) => !ids.includes(id));
+
+  savePortfolioLocal();
+  updatePortfolioBadge();
+  renderDashboardStats();
+  renderResearchFeed();
+  renderPortfolioList();
+  updateCompareButtonState();
+
+  await Promise.all(
+    names.map((name) =>
+      deletePortfolioItemEverywhere(name).catch(() => ({ ok: true, remoteOk: false })),
+    ),
+  );
+
+  showToast(
+    names.length === 1
+      ? `«${names[0]}» eliminado del portafolio.`
+      : `${names.length} productos eliminados del portafolio.`,
+    'success',
+  );
+
+  if (state.portfolio.length < FREE_PORTFOLIO_CAP) {
+    const cb = limitModalOnFreed;
+    closePortfolioLimitModal();
+    if (cb) cb();
+  } else {
+    renderPortfolioLimitList();
+  }
+}
+
+export function initPortfolioLimitModal() {
+  if (limitModalBound) return;
+  limitModalBound = true;
+
+  document.getElementById('portfolio-limit-close-dot')?.addEventListener('click', closePortfolioLimitModal);
+  document.getElementById('portfolio-limit-cancel-btn')?.addEventListener('click', closePortfolioLimitModal);
+  document.getElementById('portfolio-limit-export-btn')?.addEventListener('click', () => {
+    exportPortfolioJSON();
+  });
+  document.getElementById('portfolio-limit-delete-btn')?.addEventListener('click', () => {
+    deleteSelectedFromLimitModal();
+  });
+}
