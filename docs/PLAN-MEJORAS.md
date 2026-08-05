@@ -948,7 +948,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T20 — Rate limiting / abuso proxy (server-side)
 
-> **Estado (2026-08-05):** ⬜ No iniciado — sin migración `005`; solo cuota diaria en proxy.
+> **Estado (2026-08-05):** ✅ Hecho — migración `005_proxy_abuse.sql` (rate 10/10s + cooldown 30s sesión nueva); proxy valida tamaño contents; logs estructurados sin prompt; cliente clasifica `proxy_rate_limit` / `proxy_session_cooldown` / `proxy_payload_too_large`.
 
 **Objetivo:** Proteger costo Gemini del fundador.
 
@@ -962,7 +962,9 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 **Archivos**
 
 - `supabase/functions/gemini-proxy/index.ts`
-- `supabase/migrations/005_proxy_abuse.sql` (nuevo) — p.ej. límite por minuto, tamaño payload
+- `supabase/migrations/005_proxy_abuse.sql`
+- `src/config/proxyAbuse.js`, `src/research/geminiProxy.js`, `src/research/errors.js`
+- `tests/proxyAbuse.test.js`
 
 **Pasos**
 
@@ -971,6 +973,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 3. Log estructurado (sin prompt completo — privacidad).
 
 **Criterio:** Spam 10 req/10s → 429 con mensaje español en cliente.
+
+**Deploy:** `supabase db push` (o aplicar `005`) + `supabase functions deploy gemini-proxy`.
 
 ---
 
@@ -1726,7 +1730,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T20, T08 (T06/T07/T11-A/T13/T14/T18/T19/T35 ✅)
+- T08 (T06/T07/T11-A/T13/T14/T18/T19/T20/T35 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1817,7 +1821,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
 | T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
-| T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
+| T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES |
 | T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
 | T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |

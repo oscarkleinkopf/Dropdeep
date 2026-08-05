@@ -4,6 +4,10 @@ import { hasGeminiKey } from '../utils/geminiStorage.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
 import { getResearchSessionId } from './researchSession.js';
 import { FREE_PROXY_DAILY_LIMIT } from '../config/freeTier.js';
+import {
+  PROXY_MAX_CONTENTS_CHARS,
+  isProxyContentsTooLarge,
+} from '../config/proxyAbuse.js';
 
 export const PROXY_USAGE_UPDATED_EVENT = 'dropdeep:proxy-usage-updated';
 
@@ -121,6 +125,12 @@ export function createProxyGenerativeModel({ model, useSearch = false } = {}) {
       }
 
       const contents = requestPayload?.contents;
+      if (isProxyContentsTooLarge(contents)) {
+        throw new Error(
+          `PROXY_PAYLOAD_TOO_LARGE: El prompt supera ${PROXY_MAX_CONTENTS_CHARS} caracteres para el proxy. Acorta el contexto o usa BYOK en Ajustes.`,
+        );
+      }
+
       const tools = requestPayload?.tools;
       const { data, error } = await supabase.functions.invoke('gemini-proxy', {
         body: {
@@ -132,30 +142,8 @@ export function createProxyGenerativeModel({ model, useSearch = false } = {}) {
         },
       });
 
-      if (error) {
-        const msg = error.message || 'Error en gemini-proxy';
-        if (data?.code === 'proxy_daily_quota' || data?.error === 'daily_limit_exceeded') {
-          throw new Error(
-            `PROXY_DAILY_LIMIT: Cuota diaria agotada (${FREE_PROXY_DAILY_LIMIT} investigaciones/día). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.`
-          );
-        }
-        if (msg.includes('Failed to fetch') || msg.includes('fetch')) {
-          throw new Error('Proxy Gemini no disponible: no se pudo contactar con la Edge Function de Supabase.');
-        }
-        throw new Error(msg);
-      }
-      if (data?.error) {
-        const errText = String(data.error);
-        if (
-          errText.includes('daily_limit_exceeded') ||
-          errText.includes('Cuota diaria') ||
-          data?.code === 'proxy_daily_quota'
-        ) {
-          throw new Error(
-            `PROXY_DAILY_LIMIT: Cuota diaria agotada (${FREE_PROXY_DAILY_LIMIT} investigaciones/día). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.`
-          );
-        }
-        throw new Error(errText);
+      if (error || data?.error) {
+        throwProxyClientError(data, error);
       }
 
       const text = data?.text || '';
@@ -170,4 +158,38 @@ export function createProxyGenerativeModel({ model, useSearch = false } = {}) {
       };
     },
   };
+}
+
+function throwProxyClientError(data, error) {
+  const code = data?.code || '';
+  const serverMsg = data?.message || data?.error || error?.message || 'Error en gemini-proxy';
+
+  if (code === 'proxy_daily_quota' || serverMsg === 'daily_limit_exceeded' || String(serverMsg).includes('daily_limit')) {
+    throw new Error(
+      `PROXY_DAILY_LIMIT: Cuota diaria agotada (${FREE_PROXY_DAILY_LIMIT} investigaciones/día). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.`,
+    );
+  }
+  if (code === 'proxy_rate_limit' || String(serverMsg).includes('rate_limit')) {
+    const retry = data?.retryAfterSeconds || 10;
+    throw new Error(
+      `PROXY_RATE_LIMIT: Demasiadas peticiones al proxy. Espera ~${retry}s o usa BYOK / Modo Copiloto.`,
+    );
+  }
+  if (code === 'proxy_session_cooldown' || String(serverMsg).includes('session_cooldown')) {
+    const retry = data?.retryAfterSeconds || 30;
+    throw new Error(
+      `PROXY_SESSION_COOLDOWN: Espera ${retry}s antes de iniciar otra investigación proxy.`,
+    );
+  }
+  if (code === 'proxy_payload_too_large' || String(serverMsg).includes('payload_too_large')) {
+    throw new Error(
+      `PROXY_PAYLOAD_TOO_LARGE: ${data?.message || 'El prompt es demasiado grande para el proxy. Usa BYOK o acorta el contexto.'}`,
+    );
+  }
+
+  const msg = error?.message || String(serverMsg);
+  if (msg.includes('Failed to fetch') || msg.includes('fetch')) {
+    throw new Error('Proxy Gemini no disponible: no se pudo contactar con la Edge Function de Supabase.');
+  }
+  throw new Error(msg);
 }

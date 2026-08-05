@@ -88,7 +88,7 @@ Límites honestos (v1):
 - Comparar nichos: **2** sin sesión; **3** con sesión (Pro próximamente).
 - Spy URL en vivo: BYOK o proxy con sesión (respeta cuota); sin API = mensaje honesto, sin datos simulados.
 
-Env opcional de copy: `VITE_FREE_TIER_PROXY_DAILY=2` (display). Límite real en Edge Function: `GEMINI_PROXY_DAILY_LIMIT` (default 2). Migración: `supabase/migrations/003_gemini_usage.sql`.
+Env opcional de copy: `VITE_FREE_TIER_PROXY_DAILY=2` (display). Límite real en Edge Function: `GEMINI_PROXY_DAILY_LIMIT` (default 2). Migraciones: `003_gemini_usage.sql`, `004_research_session_quota.sql`, `005_proxy_abuse.sql` (rate limit + cooldown).
 
 ## User accounts (Supabase Auth)
 
@@ -108,7 +108,7 @@ Without Supabase env vars, the site runs in **demo mode** (open access, accounts
 1. Create a project at [supabase.com](https://supabase.com).
 2. Enable **Email** provider under Authentication → Providers.
 3. Copy Project URL and **publishable** key into `.env` locally or GitHub Secrets for CI.
-4. Run SQL in `supabase/migrations/001_profiles.sql`, `002_research_reports.sql`, and `003_gemini_usage.sql`.
+4. Run SQL in `supabase/migrations/` (`001`–`005`, including `005_proxy_abuse.sql` for rate limits).
 5. Redeploy.
 
 See also `supabase/README.md` for Edge Function proxy deploy steps.

@@ -345,6 +345,7 @@ Si el sitio tiene `VITE_GEMINI_PROXY=true` y la Edge Function `gemini-proxy` des
 1. **Inicia sesión** (**Entrar** / **Crear cuenta** / **Continuar con Google**).
 2. Las llamadas usan la clave del servidor (secreto `GEMINI_API_KEY` en Supabase).
 3. Cuota starter: **2 investigaciones por día** por usuario — **no** 2 llamadas Gemini sueltas. Una sesión Completo (5 pasos internos) o Rápido (2 pasos) consume **1** investigación. Configurable con `GEMINI_PROXY_DAILY_LIMIT` en el servidor; la UI refleja `VITE_FREE_TIER_PROXY_DAILY` (default **2**). El contador se renueva cada **día UTC**.
+4. **Anti-abuso (T20):** máx. **10 peticiones / 10 s** por usuario; cooldown de **~30 s** entre investigaciones *nuevas*; prompts &gt; ~100 000 caracteres se rechazan (413). Los logs del proxy no incluyen el texto del prompt. Aplica `supabase/migrations/005_proxy_abuse.sql` y redespliega `gemini-proxy`.
 
 **Dónde ver la cuota restante (logueado + proxy, sin BYOK guardada):**
 
@@ -641,6 +642,9 @@ Mensajes **reales** de la app y qué hacer:
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
 | **Cuota diaria de proxy agotada** — *Cuota diaria agotada (N investigaciones/día)...* | 2 investigaciones/día consumidas vía proxy | Guarda tu clave BYOK en Ajustes (prioriza BYOK aunque tengas sesión), espera al día siguiente, o usa Modo Copiloto gratis. |
+| **Demasiadas peticiones al proxy** | Burst &gt; 10 req / 10 s (anti-abuso) | Espera unos segundos → **Reintentar**, o BYOK / Copiloto |
+| **Espera antes de otra investigación** | Cooldown ~30 s entre sesiones proxy nuevas | Espera e inténtalo de nuevo |
+| **Prompt demasiado grande para el proxy** | Contents &gt; ~100k caracteres | Acorta contexto o BYOK |
 | **Cuota o límite de peticiones alcanzado** — *Has superado el límite de tu plan Gemini...* | Límite de Google (HTTP 429 / quota) en BYOK | Espera minutos; revisa cuota en AI Studio → **Reintentar** |
 | **Sesión requerida para el proxy** — *Inicia sesión para usar el proxy Gemini o configura tu propia clave en Ajustes.* | Proxy activo sin login | **Entrar** o BYOK |
 
