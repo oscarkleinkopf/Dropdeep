@@ -18,6 +18,11 @@ import { setResearchPath, RESEARCH_PATH_COPILOT, RESEARCH_PATH_API } from '../co
 
 const STORAGE_PREFIX = 'dropdeep_first_product_wizard_';
 
+/** T14 — draft created by wizard / incomplete research. */
+export function isPortfolioDraft(item) {
+  return !!(item?.fullReport?._isDraft || item?._isDraft);
+}
+
 function storageKey(suffix = 'done') {
   const uid = getCurrentUserId();
   const base = uid ? `${STORAGE_PREFIX}${uid}` : `${STORAGE_PREFIX}anonymous`;
@@ -128,9 +133,36 @@ function renderWizardStep() {
         <p><strong>Producto:</strong> ${wizardState.productName || '(sin nombre — solo copiar pack)'}</p>
       `;
     }
+    syncWizardActionAvailability();
   }
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/** T14 — Copiloto/API necesitan nombre; copiar pack siempre libre. */
+export function wizardNeedsProductName(productName = wizardState.productName) {
+  return !String(productName || '').trim();
+}
+
+function syncWizardActionAvailability() {
+  const needsName = wizardNeedsProductName();
+  const copilotBtn = document.getElementById('wizard-copilot-btn');
+  const apiBtn = document.getElementById('wizard-deep-research-btn');
+  const hint = document.getElementById('wizard-name-hint');
+
+  if (copilotBtn) {
+    copilotBtn.disabled = needsName;
+    copilotBtn.title = needsName
+      ? 'Escribe un nombre de producto en el paso anterior'
+      : 'Abre Modo Copiloto gratis con este producto';
+  }
+  if (apiBtn) {
+    apiBtn.disabled = needsName;
+    apiBtn.title = needsName
+      ? 'Escribe un nombre de producto en el paso anterior'
+      : 'Requiere clave Gemini (BYOK) o proxy con cuenta';
+  }
+  if (hint) hint.classList.toggle('hidden', !needsName);
 }
 
 function saveDraftToPortfolio() {
@@ -162,7 +194,7 @@ function saveDraftToPortfolio() {
     shipping: 0,
     saturation: 0,
     savedAt: new Date().toLocaleDateString('es'),
-    notes: `Borrador — pack ${pack.name}. Completa con Deep Research.`,
+    notes: `Borrador — pack ${pack.name}. Completa con Modo Copiloto o Deep Research.`,
     fullReport: {
       name,
       categoryId,
@@ -176,7 +208,7 @@ function saveDraftToPortfolio() {
       saturation: 0,
       trend: '—',
       suppliers: [],
-      demographics: { who: `Borrador vertical ${pack.name}`, belief: 'Completa con Deep Research.' },
+      demographics: { who: `Borrador vertical ${pack.name}`, belief: 'Completa con Modo Copiloto o Deep Research.' },
       solutions: { current: '', experience: '', likes: '', dislikes: '', skepticism: '', horrorStories: [] },
       secrets: { historical: '', conspiracy: '', mechanismProblem: '', mechanismSolution: '' },
       eden: { goldenAge: '', corruptor: '', contrast: '' },
@@ -306,36 +338,34 @@ export function initFirstProductWizard() {
 
   document.getElementById('wizard-copilot-btn')?.addEventListener('click', () => {
     const name = wizardState.productName.trim();
-    if (wizardState.productName) saveDraftToPortfolio();
+    if (!name) {
+      showToast('Escribe un nombre de producto en el paso anterior para Modo Copiloto.', 'info');
+      return;
+    }
+    saveDraftToPortfolio();
     markWizardCompleted();
     closeFirstProductWizard();
     switchView('dashboard-view');
-    if (name) {
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) searchInput.value = name;
-      setResearchPath(RESEARCH_PATH_COPILOT);
-      runCopilotResearch(name);
-    } else {
-      showToast('Ingresa un nombre de producto en el buscador para Modo Copiloto.', 'info');
-      document.getElementById('search-input')?.focus();
-    }
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = name;
+    setResearchPath(RESEARCH_PATH_COPILOT);
+    runCopilotResearch(name);
   });
 
   document.getElementById('wizard-deep-research-btn')?.addEventListener('click', () => {
     const name = wizardState.productName.trim();
-    if (wizardState.productName) saveDraftToPortfolio();
+    if (!name) {
+      showToast('Escribe un nombre de producto en el paso anterior para Deep Research.', 'info');
+      return;
+    }
+    saveDraftToPortfolio();
     markWizardCompleted();
     closeFirstProductWizard();
     switchView('dashboard-view');
-    if (name) {
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) searchInput.value = name;
-      setResearchPath(RESEARCH_PATH_API);
-      runResearchDirect(name);
-    } else {
-      showToast('Ingresa un nombre de producto en el buscador para Deep Research.', 'info');
-      document.getElementById('search-input')?.focus();
-    }
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = name;
+    setResearchPath(RESEARCH_PATH_API);
+    runResearchDirect(name);
   });
 
   updateWizardVisibility();

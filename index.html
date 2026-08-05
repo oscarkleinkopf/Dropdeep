@@ -216,7 +216,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p class="onboarding-copy">Dos caminos honestos al mismo reporte: <strong>Modo Copiloto</strong> (gratis, sin API) o <strong>Deep Research automático</strong> (BYOK/proxy). También: evaluación manual offline y packs verticales.</p>
+          <p class="onboarding-copy">Camino gratis recomendado: <strong>pack vertical</strong> → <strong>Modo Copiloto</strong> → evaluación manual → portafolio. Deep Research con API es un acelerador opcional (BYOK/proxy).</p>
           <button type="button" class="btn btn-secondary btn-sm onboarding-wizard-cta hidden" id="wizard-onboarding-cta">
             <i data-lucide="rocket"></i> Configurar mi primer producto (~60 s)
           </button>
@@ -1195,20 +1195,21 @@
           <h3>¿Qué quieres hacer?</h3>
           <div class="wizard-summary" id="wizard-summary"></div>
           <div class="wizard-action-grid">
-            <button type="button" class="btn btn-primary btn-glow" id="wizard-copilot-btn">
-              <i data-lucide="users"></i> Modo Copiloto (gratis)
-            </button>
-            <button type="button" class="btn btn-secondary" id="wizard-copy-pack-btn">
+            <button type="button" class="btn btn-primary btn-glow" id="wizard-copy-pack-btn">
               <i data-lucide="copy"></i> Copiar pack completo
+            </button>
+            <button type="button" class="btn btn-secondary" id="wizard-copilot-btn">
+              <i data-lucide="users"></i> Modo Copiloto (gratis)
             </button>
             <button type="button" class="btn btn-secondary" id="wizard-prompt-hub-btn">
               <i data-lucide="sparkles"></i> Ir a Prompt Hub
             </button>
-            <button type="button" class="btn btn-secondary" id="wizard-deep-research-btn">
-              <i data-lucide="zap"></i> Deep Research con API (opcional)
+            <button type="button" class="btn btn-secondary" id="wizard-deep-research-btn" title="Requiere clave Gemini (BYOK) o proxy con cuenta">
+              <i data-lucide="zap"></i> Deep Research con API
             </button>
           </div>
-          <p class="wizard-footnote">Modo Copiloto y evaluación manual funcionan sin API. Deep Research acelera el mismo reporte con Gemini BYOK o proxy.</p>
+          <p id="wizard-name-hint" class="wizard-footnote wizard-name-hint hidden">Escribe un nombre de producto en el paso anterior para activar Copiloto o Deep Research.</p>
+          <p class="wizard-footnote">Copiar pack funciona sin nombre ni API. Copiloto genera el reporte estructurado gratis. Deep Research acelera lo mismo con Gemini (requiere clave).</p>
         </div>
 
         <div class="wizard-nav">

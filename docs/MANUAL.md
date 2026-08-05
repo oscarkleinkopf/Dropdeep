@@ -397,7 +397,7 @@ Flujo recomendado para principiantes:
 | Min | Acción |
 |-----|--------|
 | 0–2 | Abre [DropDeep](https://oscarkleinkopf.github.io/Dropdeep/). Si aparece, pulsa **Continuar gratis** en el banner de tier operativo. |
-| 2–4 | Pulsa **¿Primera vez? Configura tu primer producto (~60 s)** (wizard). Elige vertical (ej. **Mascotas & Pets**), nombre opcional, copia un pack. |
+| 2–4 | Pulsa **¿Primera vez? Configura tu primer producto (~60 s)** (wizard). Elige vertical, nombre opcional. En el paso final: **Copiar pack** es la acción primaria (sin nombre); Copiloto/API piden nombre. Un borrador aparece en Portafolio con etiqueta **Borrador**. |
 | 4–10 | En Inicio: **Gratis (Copiloto)** + **Express** (default). Nombre del producto → **Iniciar Modo Copiloto**. Un solo copy/pega en tu chatbot gratis. |
 | 10–12 | *(Opcional)* Repite con **Rápido** (2 pasos) o **Completo** (5 pasos) si quieres avatar, UGC y emails. |
 | 12–14 | Revisa el informe. Ajusta costo/precio en la barra de snapshot si tienes datos reales del proveedor. |
