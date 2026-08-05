@@ -16,9 +16,11 @@ import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { isPortfolioAtCap } from '../config/freeTier.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 
 let evalInputs = getDefaultRubricInputs();
 let evalProductName = '';
+let releaseManualEvalA11y = null;
 
 function getModal() {
   return document.getElementById('manual-eval-modal');
@@ -249,9 +251,17 @@ export function openManualEvaluation(productName = '', existingReport = null) {
   updatePreview();
 
   getModal()?.classList.remove('hidden');
+  releaseManualEvalA11y?.();
+  releaseManualEvalA11y = bindModalA11y(getModal(), {
+    onClose: closeManualEvaluation,
+    initialFocus: '#manual-eval-product-input',
+    label: 'Evaluación manual Audisio',
+  });
 }
 
 export function closeManualEvaluation() {
+  releaseManualEvalA11y?.();
+  releaseManualEvalA11y = null;
   getModal()?.classList.add('hidden');
 }
 

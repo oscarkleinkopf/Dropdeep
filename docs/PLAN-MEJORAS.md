@@ -1040,7 +1040,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T23 — Accesibilidad básica (modales, navegación, formularios)
 
-> **Estado (2026-08-05):** ⬜ No iniciado — sin `aria-modal` / focus trap / Escape en modales.
+> **Estado (2026-08-05):** ✅ Hecho — `bindModalA11y` (focus trap + Escape); `role="dialog"` / `aria-modal` en overlays; `:focus-visible`; `--text-muted` AA; tests `modalA11y.test.js`.
 
 **Objetivo:** WCAG mínimo viable — foco, labels, aria.
 
@@ -1755,7 +1755,7 @@ T18 ✅  ||  T21 ✅
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24✅  ||  T28✅, T29✅, T30✅, T31✅, T17✅
+T22⬜, T23✅, T24✅  ||  T28✅, T29✅, T30✅, T31✅, T17✅
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1824,7 +1824,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES |
 | T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
-| T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
+| T23 | Accesibilidad modales | P2 | ✅ | Trap + Escape + aria; focus-visible |
 | T24 | Móvil copiloto/reporte | P2 | ✅ | Full-screen &lt;640px + touch 44px |
 | T25 | Tests unitarios parse/rubric | P1 | ✅ | Vitest en `main` |
 | T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |

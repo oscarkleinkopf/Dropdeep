@@ -13,6 +13,7 @@ import {
 import { persistResearchReport } from './historySync.js';
 import { openSettingsModal } from '../ui/geminiKeyBanner.js';
 import { isFastResearchMode } from '../config/researchMode.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 import { buildFastModeReport, FAST_MODE_SKIP_MSG } from './fastMode.js';
 import {
   COPILOT_STEPS,
@@ -34,6 +35,25 @@ import {
 import { calculateProductScore } from './scoring.js';
 
 const TRANSIENT_MAX_RETRIES = 2;
+let releaseTerminalA11y = null;
+
+/** Hide Deep Research terminal and release focus trap (T23). */
+export function hideTerminalModal() {
+  releaseTerminalA11y?.();
+  releaseTerminalA11y = null;
+  document.getElementById('terminal-modal')?.classList.add('hidden');
+}
+
+function bindTerminalModalA11y() {
+  const modal = document.getElementById('terminal-modal');
+  if (!modal) return;
+  releaseTerminalA11y?.();
+  releaseTerminalA11y = bindModalA11y(modal, {
+    onClose: hideTerminalModal,
+    initialFocus: '#terminal-cancel-btn',
+    label: 'Deep Research',
+  });
+}
 
 const STEP_PROGRESS = {
   [COPILOT_STEPS.BASE_REPORT]: { pct: 20, label: 'Generando Reporte de Copywriting' },
@@ -185,7 +205,7 @@ function renderResearchErrorUI(
     retryBtn.className = 'btn btn-secondary';
     retryBtn.textContent = 'Reintentar';
     retryBtn.onclick = () => {
-      modal.classList.add('hidden');
+      hideTerminalModal();
       runRealResearchSequence(productName, apiKey, modelName, competitorUrl);
     };
     actionContainer.appendChild(retryBtn);
@@ -194,7 +214,7 @@ function renderResearchErrorUI(
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn btn-secondary';
   closeBtn.textContent = 'Cerrar';
-  closeBtn.onclick = () => modal.classList.add('hidden');
+  closeBtn.onclick = () => hideTerminalModal();
   actionContainer.appendChild(closeBtn);
 
   output.appendChild(actionContainer);
@@ -321,6 +341,7 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
   const abortSignal = startResearchSession(productName, competitorUrl);
 
   modal.classList.remove('hidden');
+  bindTerminalModalA11y();
   output.innerHTML = '';
   fill.style.width = '0%';
   fill.style.backgroundColor = 'var(--accent-cyan)';
@@ -472,7 +493,7 @@ export async function runRealResearchSequence(productName, apiKey, modelName, co
 
     setTimeout(() => {
       if (isResearchAborted(abortSignal)) return;
-      modal.classList.add('hidden');
+      hideTerminalModal();
       openDeepResearchReport(finalReport);
     }, 1000);
   } catch (error) {

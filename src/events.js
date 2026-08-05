@@ -14,10 +14,11 @@ import {
 } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
 import { showMetaAdsAuditPanel } from './ui/metaAdsAuditPanel.js';
-import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
+import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, closeSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
 import { upsertProfilePrefs } from './auth/profile.js';
 import { cancelResearchSession } from './research/researchSession.js';
+import { hideTerminalModal } from './research/gemini.js';
 
 export function setupEventListeners() {
   document.addEventListener('dropdeep:prompt-copied', () => {
@@ -229,7 +230,7 @@ export function setupEventListeners() {
   });
 
   const closeSettings = () => {
-    settingsModal.classList.add('hidden');
+    closeSettingsModal();
   };
   closeSettingsDot.addEventListener('click', closeSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
@@ -316,7 +317,7 @@ export function setupEventListeners() {
   const closeTerminalDot = document.getElementById('close-terminal-dot');
   if (closeTerminalDot) {
     closeTerminalDot.addEventListener('click', () => {
-      document.getElementById('terminal-modal').classList.add('hidden');
+      hideTerminalModal();
     });
   }
 

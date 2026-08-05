@@ -5,6 +5,7 @@ import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { getCopilotStepJsonExample } from '../research/reportSchema.js';
 import { escapeHtml } from '../utils/sanitize.js';
 import { classifyCopilotPasteError } from '../research/errors.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 import {
   startCopilotSession,
   cancelCopilotSession,
@@ -21,6 +22,7 @@ import {
 
 /** null = editing current step; number = peeking completed step index */
 let peekStepIndex = null;
+let releaseCopilotA11y = null;
 
 function getModal() {
   return document.getElementById('copilot-modal');
@@ -250,7 +252,12 @@ function openCopilotModalUI() {
   const modal = getModal();
   if (!modal) return;
   modal.classList.remove('hidden');
-  document.getElementById('copilot-paste-input')?.focus();
+  releaseCopilotA11y?.();
+  releaseCopilotA11y = bindModalA11y(modal, {
+    onClose: closeCopilotPanel,
+    initialFocus: '#copilot-paste-input',
+    label: 'Modo Copiloto Gratis',
+  });
 }
 
 function confirmDiscard(message) {
@@ -311,15 +318,21 @@ export function openCopilotPanel(productName, competitorUrl = '') {
   openCopilotModalUI();
 }
 
+function releaseCopilotModal() {
+  releaseCopilotA11y?.();
+  releaseCopilotA11y = null;
+  getModal()?.classList.add('hidden');
+}
+
 export function closeCopilotPanel() {
   peekStepIndex = null;
   pauseCopilotSession();
-  getModal()?.classList.add('hidden');
+  releaseCopilotModal();
 }
 
 export function discardCopilotPanel() {
   if (!getCopilotSession() && !getStoredCopilotSession()) {
-    getModal()?.classList.add('hidden');
+    releaseCopilotModal();
     return;
   }
   if (!confirmDiscard('¿Descartar el progreso del copiloto? No podrás retomarlo.')) {
@@ -327,7 +340,7 @@ export function discardCopilotPanel() {
   }
   peekStepIndex = null;
   cancelCopilotSession();
-  getModal()?.classList.add('hidden');
+  releaseCopilotModal();
   renderResearchFeed();
   showToast('Progreso del copiloto descartado.', 'info');
 }
@@ -421,7 +434,7 @@ export function initCopilotPanel() {
       renderDashboardStats();
       renderResearchFeed();
       setTimeout(() => {
-        getModal()?.classList.add('hidden');
+        releaseCopilotModal();
         openDeepResearchReport(result.report);
         showToast('Reporte completo — generado en modo copiloto.', 'success');
       }, 400);

@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { formatCacheOriginLabel, getCacheEntry } from './cache.js';
+import { bindModalA11y } from '../utils/modalA11y.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey, hasGeminiKey } from '../ui/geminiKeyBanner.js';
@@ -40,16 +41,28 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
       'Puedes cargarlo al instante o forzar una nueva búsqueda (no se reutiliza caché de otra ruta o modo).';
   }
 
+  let releaseCacheA11y = null;
+  const handleClose = () => {
+    releaseCacheA11y?.();
+    releaseCacheA11y = null;
+    modal.classList.add('hidden');
+  };
+
+  releaseCacheA11y = bindModalA11y(modal, {
+    onClose: handleClose,
+    initialFocus: '#cache-load-btn',
+    label: 'Investigación en Caché',
+  });
+
   const cancelBtn = document.getElementById('cache-cancel-btn');
   const closeDot = document.getElementById('close-cache-dot');
-  const handleClose = () => modal.classList.add('hidden');
 
   cancelBtn.onclick = handleClose;
   closeDot.onclick = handleClose;
 
   const loadBtn = document.getElementById('cache-load-btn');
   loadBtn.onclick = () => {
-    modal.classList.add('hidden');
+    handleClose();
     cachedData._loadedFromCache = true;
     openDeepResearchReport(cachedData);
     showToast(`Reporte «${origin}» cargado desde la caché local.`, 'success');
@@ -57,7 +70,7 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
 
   const refreshBtn = document.getElementById('cache-refresh-btn');
   refreshBtn.onclick = () => {
-    modal.classList.add('hidden');
+    handleClose();
     runResearchDirect(productName, competitorUrl, { skipCache: true });
   };
 }

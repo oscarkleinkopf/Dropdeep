@@ -21,7 +21,7 @@
   
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  --text-muted: #9ca3af;
   --text-light: #ffffff;
   
   /* Typography & Shadows */
@@ -37,6 +37,16 @@
   --border-radius-sm: 6px;
   --border-radius-md: 12px;
   --border-radius-lg: 20px;
+}
+
+/* T23 — keyboard focus ring */
+:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+.terminal-overlay[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Global Reset */
