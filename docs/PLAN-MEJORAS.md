@@ -1072,7 +1072,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T24 — Responsive móvil: copiloto y reporte
 
-> **Estado (2026-08-05):** 🟡 Parcial — reporte con tabs horizontales bajo 900px; copiloto sin full-screen bajo 640px ni touch targets 44px.
+> **Estado (2026-08-05):** ✅ Hecho — modales full-screen &lt;640px; touch targets ≥44px en copiloto/reporte; textarea 16px (sin zoom iOS); tabs reporte ya horizontales &lt;900px.
 
 **Objetivo:** Paste-back usable en móvil (textareas, botones).
 
@@ -1755,7 +1755,7 @@ T18 ✅  ||  T21 ✅
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24🟡  ||  T28✅, T29✅, T30✅, T31✅, T17✅
+T22⬜, T23⬜, T24✅  ||  T28✅, T29✅, T30✅, T31✅, T17✅
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1825,7 +1825,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
 | T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
-| T24 | Móvil copiloto/reporte | P2 | 🟡 | Reporte OK parcial; copiloto no |
+| T24 | Móvil copiloto/reporte | P2 | ✅ | Full-screen &lt;640px + touch 44px |
 | T25 | Tests unitarios parse/rubric | P1 | ✅ | Vitest en `main` |
 | T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |
 | T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |

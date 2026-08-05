@@ -1577,7 +1577,8 @@ button {
     width: max-content;
   }
   .sidebar-tab-btn {
-    padding: 0.5rem 0.75rem;
+    padding: 0.65rem 0.85rem;
+    min-height: 44px;
     display: inline-flex;
     white-space: nowrap;
     width: auto;
@@ -3948,6 +3949,96 @@ button {
   gap: 0.5rem;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+/* T24 — móvil: modales full-screen + touch targets ≥44px */
+@media (max-width: 640px) {
+  .terminal-overlay {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+  }
+
+  .terminal-container,
+  .copilot-container,
+  .manual-eval-container,
+  .portfolio-limit-container {
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .terminal-body,
+  .copilot-body,
+  .manual-eval-body {
+    max-height: none !important;
+    height: 100%;
+    flex: 1;
+    padding: 1rem !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .copilot-textarea,
+  .manual-eval-product-input,
+  #copilot-paste-input {
+    font-size: 16px; /* evita zoom iOS */
+    min-height: 120px;
+  }
+
+  .copilot-actions,
+  .copilot-prompt-actions,
+  .copilot-resume-banner-actions {
+    gap: 0.65rem;
+    justify-content: stretch;
+  }
+
+  .copilot-actions .btn,
+  .copilot-prompt-actions .btn,
+  .copilot-resume-banner-actions .btn,
+  .terminal-body .btn,
+  #cache-modal .btn,
+  #manual-eval-modal .btn,
+  #portfolio-limit-modal .btn {
+    min-height: 44px;
+    padding: 0.65rem 0.9rem;
+    flex: 1 1 auto;
+  }
+
+  .copilot-completed-item {
+    min-height: 44px;
+  }
+
+  .report-header-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .report-header-actions .btn {
+    min-height: 44px;
+  }
+
+  .sidebar-tab-btn {
+    min-height: 44px;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .report-content-panel {
+    overflow-x: hidden;
+  }
+
+  .report-section {
+    max-width: 100%;
+  }
+
+  .report-section h2 {
+    font-size: 1.35rem;
+  }
 }
 
 /* Manual evaluation modal */
