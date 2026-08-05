@@ -2,13 +2,15 @@
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
 >
-> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅. Deploy Pages alineado a **`main`**. Siguiente ciclo = **dogfooding founder** → **T45+** solo con fricción real.
+> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅. Deploy Pages alineado a **`main`**.
 >
-> **Última higiene plan ↔ repo:** 2026-08-05 — cierre de auditoría Antigravity; polish P2 (T17/T22–T24/T28) y E2E/proxy (T08/T20) en `main`.
+> **Siguiente ciclo (abierto por fricción founder):** **Descubrimiento real de productos** — [§10](#10-descubrimiento-real-de-productos-t45t50) (T45–T50 ⬜). Listas estáticas / Meta Interests **no** son el camino de discovery.
+>
+> **Última higiene plan ↔ repo:** 2026-08-05 — cierre T01–T44 + mobile #33; plan T45+ discovery.
 >
 > **Metodología de negocio:** método **Audisio & Domingo** (CLP Chile, Winner, Meta Ads offline, VSL). Ver [§9](#9-metodología-audisio--domingo) — capacidades en T38–T44.
 >
-> Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado · *(índice §8 todo ✅)*.
+> Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado · *(§8 = T01–T44 ✅; §10 = T45–T50 ⬜)*.
 
 ---
 
@@ -23,6 +25,7 @@
 7. [Backlog diferido](#7-backlog-diferido)
 8. [Índice rápido de tareas](#8-índice-rápido-de-tareas)
 9. [Metodología Audisio & Domingo](#9-metodología-audisio--domingo)
+10. [Descubrimiento real de productos (T45–T50)](#10-descubrimiento-real-de-productos-t45t50)
 
 ---
 
@@ -75,7 +78,7 @@ Commits recientes en `main` (ago 2026 — oleada cierre plan):
 
 DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado)**, **evaluación manual offline** y **packs verticales** producen un informe accionable sin API pagada. El sprint `e3b43d1` eliminó las mayores fugas de confianza (plantillas API falsas, A/B con CTR aleatorio, cuota proxy por llamada).
 
-> **Actualización 2026-08-05:** las fricciones citadas abajo (BYOK vs proxy, sesión copiloto, Trends falso, cero tests, feedback) quedaron **cerradas** (T33, T05, T34, T25/T36/T44/T08, T35). El producto está listo para **dogfooding founder**; el valor siguiente viene del uso real, no de más T-numeradas abiertas.
+> **Actualización 2026-08-05 (tarde):** founder pide discovery real (no listas estáticas). Ciclo **T45–T50** abierto en [§10](#10-descubrimiento-real-de-productos-t45t50). Dogfooding sigue en paralelo.
 
 ### Fortalezas
 
@@ -1713,9 +1716,9 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 | Prioridad | Acción | Por qué |
 |-----------|--------|---------|
-| 1 | **Dogfooding founder** | 3–5 productos reales: Express → eval → auditor → VSL → feedback T35 |
-| 2 | **Abrir T45+** | Solo si el dogfooding confirma fricción (CTAs densos, Express vs API, etc.) |
-| — | Backlog diferido §7 | Spy B, sync CRDT, imagen in-app — no priorizar aún |
+| 1 | **Descubrimiento real (T45–T50)** | Fricción founder: la app no encuentra productos; solo investiga un nombre ya conocido. Plan en [§10](#10-descubrimiento-real-de-productos-t45t50). |
+| 2 | **Dogfooding** en paralelo | Validar research + discovery con 3–5 productos reales (feedback T35). |
+| — | Backlog diferido §7 | Spy B, TikTok third-party, sync CRDT — no priorizar aún |
 | ✅ | ~~Ops T20 en prod~~ | `005` + `gemini-proxy` — [run](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319) |
 
 ### Matriz de solapamiento (histórico — útil si se reabre trabajo)
@@ -1743,6 +1746,8 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 | **i18n inglés** | Producto es UI español; `outputLanguage` en Gemini no implica UI bilingüe. |
 | **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental. |
 | **Integración Meta Ads API / Marketing API** | Coste, OAuth, fuera de alcance. El **auditor T40** cubre el método con inputs manuales (Audisio). |
+| **Meta Hidden Interests como “descubrimiento”** | Lista estática (`metaInterests.js`) — **no** sirve para encontrar productos. Mantener solo como checklist Spy o retirar de UI primaria (ver T50). |
+| **TikTok Creative Center vía scrapers / TikHub / Apify** | Sin API oficial pública; ToS + coste + mantenimiento frágil. Diferido hasta validar AliExpress+Trends (T45–T48). |
 | **Tipo de cambio CLP/USD en vivo** | FX editable por usuario (T38); feed FX sería dependencia y fuente de desconfianza. |
 | **Pago contraentrega / Dropi como flujo** | Explicitamente fuera del método Audisio — no modelar como recomendado. |
 | **Imagen/mockup generation in-app** | Sección prompts IA en reporte es copy-paste externo; gateway Netlify no configurado. |
@@ -1752,7 +1757,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 ## 8. Índice rápido de tareas
 
-Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **todos los IDs abajo están ✅ (cierre 2026-08-05)**
+Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45–T50 ⬜ (§10)**
 
 | ID | Título | P | Estado | Nota auditoría 2026-08-05 |
 |----|--------|---|--------|---------------------------|
@@ -1801,6 +1806,12 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **todos los IDs abajo 
 | T43 | MANUAL metodología Audisio | P1 | ✅ | Merge #12 |
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
 | — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
+| T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | ⬜ | §10 |
+| T46 | UI Descubrir + handoff research | P0 | ⬜ | §10 |
+| T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
+| T48 | Pre-filtro Audisio en candidatos | P1 | ⬜ | §10 |
+| T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
+| T50 | Retirar discovery falso de UI | P2 | ⬜ | §10 |
 
 ---
 
@@ -1872,4 +1883,250 @@ Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
 
 ---
 
-*Higiene 2026-08-05: T01–T44 ✅; ops T20 prod ✅; siguiente ciclo = dogfooding → T45+ solo con fricción real. Las fichas T01–T44 en §5 permanecen como historial ejecutable.*
+## 10. Descubrimiento real de productos (T45–T50)
+
+> **Estado:** ⬜ Plan aprobado por fricción founder (2026-08-05). **No implementar** hasta que una tarea concreta (T45…) se abra en un PR.
+>
+> **Problema:** DropDeep investiga un producto que el usuario **ya conoce**. No hay motor de descubrimiento. Listas estáticas (chips, Meta Interests) no resuelven “¿qué vender?”.
+>
+> **Norte:** Oferta real (AliExpress) + demanda real (Google Trends geo CL) → pre-filtro Audisio → handoff al research existente (`runResearchDirect`). Cero mocks presentados como datos de mercado.
+
+### 10.1 Por qué estas fuentes (y no otras)
+
+| Fuente | Rol | Oficial / estable | Encaje Audisio |
+|--------|-----|-------------------|----------------|
+| **AliExpress Affiliate API** (`hotproduct.query`, `product.query`) | **Oferta:** precio, pedidos, rating, imagen, URL, envío | Sí — [Open Platform](https://openservice.aliexpress.com/) + programa Affiliate; firma HMAC server-side | Método: AliExpress al inicio |
+| **Google Trends vía SerpAPI** (`engine=google_trends`, `geo=CL`) | **Demanda:** interés relativo 12m / rising queries | Tercero de pago estable (Google no tiene API Trends pública útil para prod) | Validar interés Chile antes de Winner |
+| **TikTok Creative Center / Shop** | Demanda creativa / ads | **No** hay API pública; scrapers (TikHub, Apify) = ToS + coste | Diferido (§7) |
+| **Meta Marketing API** | Ads propios | Prohibido en reglas del producto | Auditor T40 = inputs manuales |
+| **Listas estáticas / Gemini “inventa 10 hot”** | — | — | **Rechazado** como discovery |
+
+### 10.2 Arquitectura objetivo
+
+```
+[UI Descubrir]
+   filtros: categoría | precio USD | envío máx días | sort volumen
+        │
+        ▼
+[Supabase Edge Function: discover-proxy]   ← secretos NUNCA en el cliente
+   auth JWT + rate limit (mismo patrón que gemini-proxy / T20)
+        │
+        ├─► AliExpress Affiliate API  → candidatos (oferta)
+        └─► SerpAPI Google Trends CL  → score demanda (opcional por candidato / batch)
+        │
+        ▼
+[Normalizar CandidateDTO]
+   { source, externalId, title, priceUsd, orders, rating, imageUrl,
+     productUrl, shipDays?, trendScore?, trendLabel, fetchedAt }
+        │
+        ▼
+[Pre-filtro local Audisio]  (sin LLM)
+   banda de costo, margen estimado con FX T38, flags Winner preliminares
+        │
+        ▼
+[CTA Investigar] → runResearchDirect(title, { supplierUrl })
+   Copiloto o Gemini — pipeline T01–T44 sin cambios de contrato
+```
+
+**Regla gratis intacta:** sin credenciales de discovery, la vista Descubrir muestra empty state honesto + CTA a Copiloto/eval manual. El research gratis **no** se bloquea.
+
+### 10.3 Contrato de datos (CandidateDTO)
+
+```ts
+// Forma canónica — implementar en T45
+{
+  source: 'aliexpress',
+  externalId: string,
+  title: string,
+  priceUsd: number,
+  originalPriceUsd?: number,
+  orders?: number,          // volumen / last_volume si viene de AE
+  rating?: number,          // evaluate_rate
+  imageUrl?: string,
+  productUrl: string,       // deep link AliExpress
+  shipTo?: 'CL',
+  shipDays?: number | null, // si la API lo expone; si no, null + label "No verificado"
+  trendScore?: number | null, // 0–100 SerpAPI; null si Trends no corrido
+  trendLabel: 'rising' | 'stable' | 'falling' | 'unknown',
+  audisioFlags?: {          // calculado cliente o edge
+    costBandOk: boolean,
+    estMarginPct?: number,
+  },
+  fetchedAt: string         // ISO
+}
+```
+
+**UI honestidad:** badge “AliExpress Affiliate · vivo”; badge Trends “Google Trends CL vía SerpAPI” o “Tendencia no consultada”; **nunca** “Google Trends en vivo” sin SerpAPI; shipDays null → “Envío no verificado por API”.
+
+### 10.4 Secretos y ops
+
+| Secret (Supabase Edge) | Uso |
+|------------------------|-----|
+| `ALIEXPRESS_APP_KEY` / `ALIEXPRESS_APP_SECRET` | Firma HMAC-MD5 Affiliate API |
+| `ALIEXPRESS_TRACKING_ID` | Si hace falta para hotproduct / links |
+| `SERPAPI_KEY` | Trends geo=CL (T47); opcional en MVP T45–T46 |
+| Reutilizar | JWT usuario + patrones rate limit T20 |
+
+Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app Affiliate) + cuenta SerpAPI. Workflow deploy similar a `deploy-supabase-proxy.yml`.
+
+### 10.5 Tareas
+
+#### T45 — Edge Function `discover-proxy` + AliExpress hot/search
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P0 |
+| **Impacto / Esfuerzo** | Alto / Medio-Alto |
+| **Paralelizable** | No con T46 (mismo function) |
+
+**Objetivo:** Primera fuente real de candidatos dropshipping sin scrapers.
+
+**Archivos (previstos):**
+- `supabase/functions/discover-proxy/index.ts` (nuevo)
+- `supabase/migrations/006_discover_usage.sql` (cuota/rate opcional)
+- `src/discovery/types.js`, `src/discovery/client.js`
+- Secrets + doc en `supabase/README.md`
+
+**Pasos:**
+1. Registrar app Affiliate; guardar secrets en Supabase (no git).
+2. Implementar firma + `aliexpress.affiliate.hotproduct.query` y `product.query` (`sort=LAST_VOLUME_DESC`, `target_currency=USD`, filtro país/ship hacia CL si la API lo permite).
+3. Auth: mismo modelo que `gemini-proxy` (sesión requerida).
+4. Respuesta: array `CandidateDTO` + `sourceFetchedAt`; errores ES claros (quota, AE down).
+5. Tests unitarios de firma/normalizer con fixtures JSON (sin red en CI).
+
+**Criterio de hecho:** Con secrets en preview, `POST /discover-proxy` con `{ mode: 'hot' }` o `{ mode: 'search', q: '...' }` devuelve ≥1 producto real con `productUrl` AliExpress. Sin secrets, 503/501 honesto.
+
+**Prueba:** Curl autenticado + UI mínima o script; CI solo fixtures.
+
+---
+
+#### T46 — UI “Descubrir” + handoff a research
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P0 |
+| **Depende** | T45 |
+| **Impacto / Esfuerzo** | Alto / Medio |
+
+**Objetivo:** El founder elige un candidato y lanza investigación sin reescribir el nombre a mano.
+
+**Archivos (previstos):**
+- `index.html` — nav + `#discover-view`
+- `src/ui/discover.js`, estilos en `style.css`
+- `src/flow.js` / `events.js` — CTA → `runResearchDirect(title, supplierUrl)`
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos:**
+1. Vista con filtros (q, precio min/max, sort) y grid de candidatos (imagen, precio, pedidos, rating).
+2. Empty state sin login / sin backend: copy honesto + CTA Copiloto.
+3. Botón **Investigar** rellena search + opcional URL proveedor y dispara flujo existente (Copiloto default).
+4. Botón **Evaluación rápida** abre rubric manual con costo prefill si hay `priceUsd`.
+5. Mobile: targets ≥44px; sin scroll horizontal (regresión T24/#33).
+
+**Criterio de hecho:** Flujo E2E manual: hot list → Investigar → modal copiloto o API con nombre correcto. Vitest/UI smoke opcional.
+
+---
+
+#### T47 — Demanda: Google Trends CL (SerpAPI) sobre shortlist
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P1 |
+| **Depende** | T45–T46 |
+| **Impacto / Esfuerzo** | Alto / Medio |
+
+**Objetivo:** Separar “se vende mucho en AE” (saturación posible) de “hay interés de búsqueda en Chile”.
+
+**Pasos:**
+1. En `discover-proxy`, endpoint o flag `includeTrends: true` — batch acotado (p.ej. top 10 títulos → Trends `geo=CL`, `data_type=TIMESERIES` + rising si cabe en presupuesto).
+2. Mapear a `trendScore` / `trendLabel`; cachear 12–24h en tabla o Blobs **solo** para payload Trends (no sustituye DB de candidatos si se persiste).
+3. UI: chip Rising/Stable/Falling; gráfico opcional reutilizando Chart.js — **solo** si hay serie real (no reactivar ilustración T34 como Trends).
+4. Sin `SERPAPI_KEY`: discovery AE sigue; Trends badge “No consultado”.
+
+**Criterio de hecho:** Mismo producto muestra oferta AE + etiqueta demanda CL con timestamp; copy no miente el origen.
+
+---
+
+#### T48 — Pre-filtro Audisio sobre candidatos
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P1 |
+| **Depende** | T46 |
+| **Impacto / Esfuerzo** | Medio / Bajo-Medio |
+
+**Objetivo:** Priorizar lo investigable según método (costo, margen estimado, no “Winner” definitivo).
+
+**Pasos:**
+1. Reutilizar `pricingAudisio.js` / `audisioRules.js` con `priceUsd` + FX editable.
+2. Ordenar/filtrar: fuera de banda de costo, margen estimado &lt; umbral → de-priorizar (no ocultar sin explicación).
+3. Label “Pre-filtro Audisio — no sustituye evaluación Winner (T39)”.
+
+**Criterio de hecho:** Tests con fixtures de precio; UI muestra por qué un ítem queda abajo.
+
+---
+
+#### T49 — Caché, cuota y observabilidad discovery
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P1 |
+| **Depende** | T45 |
+| **Impacto / Esfuerzo** | Medio / Medio |
+
+**Objetivo:** No quemar cuota AE/SerpAPI; no servir hot list de hace una semana como “hoy”.
+
+**Pasos:**
+1. Cache edge/DB: hot list TTL 6–12h; search TTL más corto; Trends TTL 12–24h.
+2. Cuota diaria por usuario (RPC estilo `gemini_usage`).
+3. Badge UI “Actualizado hace …”; botón Refrescar con cooldown.
+4. Logs estructurados sin PII de más.
+
+---
+
+#### T50 — Retirar discovery falso de la UI primaria
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P2 |
+| **Depende** | T46 (o en paralelo tras T46) |
+| **Impacto / Esfuerzo** | Bajo / Bajo |
+
+**Objetivo:** No competir con Descubrir real.
+
+**Pasos:**
+1. Chips de sugerencia hardcodeados en home: reemplazar por “Abrir Descubrir” o quitar.
+2. Meta Hidden Interests: disclaimer más fuerte o mover fuera del camino “encontrar producto”; no presentarlo como tendencias de producto.
+3. Feed inicio: dejar claro que es historial propio, no trending global.
+
+---
+
+### 10.6 Orden de ejecución
+
+```
+T45 (AE proxy) → T46 (UI + handoff) → T48 (Audisio rank) → T47 (Trends CL) → T49 (cache/cuota) → T50 (limpiar UI falsa)
+```
+
+T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupuesto SerpAPI.
+
+### 10.7 Fuera de alcance (explícito)
+
+- Scraping TikTok / Creative Center / PiPiAds.
+- Scraping HTML AliExpress (usar Affiliate API).
+- Afirmar “producto Winner” solo por hot list.
+- Bloquear Copiloto si discovery falla.
+- Persistencia tipo “marketplace DropDeep” (catálogo propio) — solo candidatos efímeros + opcional historial de búsquedas del usuario.
+
+### 10.8 Criterio de éxito del ciclo
+
+Un usuario logueado con secrets configurados puede: **abrir Descubrir → ver productos AliExpress reales con precio/pedidos → ver señal Trends CL en shortlist → Investigar → obtener informe Copiloto/API** sin escribir el nombre a ciegas. Sin secrets, el resto de DropDeep sigue igual de útil.
+
+---
+
+*Higiene 2026-08-05: T01–T44 ✅; ops T20 prod ✅; ciclo abierto = discovery T45–T50 (§10). Fichas T01–T44 en §5 = historial.*
