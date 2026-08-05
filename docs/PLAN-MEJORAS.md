@@ -1874,7 +1874,7 @@ Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
 | Métrica | Umbral método |
 |---------|----------------|
 | CTR | Mín. 2%; bueno 3–4%; excelente 6–8% |
-| CPC | Ideal 100–200 CLP; aceptable &lt; 300 CLP |
+| CPC | Ideal 100–200 CLP; aceptable bajo 300 CLP |
 | ATC (costo add-to-cart) | Normal 1.000–3.000 CLP; tolerar si = 1/3–1/5 del CPA máx |
 | CPM Chile | Típico 3.000–6.000 CLP; nichos competitivos 10.000–15.000 CLP OK si tráfico calidad |
 
