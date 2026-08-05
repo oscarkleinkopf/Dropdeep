@@ -1745,13 +1745,13 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 ```
 T19 ✅  ||  T13/T14 ✅, T15✅
-T18 ✅  ||  T21🟡
+T18 ✅  ||  T21 ✅
 ```
 
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24🟡  ||  T28⬜, T29🟡, T30🟡, T31🟡, T17⬜
+T22⬜, T23⬜, T24🟡  ||  T28⬜, T29✅, T30✅, T31✅, T17⬜
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1826,9 +1826,9 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |
 | T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |
 | T28 | Caché por fuente/modo | P2 | ⬜ | Clave solo query+lang |
-| T29 | Documentar Product Score | P2 | 🟡 | Docs sí; tooltip UI no |
+| T29 | Documentar Product Score | P2 | ✅ | Tooltip + enlace eval manual |
 | T30 | Limpiar código muerto | P2 | ✅ | Shim eliminado (#4) |
-| T31 | Disclaimer Meta interests | P2 | 🟡 | Hidden hasta búsqueda |
+| T31 | Disclaimer Meta interests | P2 | ✅ | Visible al abrir tab |
 | T32 | Enlace ayuda → manual | P2 | ✅ | Verificado |
 | T33 | BYOK gana sobre proxy | P0 | ✅ | Verificado |
 | T34 | Gráfico tendencia honesto | P1 | ✅ | Verificado |
