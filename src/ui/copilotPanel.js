@@ -4,6 +4,7 @@ import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { getCopilotStepJsonExample } from '../research/reportSchema.js';
 import { escapeHtml } from '../utils/sanitize.js';
+import { classifyCopilotPasteError } from '../research/errors.js';
 import {
   startCopilotSession,
   cancelCopilotSession,
@@ -210,12 +211,24 @@ function renderStepUI(step) {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function showError(message) {
+function showError(messageOrClassified) {
   const errorEl = document.getElementById('copilot-error-msg');
   if (!errorEl) return;
-  errorEl.textContent = message;
+
+  let display = '';
+  let openExample = false;
+  if (messageOrClassified && typeof messageOrClassified === 'object') {
+    const { title, message, hint } = messageOrClassified;
+    display = [title, message, hint].filter(Boolean).join('\n\n');
+    openExample = /Ver ejemplo de JSON/i.test(display);
+  } else {
+    display = String(messageOrClassified || '');
+    openExample = /Ver ejemplo de JSON/i.test(display);
+  }
+
+  errorEl.textContent = display;
   errorEl.classList.remove('hidden');
-  if (/Ver ejemplo de JSON/i.test(message)) {
+  if (openExample) {
     const details = document.getElementById('copilot-json-example');
     if (details) details.open = true;
   }
@@ -368,7 +381,7 @@ export function initCopilotPanel() {
     }
     const raw = document.getElementById('copilot-paste-input')?.value || '';
     if (!raw.trim()) {
-      showError('Pega la respuesta del chatbot antes de procesar.');
+      showError(classifyCopilotPasteError(''));
       return;
     }
 
@@ -384,7 +397,7 @@ export function initCopilotPanel() {
       if (sessionAfter && sessionAfter.currentStepIndex !== indexBefore) {
         console.warn('T07 invariant: step index advanced on error');
       }
-      showError(result.error);
+      showError(classifyCopilotPasteError(result.error));
       // Confirm prior data still present
       if (sessionAfter && partialKeysBefore.length) {
         const stillThere = partialKeysBefore.every((k) => k in (sessionAfter.partialReport || {}));

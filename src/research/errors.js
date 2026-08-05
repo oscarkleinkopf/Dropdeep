@@ -158,3 +158,60 @@ export function classifyGeminiError(error) {
     actions: ['settings', 'retry'],
   };
 }
+
+/**
+ * Classify copiloto paste-back failures (T17).
+ * Reuses parse typing from classifyGeminiError without rewriting T06 validation tips.
+ * @param {unknown} errorOrMessage
+ * @returns {{ type: string, title: string, message: string, actions: string[] }}
+ */
+export function classifyCopilotPasteError(errorOrMessage) {
+  const raw = String(errorOrMessage?.message || errorOrMessage || '').trim();
+  const lower = raw.toLowerCase();
+
+  const looksLikeValidation =
+    /falta |se espera al menos|campo|demographics\.|veredicto|ver ejemplo de json/i.test(raw);
+
+  const looksLikeParse =
+    !looksLikeValidation &&
+    (/json inválido|truncado|unexpected token|unexpected end|no se pudo interpretar|no pudo ser parseado|```json|syntaxerror|markdown/i.test(
+      raw
+    ) ||
+      lower.includes('parse'));
+
+  if (looksLikeParse) {
+    const api = classifyGeminiError(new Error(`JSON parse error: ${raw}`));
+    return {
+      type: 'parse',
+      title: api.type === 'parse' ? 'Respuesta JSON ilegible' : api.title,
+      message: raw,
+      actions: ['retry'],
+      hint: 'Tip: pega solo el objeto JSON (sin prosa) o abre «Ver ejemplo de JSON».',
+    };
+  }
+
+  if (looksLikeValidation) {
+    return {
+      type: 'validation',
+      title: 'JSON incompleto o incorrecto',
+      message: raw,
+      actions: ['retry'],
+    };
+  }
+
+  if (!raw) {
+    return {
+      type: 'empty',
+      title: 'Respuesta vacía',
+      message: 'Pega la respuesta del chatbot antes de procesar.',
+      actions: ['retry'],
+    };
+  }
+
+  return {
+    type: 'unknown',
+    title: 'Error al procesar el pegado',
+    message: raw,
+    actions: ['retry'],
+  };
+}
