@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Caché por fuente/modo (T28):** la clave local incluye ruta (API/Copiloto) y modo (Express/Rápido/Completo); el modal indica el origen y no reutiliza informes cruzados.
 - **E2E Copiloto (T08):** Playwright (`npm run test:e2e`) — Express 1 pegado y Rápido 2 pegados sin Gemini; job `e2e-copilot` en CI (Chromium).
 - **Rate limit proxy (T20):** Edge Function `gemini-proxy` rechaza payloads &gt; ~100k chars, ráfagas (&gt;10 req/10s) y sesiones nuevas con &lt;30s de cooldown; migración `005_proxy_abuse.sql`; mensajes ES en cliente; logs sin prompt.
 - **Privacidad BYOK + Product Score + Meta disclaimer (T21/T29/T31):** copy explícito en Ajustes (*clave no se envía a DropDeep*); tooltip de pesos en badge Product Score + enlace a evaluación manual; disclaimer de intereses Meta visible al abrir el tab (lista offline).
