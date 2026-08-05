@@ -99,7 +99,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 - ~~**Cuota proxy UI parcial**~~ — ✅ T16: badge en menú usuario + fetch al login.
 - ~~**Spy inferido como verificado**~~ — ✅ T11-A: badge Inferido por IA; pixel/GA = No verificado; checklist manual.
-- **Sync remoto unidireccional:** 🟡 T19 — upsert sí; borrar local **no** borra en Supabase.
+- **Sync remoto unidireccional:** ✅ T19 — upsert + delete remoto + tombstones anti-resurrección.
 - **Caché sin fuente/modo:** ⬜ T28 — `getCacheKey(query, language)` solo.
 - ~~**Código muerto**~~ — ✅ T30: eliminados `reportGenerator.js` y shim `src/data.js`.
 - **CI Node:** ✅ T37 pins OK; ✅ T25/T36 job `build-and-test` en `ci.yml`.
@@ -112,7 +112,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | Wizard / onboarding | Sí (con fricción) | 🟡 T13/T14 — wizard/CTA no cierran del todo el camino gratis |
 | Copiloto Express | Sí | 1 pegado → Product Score + copys |
 | Eval manual | Sí | Veredicto explícito offline |
-| Reporte → guardar | Sí | Portafolio local + sync opcional (borrado remoto pendiente T19) |
+| Reporte → guardar | Sí | Portafolio local + sync opcional (delete remoto T19 ✅) |
 | Reporte → decidir | Sí | ✅ T09 panel Próxima decisión |
 | Comparar | Sí | ✅ T10 pondera eval manual cuando todos la tienen |
 | Export / kit | Sí | CSV/MD/JSON + Shopify/Woo + ops 20–23 |
@@ -204,7 +204,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 7. **Sin E2E Playwright** — ⬜ T08; ~~unit/CI~~ ✅ T25/T36/T44.
 8. **Caché no distingue fuente/modo** — ⬜ T28.
 9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
-10. **Sync delete solo local** — 🟡 T19.
+10. ~~**Sync delete solo local**~~ — ✅ T19.
 11. **Validación JSON copiloto incompleta** — ✅ T06/T07 (tips + ejemplo JSON + UI pasos completados).
 
 ---
@@ -217,8 +217,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 19 | T01–T07, T09–T10, T12, T15, T16, T27, T32–T34, T37 |
-| 🟡 Parcial | 9 | T13, T14, T18, T19, T21, T24, T29, T30, T31 |
+| ✅ Hecho | 20 | T01–T07, T09–T10, T12, T15, T16, T19, T27, T32–T34, T37 |
+| 🟡 Parcial | 8 | T13, T14, T18, T21, T24, T29, T30, T31 |
 | ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
@@ -231,7 +231,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | **T07** | Peek pasos completados + caption; error no avanza | ✅ Cerrado |
 | **T14** | `_isDraft` + badge en **feed** | Badge “Borrador” en **portafolio**; CTAs wizard (pack debería ser primario) |
 | **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
-| **T19** | Upsert + merge al login | `delete` remoto al borrar local |
+| **T19** | Delete remoto + tombstones + badge sync | ✅ Cerrado |
 | **T30** | `reportGenerator.js` ya no existe | Arreglar o eliminar shim `src/data.js` |
 | **T31** | `#meta-interests-disclaimer` en HTML | Empieza `.hidden`; solo se muestra tras búsqueda |
 
@@ -912,7 +912,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T19 — Sync remoto: conflictos y borrado
 
-> **Estado (2026-08-05):** 🟡 Parcial — upsert/merge al login; borrar producto solo limpia localStorage (no Supabase).
+> **Estado (2026-08-05):** ✅ Hecho — `deleteRemoteResearchReport` + tombstones anti-resurrección; toast si falla nube; badge **Sincronizado** / **Solo local** en detalle; tests `historySyncDelete.test.js`.
 
 **Objetivo:** Portafolio nube + local no duplica ni pierde datos silenciosamente.
 
@@ -925,14 +925,14 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/research/historySync.js`
-- `supabase/migrations/002_research_reports.sql`
-- `src/ui/portfolio.js` — borrar remoto al eliminar local
+- `src/research/historySync.js` — delete remoto, tombstones, merge filtrado, flush al sync
+- `src/ui/portfolio.js` — borrar/quitar corazón llama delete nube
+- `tests/historySyncDelete.test.js`
 
 **Pasos**
 
 1. Al eliminar producto local, `delete` en `research_reports` por slug.
-2. Toast si sync falla (offline).
+2. Toast si sync falla (offline); tombstone evita que reaparezca al merge.
 3. Indicador "Sincronizado" / "Solo local" en detalle portafolio.
 
 **Criterio**
@@ -1723,7 +1723,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T19, T20, T08, T13/T14, T18, T35 (T06/T07/T11-A ✅)
+- T20, T08, T13/T14, T18, T35 (T06/T07/T11-A/T19 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1736,12 +1736,12 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
 | T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
-| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
+| T13🟡, T14🟡 | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
-T19 (cerrar delete), T20  ||  T13/T14 (cerrar), T15✅
+T19 ✅  ||  T13/T14 (cerrar), T15✅
 T18 (modal límite)  ||  T21🟡
 ```
 
@@ -1813,7 +1813,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
 | T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
 | T18 | UX límite portafolio 10 | P2 | 🟡 | Toast+export; sin modal |
-| T19 | Sync remoto borrado/conflictos | P1 | 🟡 | Upsert sí; delete remoto no |
+| T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
 | T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |

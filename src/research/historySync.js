@@ -5,12 +5,67 @@ import { calculateProductScore } from './scoring.js';
 import { listCacheEntries } from './cache.js';
 import { sanitizeReport } from './gemini.js';
 
-function slugify(name) {
+const DELETED_SLUGS_KEY = 'dropdeep_portfolio_deleted_slugs';
+
+/** Same slug used for research_reports.product_slug upserts. */
+export function productSlugFromName(name) {
   return String(name || '')
     .toLowerCase()
     .trim()
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
+}
+
+function slugify(name) {
+  return productSlugFromName(name);
+}
+
+/** Slugs deleted locally while remote delete is pending / to block merge resurrection. */
+export function readDeletedPortfolioSlugs() {
+  try {
+    const raw = localStorage.getItem(DELETED_SLUGS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((s) => typeof s === 'string' && s) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeDeletedPortfolioSlugs(slugs) {
+  const unique = [...new Set(slugs.filter(Boolean))];
+  if (unique.length === 0) {
+    localStorage.removeItem(DELETED_SLUGS_KEY);
+    return;
+  }
+  localStorage.setItem(DELETED_SLUGS_KEY, JSON.stringify(unique));
+}
+
+export function markPortfolioSlugDeletedLocally(productName) {
+  const slug = productSlugFromName(productName);
+  if (!slug) return;
+  const next = new Set(readDeletedPortfolioSlugs());
+  next.add(slug);
+  writeDeletedPortfolioSlugs([...next]);
+}
+
+export function clearPortfolioSlugDeletedMark(productNameOrSlug) {
+  const slug = productSlugFromName(productNameOrSlug) || productNameOrSlug;
+  if (!slug) return;
+  writeDeletedPortfolioSlugs(readDeletedPortfolioSlugs().filter((s) => s !== slug));
+}
+
+/**
+ * Sync status for portfolio detail (T19).
+ * @returns {{ key: 'synced' | 'local', label: string }}
+ */
+export function getPortfolioSyncStatus(item) {
+  if (!isAuthenticated()) {
+    return { key: 'local', label: 'Solo local' };
+  }
+  if (item?._remoteUpdatedAt) {
+    return { key: 'synced', label: 'Sincronizado' };
+  }
+  return { key: 'local', label: 'Solo local' };
 }
 
 function portfolioItemFromReport(report, savedAt) {
@@ -34,15 +89,23 @@ function portfolioItemFromReport(report, savedAt) {
   };
 }
 
-function mergePortfolioItems(localItems, remoteItems) {
+/**
+ * Merge local + remote portfolio rows. Tombstoned slugs are excluded so a failed
+ * offline delete does not resurrect the product on next load (T19).
+ */
+export function mergePortfolioItems(localItems, remoteItems, deletedSlugs = readDeletedPortfolioSlugs()) {
+  const deleted = new Set(deletedSlugs);
   const bySlug = new Map();
 
   localItems.forEach((item) => {
-    bySlug.set(slugify(item.name), { ...item });
+    const key = slugify(item.name);
+    if (!key || deleted.has(key)) return;
+    bySlug.set(key, { ...item });
   });
 
   remoteItems.forEach((item) => {
     const key = slugify(item.name);
+    if (!key || deleted.has(key)) return;
     const existing = bySlug.get(key);
     const remoteTs = item._remoteUpdatedAt ? Date.parse(item._remoteUpdatedAt) : 0;
     const localTs = existing?._remoteUpdatedAt ? Date.parse(existing._remoteUpdatedAt) : 0;
@@ -74,6 +137,9 @@ export async function persistResearchReport(report) {
   const productSlug = slugify(clean.name);
   if (!productSlug) return false;
 
+  // Re-saving clears a prior local delete mark for this slug
+  clearPortfolioSlugDeletedMark(productSlug);
+
   const score = clean.productScore || calculateProductScore(clean);
   clean.productScore = score;
 
@@ -91,7 +157,92 @@ export async function persistResearchReport(report) {
     .from('research_reports')
     .upsert(payload, { onConflict: 'user_id,product_slug' });
 
+  if (!error) {
+    // Reflect cloud stamp on in-memory portfolio item when present
+    const local = state.portfolio?.find((p) => slugify(p.name) === productSlug);
+    if (local) {
+      local._remoteUpdatedAt = payload.updated_at;
+      if (local.fullReport) local.fullReport._remoteUpdatedAt = payload.updated_at;
+      savePortfolioLocal();
+    }
+  }
+
   return !error;
+}
+
+/**
+ * Delete a research_reports row for the logged-in user (T19).
+ * @returns {{ ok: boolean, skipped?: boolean, reason?: string, error?: string }}
+ */
+export async function deleteRemoteResearchReport(productName) {
+  const productSlug = productSlugFromName(productName);
+  if (!productSlug) {
+    return { ok: false, reason: 'invalid-slug' };
+  }
+
+  if (!isAuthConfigured || !supabase || !isAuthenticated()) {
+    return { ok: true, skipped: true, reason: 'no-session' };
+  }
+
+  const userId = getCurrentUserId();
+  if (!userId) {
+    return { ok: true, skipped: true, reason: 'no-session' };
+  }
+
+  const { error } = await supabase
+    .from('research_reports')
+    .delete()
+    .eq('user_id', userId)
+    .eq('product_slug', productSlug);
+
+  if (error) {
+    return { ok: false, error: error.message || 'delete-failed' };
+  }
+
+  clearPortfolioSlugDeletedMark(productSlug);
+  return { ok: true };
+}
+
+/**
+ * Local delete + best-effort remote delete. Marks tombstone first so merge
+ * cannot resurrect the row if the network call fails.
+ * @returns {{ ok: boolean, remoteOk: boolean, skipped?: boolean, error?: string }}
+ */
+export async function deletePortfolioItemEverywhere(productName) {
+  markPortfolioSlugDeletedLocally(productName);
+  try {
+    const remote = await deleteRemoteResearchReport(productName);
+    if (remote.skipped) {
+      clearPortfolioSlugDeletedMark(productName);
+      return { ok: true, remoteOk: false, skipped: true, reason: remote.reason };
+    }
+    if (!remote.ok) {
+      return { ok: true, remoteOk: false, error: remote.error };
+    }
+    return { ok: true, remoteOk: true };
+  } catch (err) {
+    return {
+      ok: true,
+      remoteOk: false,
+      error: err?.message || 'offline',
+    };
+  }
+}
+
+/** Retry pending remote deletes (called on history sync). */
+export async function flushPendingRemoteDeletes() {
+  if (!isAuthConfigured || !supabase || !isAuthenticated()) return;
+  const pending = readDeletedPortfolioSlugs();
+  for (const slug of pending) {
+    try {
+      const result = await deleteRemoteResearchReport(slug);
+      if (!result.ok && !result.skipped) {
+        /* keep tombstone for next attempt */
+      }
+    } catch {
+      /* keep tombstone */
+    }
+  }
 }
 
 /** Fetch remote reports for the logged-in user. */
@@ -129,6 +280,7 @@ export async function syncResearchHistoryOnLoad() {
   let remoteItems = [];
 
   try {
+    await flushPendingRemoteDeletes();
     remoteItems = await fetchRemoteReports();
   } catch {
     /* offline — keep local only */

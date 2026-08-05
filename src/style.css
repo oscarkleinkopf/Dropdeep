@@ -1105,6 +1105,28 @@ button {
   color: var(--text-light);
 }
 
+.portfolio-sync-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+.portfolio-sync-synced {
+  color: var(--accent-emerald);
+  border-color: color-mix(in srgb, var(--accent-emerald) 40%, var(--border-color));
+}
+
+.portfolio-sync-local {
+  color: var(--text-muted);
+}
+
 .portfolio-detail-title p {
   color: var(--accent-violet);
   font-size: 0.85rem;

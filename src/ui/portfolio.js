@@ -5,9 +5,15 @@ import { openDeepResearchReport } from './report.js';
 import { calculateProductScore, pickCompareWinner } from '../research/scoring.js';
 import { verdictColor } from '../research/manualRubric.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
-import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
+import {
+  persistResearchReport,
+  savePortfolioLocal,
+  deletePortfolioItemEverywhere,
+  getPortfolioSyncStatus,
+} from '../research/historySync.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
 import { isAuthenticated } from '../auth/auth.js';
+import { escapeHtml } from '../utils/sanitize.js';
 import {
   FREE_PORTFOLIO_CAP,
   getCompareMax,
@@ -34,12 +40,20 @@ export function toggleSaveProduct() {
   const heartIcon = document.getElementById('save-heart-icon');
 
   if (index > -1) {
-    // Remove from portfolio
+    const removed = state.portfolio[index];
     state.portfolio.splice(index, 1);
     saveBtn.classList.remove('saved');
     saveText.textContent = "Guardar en Portafolio";
     heartIcon.setAttribute('data-lucide', 'heart');
     showToast("Eliminado del portafolio", "info");
+    deletePortfolioItemEverywhere(removed.name).then((result) => {
+      if (result.remoteOk === false && !result.skipped && isAuthenticated()) {
+        showToast(
+          'Eliminado aquí; la copia en la nube no se pudo borrar (sin conexión). Se reintentará al sincronizar.',
+          'info',
+        );
+      }
+    });
   } else {
     if (state.portfolio.length >= FREE_PORTFOLIO_CAP) {
       showToast(
@@ -223,14 +237,19 @@ export function renderActivePortfolioDetail() {
     ? activeItem.fullReport.suppliers.reduce((prev, curr) => (prev.price + (prev.shippingCost || 0) < curr.price + (curr.shippingCost || 0) ? prev : curr))
     : null;
 
+  const syncStatus = getPortfolioSyncStatus(activeItem);
+
   detailPanel.innerHTML = `
     <div class="portfolio-detail-header">
       <div class="portfolio-detail-title">
-        <h3 style="display: flex; align-items: center; gap: 0.75rem;">
-          ${activeItem.name} 
+        <h3 style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          ${escapeHtml(activeItem.name)}
           <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 0.15rem 0.4rem; border-radius: 4px; color: ${scoreColor}">${score} pts</span>
         </h3>
-        <p>${activeItem.category.toUpperCase()}</p>
+        <p>
+          ${escapeHtml(String(activeItem.category || 'general').toUpperCase())}
+          <span class="portfolio-sync-badge portfolio-sync-${syncStatus.key}" title="${syncStatus.key === 'synced' ? 'Copia en Supabase para tu cuenta' : 'Solo en este navegador (o pendiente de subir)'}">${syncStatus.label}</span>
+        </p>
       </div>
       <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
         <button class="btn btn-secondary" id="portfolio-campaign-kit-btn" title="Descargar kit de campaña">
@@ -309,19 +328,28 @@ export function renderActivePortfolioDetail() {
   document.getElementById('portfolio-delete-item').addEventListener('click', () => {
     const idx = state.portfolio.findIndex(p => p.id === activeItem.id);
     if (idx > -1) {
+      const removedName = activeItem.name;
       state.portfolio.splice(idx, 1);
-      localStorage.setItem('dropdeep_portfolio', JSON.stringify(state.portfolio));
+      savePortfolioLocal();
       updatePortfolioBadge();
-      
-      // If we deleted the active item, reset active portfolio ID selection
+
       if (state.portfolio.length > 0) {
         state.activePortfolioId = state.portfolio[0].id;
       } else {
         state.activePortfolioId = null;
       }
-      
+
       renderPortfolioList();
-      showToast("Producto eliminado del portafolio", "info");
+      showToast('Producto eliminado del portafolio', 'info');
+
+      deletePortfolioItemEverywhere(removedName).then((result) => {
+        if (result.remoteOk === false && !result.skipped && isAuthenticated()) {
+          showToast(
+            'Eliminado aquí; la copia en la nube no se pudo borrar (sin conexión). Se reintentará al sincronizar.',
+            'info',
+          );
+        }
+      });
     }
   });
 }

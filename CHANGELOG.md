@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Sync borrado portafolio (T19):** eliminar (detalle o corazón) borra también `research_reports` en Supabase; tombstone local si offline para que el merge no resucite el ítem; badge **Sincronizado** / **Solo local** en el detalle; toast si falla la nube.
 - **Recuperación de errores copiloto (T07):** un pegado inválido no avanza el paso ni borra `partialReport`; barra/caption de pasos completados; **Ver pasos completados** y **Paso anterior** para revisar prompts previos en solo lectura; **Volver al paso actual** para reintentar el pegado.
 - **Validación JSON copiloto (T06):** errores de pegado con tips accionables (markdown \`\`\`json, truncado, comillas tipográficas); mensajes de validación citan campos (`demographics.who`, etc.); panel **Ver ejemplo de JSON** por paso en el modal.
 - **Spy honesto (T11 Opción A):** banner permanente *Análisis inferido por IA — no verificado*; badge en resultados; Pixel/TikTok/GA4 siempre **No verificado** (ya no Sí/No); checklist manual gratis sin API; pestaña renombrada a «Análisis de URL (Gemini)» (no scraper). Intereses Meta y disclaimer estático sin cambios.

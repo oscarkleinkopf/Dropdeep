@@ -273,6 +273,10 @@ Los avisos (CPA faltante, pilares parciales, etc.) no bloquean solos, pero apare
 
 Desde un informe: **Guardar en Portafolio** (corazón en la barra del reporte).
 
+En el detalle del portafolio verás **Sincronizado** (hay copia en Supabase para tu cuenta) o **Solo local** (este navegador, o aún no subió).
+
+Si eliminas un producto estando logueado, DropDeep también borra la fila en la nube. Sin conexión: se elimina aquí y se reintenta al sincronizar (no debería “reaparecer” solo por merge).
+
 Límite del tier gratis: **10 productos** en portafolio local. Al llenarse verás:
 
 > *Portafolio local limitado a 10 productos. Exporta JSON o elimina uno para liberar espacio.*
@@ -578,7 +582,7 @@ Filas dedicadas: **Evaluación manual (puntuación)**, **Evaluación manual (ver
 
 | Dato | Local (`localStorage`) | Supabase (nube) |
 |------|------------------------|-----------------|
-| Portafolio | Sí, siempre | Sí, si hay sesión (`research_reports`) |
+| Portafolio | Sí, siempre | Sí, si hay sesión (`research_reports`); borrar local también borra remoto (T19) |
 | Caché de reportes (24 h) | Sí | No |
 | Clave Gemini BYOK | Sí, por dispositivo/usuario | **Nunca** |
 | Preferencias Gemini (modelo, idioma) | Sí | Perfil (`profiles`) si hay sesión |
