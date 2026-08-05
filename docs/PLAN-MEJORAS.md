@@ -98,7 +98,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ### Otras observaciones (actualizado 2026-08-05)
 
 - ~~**Cuota proxy UI parcial**~~ — ✅ T16: badge en menú usuario + fetch al login.
-- **Spy inferido como verificado:** ⬜ T11 — pixel/GA siguen Sí/No definitivos; sin badge “Inferido por IA”.
+- ~~**Spy inferido como verificado**~~ — ✅ T11-A: badge Inferido por IA; pixel/GA = No verificado; checklist manual.
 - **Sync remoto unidireccional:** 🟡 T19 — upsert sí; borrar local **no** borra en Supabase.
 - **Caché sin fuente/modo:** ⬜ T28 — `getCacheKey(query, language)` solo.
 - ~~**Código muerto**~~ — ✅ T30: eliminados `reportGenerator.js` y shim `src/data.js`.
