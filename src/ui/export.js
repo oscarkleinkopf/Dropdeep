@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { calculateProductScore } from '../research/scoring.js';
+import { buildVslLaunchMarkdown } from '../research/vslAudisio.js';
 import { getManualEvalSummaryMarkdown } from './manualEvaluation.js';
 
 const SENSITIVE_KEY_PATTERN = /^(api[_-]?key|gemini[_-]?key|password|secret|token)$/i;
@@ -517,6 +518,8 @@ export function exportCampaignKit(report) {
   }
   md += `- **CTA landing sugerido:** Comprar ahora con garantía 30 días\n`;
   md += `- **CTA anuncios:** Shop now / Últimas unidades / Descubre cómo funciona\n\n`;
+
+  md += buildVslLaunchMarkdown(safe);
 
   md += `---\n\n*Exportado desde DropDeep — sin claves API incluidas.*\n`;
 

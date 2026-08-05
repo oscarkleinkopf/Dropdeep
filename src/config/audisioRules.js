@@ -84,3 +84,23 @@ export const AUDISIO_CPM_TYPICAL_MIN_CLP = 3_000;
 export const AUDISIO_CPM_TYPICAL_MAX_CLP = 6_000;
 export const AUDISIO_CPM_COMPETITIVE_MIN_CLP = 10_000;
 export const AUDISIO_CPM_COMPETITIVE_MAX_CLP = 15_000;
+
+/** Creativos / lanzamiento (T41). */
+export const AUDISIO_VSL_DURATION_MIN_SEC = 20;
+export const AUDISIO_VSL_DURATION_MAX_SEC = 60;
+export const AUDISIO_VSL_HOOK_MIN_SEC = 3;
+export const AUDISIO_VSL_HOOK_MAX_SEC = 7;
+export const AUDISIO_CAPCUT_FONT = 'Montserrat';
+export const AUDISIO_CAPCUT_FONT_SIZE = 13;
+export const AUDISIO_CANVA_FONT = 'Poppins';
+export const AUDISIO_ELEVENLABS_SPEED = 1.15;
+export const AUDISIO_MIN_LAUNCH_VIDEOS = 5;
+export const AUDISIO_MIN_LAUNCH_IMAGES = 5;
+export const AUDISIO_MAX_LAUNCH_IMAGES = 10;
+export const AUDISIO_WARMUP_BUDGET_USD = 5;
+export const AUDISIO_WARMUP_DAYS_MIN = 1;
+export const AUDISIO_WARMUP_DAYS_MAX = 2;
+export const AUDISIO_LAUNCH_BUDGET_BEGINNER_USD = 10;
+export const AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD = 20;
+export const AUDISIO_LAUNCH_MIN_DAYS = 4;
+export const AUDISIO_VSL_CHECKLIST_STORAGE_PREFIX = 'dropdeep_vsl_checklist_';

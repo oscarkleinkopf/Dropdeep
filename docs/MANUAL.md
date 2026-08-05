@@ -457,7 +457,7 @@ Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
 
 En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
 
-### Secciones del sidebar (23 pestañas)
+### Secciones del sidebar (24 pestañas)
 
 | # | Sección | Para qué sirve | Decisión que ayuda |
 |---|---------|----------------|-------------------|
@@ -484,8 +484,21 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
 | 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
 | 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
+| 24 | VSL & Lanzamiento Audisio | 3 guiones Hook→Body→CTA + specs CapCut/Canva/ElevenLabs + checklist de lanzamiento | ¿Tienes creativos y presupuesto listos antes de gastar? |
 
 **Simulador Montecarlo:** es una proyección **orientativa** con 1000 ensayos y variación aleatoria sobre tus inputs; no predice resultados reales de Meta/Google Ads.
+
+### Kit VSL & checklist de lanzamiento (sección 24)
+
+Plantillas **offline** del método Audisio & Domingo (no predicen CTR ni ventas):
+
+| Bloque | Qué incluye |
+|--------|-------------|
+| Specs | Videos 20–60 s; hook 3–7 s; CapCut Montserrat 13; Canva Poppins; hook visual MAYÚSCULAS negro/blanco; locución ~1.15× |
+| Guiones | 3 ángulos (dolor, testimonio, oferta) con botones de copiar; se rellenan con dolor/beneficio del informe si existen |
+| Checklist | Mín. 5 videos, 5–10 imágenes, calentamiento 1–2 días a $5/día, lanzamiento principiante $10/día ≥ 4 días (o $20 si ya tienes experiencia), sin audiencia manual | 
+
+El estado de la checklist se guarda en `localStorage` por nombre de producto. El **kit de campaña** (export `.md`) incluye esta sección.
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
@@ -647,10 +660,11 @@ Mensajes **reales** de la app y qué hacer:
 | **Modo Express** | Copiloto en 1 pegado (investigación + copys); default sin API. |
 | **Deep Research** | Investigación automática vía API Gemini (BYOK o proxy). |
 | **Investigación (cuota proxy)** | Una ejecución Completo o Rápido vía proxy = 1 unidad diaria (varios pasos Gemini internos). |
-| **Kit de campaña** | Export `.md` con resumen listo para lanzar ads y emails. |
+| **Kit de campaña** | Export `.md` con resumen listo para lanzar ads, emails y kit VSL/checklist Audisio. |
 | **Verbatim** | Frase textual de un comprador real (foros, reseñas). |
 | **Dropshipping** | Vender sin stock propio; el proveedor envía al cliente final. |
-| **Método Audisio & Domingo** | Reglas de negocio de DropDeep para precios Chile (multiplicador ×2.5, banda CLP, margen bruto mínimo, test ads 300 USD). Offline; ver panel Precios Audisio. |
+| **Método Audisio & Domingo** | Reglas de negocio de DropDeep para precios Chile (multiplicador ×2.5, banda CLP, margen bruto mínimo, test ads 300 USD), rúbrica Winner, auditoría Meta y kit VSL/lanzamiento. Offline; ver paneles Audisio. |
+| **VSL** | *Video Sales Letter* corto (20–60 s) con Hook → Body → CTA; plantillas en sección 24 del informe. |
 | **PVP** | Precio de venta al público (retail en el snapshot). |
 | **FX (CLP/USD)** | Tipo de cambio editable en el panel Audisio; no es feed en vivo. |
 | **CPA máximo** | Margen final por venta tras costo+IVA, pasarela, Shopify e IVA venta — techo del CPA de campaña (auditor Spy). |

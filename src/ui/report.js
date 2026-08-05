@@ -18,6 +18,14 @@ import { runMonteCarloSimulation } from '../research/montecarlo.js';
 import { generateBundleStructure } from '../research/bundles.js';
 import { generateHTMLConversionBlocks } from '../research/htmlBlocks.js';
 import { generateWhatsAppSalesScripts } from '../research/whatsappScripts.js';
+import {
+  formatVslScriptCopy,
+  generateVslScripts,
+  getLaunchChecklistItems,
+  getProductionSpecs,
+  loadLaunchChecklistState,
+  saveLaunchChecklistState,
+} from '../research/vslAudisio.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { getCompareMax } from '../config/freeTier.js';
 import {
@@ -614,7 +622,11 @@ export function switchReportTab(sectionId) {
 export function renderReportContent() {
   const container = document.getElementById('report-content-container');
   const report = state.currentReport;
-  
+  const vslScripts = generateVslScripts(report);
+  const vslSpecs = getProductionSpecs();
+  const launchChecklist = getLaunchChecklistItems();
+  const checklistState = loadLaunchChecklistState(report?.name || 'general');
+
   container.innerHTML = `
     <!-- SECTION 1: DEMOGRAPHICS & PSYCHOGRAPHICS -->
     <section id="section-demographics" class="report-section">
@@ -1734,6 +1746,54 @@ export function renderReportContent() {
         `).join('')}
       </div>
     </section>
+
+    <!-- SECTION 24: VSL + LAUNCH CHECKLIST (AUDISIO) -->
+    <section id="section-vsl-launch" class="report-section hidden">
+      <h2>24. Kit VSL & Checklist de Lanzamiento (Audisio)</h2>
+      <p class="report-section-desc">${vslSpecs.disclaimer} Videos ${vslSpecs.duration}; estructura Hook (${vslSpecs.hookWindow}) → Body → CTA.</p>
+
+      <div class="vsl-specs-card">
+        <h3>Specs de producción</h3>
+        <ul>
+          <li><strong>CapCut:</strong> ${vslSpecs.capcut}</li>
+          <li><strong>Canva:</strong> ${vslSpecs.canva}</li>
+          <li><strong>Hook visual:</strong> ${vslSpecs.hookVisual}</li>
+          <li><strong>Locución:</strong> ${vslSpecs.voice}</li>
+        </ul>
+      </div>
+
+      <div class="vsl-scripts-list">
+        ${vslScripts.map((script) => `
+          <div class="prompt-card vsl-script-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; gap:0.75rem; flex-wrap:wrap;">
+              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">VSL — ${script.angle}</h4>
+              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(formatVslScriptCopy(script))}">
+                <i data-lucide="copy"></i> Copiar guion
+              </button>
+            </div>
+            <p class="vsl-meta">Duración ${script.durationHint} · Hook ${script.hookSec}</p>
+            <div class="vsl-block"><span class="vsl-block-label">HOOK</span><div class="prompt-code vsl-hook">${script.hook.replace(/</g, '&lt;')}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">BODY</span><div class="prompt-code">${script.body.replace(/</g, '&lt;')}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">CTA</span><div class="prompt-code">${script.cta.replace(/</g, '&lt;')}</div></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="vsl-checklist-card">
+        <h3>Checklist de lanzamiento</h3>
+        <p class="report-section-desc" style="margin-top:0">Marca lo que ya tienes listo. Se guarda en este navegador por producto.</p>
+        <ul class="vsl-checklist" id="vsl-launch-checklist">
+          ${launchChecklist.map((item) => `
+            <li>
+              <label class="vsl-check-label">
+                <input type="checkbox" class="vsl-check-input" data-check-id="${item.id}" ${checklistState[item.id] ? 'checked' : ''}>
+                <span>${item.label}</span>
+              </label>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    </section>
   `;
 
   // Bind Monte Carlo recalculations
@@ -1790,6 +1850,19 @@ export function renderReportContent() {
   });
 
   updateMonteCarloUI();
+
+  // Persist VSL launch checklist (local)
+  const checklistRoot = container.querySelector('#vsl-launch-checklist');
+  if (checklistRoot) {
+    const slug = report?.name || 'general';
+    checklistRoot.querySelectorAll('.vsl-check-input').forEach((input) => {
+      input.addEventListener('change', () => {
+        const next = loadLaunchChecklistState(slug);
+        next[input.getAttribute('data-check-id')] = !!input.checked;
+        saveLaunchChecklistState(slug, next);
+      });
+    });
+  }
 
   // Bind clipboard copies
   container.querySelectorAll('.btn-copy-clipboard').forEach(btn => {
