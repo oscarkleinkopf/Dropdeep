@@ -6,10 +6,10 @@
 
 | Recurso | Descripción |
 |---------|-------------|
-| [Manual de usuario (español)](docs/MANUAL.md) | Guía task-oriented: ruta gratis (Copiloto Express, evaluación manual, packs), API BYOK/proxy (prioridad con sesión), lectura de informes, comparador, privacidad y solución de problemas. |
+| [Manual de usuario (español)](docs/MANUAL.md) | Guía task-oriented: ruta gratis, API BYOK/proxy, informes, comparador, y [metodología Audisio y Domingo (Chile)](docs/MANUAL.md#12-metodología-audisio-y-domingo-chile). |
 | [CHANGELOG.md](CHANGELOG.md) | Historial de cambios visibles para el usuario (newest first). |
 
-En la app en vivo, el botón **Ayuda** (icono `circle-help`) abre el manual en GitHub.
+En la app en vivo, el botón **Ayuda** (icono `circle-help`) abre el manual en GitHub en la sección de metodología Audisio.
 
 ## Quick start
 
