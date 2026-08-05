@@ -158,7 +158,7 @@
           </button>
           <div class="user-menu-dropdown hidden" id="user-menu-dropdown">
             <p class="user-menu-proxy-status hidden" id="user-menu-proxy-status"></p>
-            <a class="user-menu-item" id="user-menu-help-link" href="https://github.com/oscarkleinkopf/Dropdeep/blob/master/docs/MANUAL.md" target="_blank" rel="noopener noreferrer">
+            <a class="user-menu-item" id="user-menu-help-link" href="https://github.com/oscarkleinkopf/Dropdeep/blob/main/docs/MANUAL.md#12-metodolog%C3%ADa-audisio-y-domingo-chile" target="_blank" rel="noopener noreferrer">
               <i data-lucide="circle-help" style="width:16px; height:16px"></i> Ayuda
             </a>
             <button type="button" class="user-menu-item" id="auth-logout-btn">
@@ -166,7 +166,7 @@
             </button>
           </div>
         </div>
-        <a class="btn btn-secondary" id="help-manual-btn" href="https://github.com/oscarkleinkopf/Dropdeep/blob/master/docs/MANUAL.md" target="_blank" rel="noopener noreferrer" title="Ayuda — manual de usuario" aria-label="Ayuda" style="padding:0.4rem 0.6rem; display:inline-flex; align-items:center; justify-content:center; text-decoration:none">
+        <a class="btn btn-secondary" id="help-manual-btn" href="https://github.com/oscarkleinkopf/Dropdeep/blob/main/docs/MANUAL.md#12-metodolog%C3%ADa-audisio-y-domingo-chile" target="_blank" rel="noopener noreferrer" title="Ayuda — metodología Audisio (manual)" aria-label="Ayuda" style="padding:0.4rem 0.6rem; display:inline-flex; align-items:center; justify-content:center; text-decoration:none">
           <i data-lucide="circle-help" style="width:16px; height:16px"></i>
         </a>
         <button class="btn btn-secondary" id="settings-btn" title="Ajustes — clave API Gemini" aria-label="Ajustes" style="padding:0.4rem 0.6rem; display:inline-flex; align-items:center; justify-content:center">
@@ -591,6 +591,11 @@
                 <span class="tab-label">Guiones WhatsApp & Soporte</span>
                 <i data-lucide="chevron-right" class="tab-arrow"></i>
               </button>
+              <button class="sidebar-tab-btn" data-section="section-vsl-launch">
+                <span class="tab-num">24</span>
+                <span class="tab-label">VSL & Lanzamiento Audisio</span>
+                <i data-lucide="chevron-right" class="tab-arrow"></i>
+              </button>
             </nav>
           </aside>
 
@@ -742,16 +747,19 @@
               <span>INTELIGENCIA DE MERCADO & ESPIONAJE</span>
             </div>
             <h2>Suite de Espionaje Competitivo y <span class="gradient-text">Audiencias Ocultas</span></h2>
-            <p>Analiza tiendas de competidores por URL con Gemini en vivo, o explora una base de referencia de intereses Meta (no datos en tiempo real).</p>
+            <p>Analiza tiendas con Gemini, explora intereses Meta de referencia, o audita métricas de Ads Manager con umbrales Audisio (Chile / CLP) — offline, sin API Meta.</p>
           </div>
 
           <!-- Sub-navigation Tabs -->
-          <div class="subtabs-bar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+          <div class="subtabs-bar" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
             <button type="button" id="subtab-competitor-btn" class="btn btn-secondary active-subtab" style="display: flex; align-items: center; gap: 0.5rem;">
-              <i data-lucide="shopping-bag"></i> Scraper & Analizador de Tiendas (URL)
+              <i data-lucide="shopping-bag"></i> Scraper de Tiendas (URL)
             </button>
             <button type="button" id="subtab-meta-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
-              <i data-lucide="target"></i> Intereses Ocultos de Meta Ads
+              <i data-lucide="target"></i> Intereses Ocultos Meta
+            </button>
+            <button type="button" id="subtab-meta-audit-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="gauge"></i> Auditoría Meta Ads (Chile)
             </button>
           </div>
 
@@ -816,6 +824,84 @@
             <div id="meta-interests-grid" class="products-grid">
               <!-- Dynamically populated from JS -->
             </div>
+          </div>
+
+          <!-- SUBTAB 3: META ADS AUDIT (AUDISIO, OFFLINE) -->
+          <div id="subtab-meta-audit-panel" class="hidden">
+            <p class="spy-disclaimer">
+              <i data-lucide="info"></i>
+              Pega métricas de tu Ads Manager. Umbrales del <strong>método Audisio & Domingo</strong> (Chile). No hay conexión a Meta API ni datos inventados.
+            </p>
+            <div class="prompt-config-card meta-audit-form" style="margin-bottom: 1.5rem;">
+              <div class="meta-audit-form-grid">
+                <div class="input-field-group">
+                  <label for="meta-audit-sale">PVP / venta (CLP)</label>
+                  <input type="number" id="meta-audit-sale" min="0" step="1" placeholder="Ej: 49990">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-cost">Costo producto AliExpress (CLP, sin IVA)</label>
+                  <input type="number" id="meta-audit-cost" min="0" step="1" placeholder="Ej: 12000">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-campaign-cpa">CPA campaña actual (CLP)</label>
+                  <input type="number" id="meta-audit-campaign-cpa" min="0" step="1" placeholder="Ej: 8500">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-ctr">CTR (%)</label>
+                  <input type="number" id="meta-audit-ctr" min="0" step="0.1" placeholder="Ej: 2.8">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-cpc">CPC (CLP)</label>
+                  <input type="number" id="meta-audit-cpc" min="0" step="1" placeholder="Ej: 180">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-atc">Costo Add to Cart (CLP)</label>
+                  <input type="number" id="meta-audit-atc" min="0" step="1" placeholder="Ej: 2000">
+                </div>
+                <div class="input-field-group">
+                  <label for="meta-audit-cpm">CPM (CLP)</label>
+                  <input type="number" id="meta-audit-cpm" min="0" step="1" placeholder="Ej: 4500">
+                </div>
+                <div class="input-field-group meta-audit-check-row">
+                  <label class="meta-audit-check-label">
+                    <input type="checkbox" id="meta-audit-competitive">
+                    Nicho competitivo (belleza, etc. — CPM 10k–15k OK)
+                  </label>
+                </div>
+              </div>
+
+              <details class="meta-audit-advanced">
+                <summary>Comisiones e IVA (avanzado)</summary>
+                <div class="meta-audit-form-grid" style="margin-top: 0.75rem;">
+                  <div class="input-field-group">
+                    <label for="meta-audit-ali-vat">IVA AliExpress (%)</label>
+                    <input type="number" id="meta-audit-ali-vat" min="0" max="100" step="0.1" value="19">
+                  </div>
+                  <div class="input-field-group">
+                    <label for="meta-audit-pay-fee">Comisión pasarela (%)</label>
+                    <input type="number" id="meta-audit-pay-fee" min="0" max="100" step="0.1" value="3.5">
+                  </div>
+                  <div class="input-field-group">
+                    <label for="meta-audit-shop-fee">Comisión Shopify (%)</label>
+                    <input type="number" id="meta-audit-shop-fee" min="0" max="100" step="0.1" value="2">
+                  </div>
+                  <div class="input-field-group">
+                    <label for="meta-audit-sales-vat">IVA de la venta (%)</label>
+                    <input type="number" id="meta-audit-sales-vat" min="0" max="100" step="0.1" value="19">
+                  </div>
+                </div>
+              </details>
+
+              <div class="meta-audit-actions">
+                <button type="button" id="meta-audit-run-btn" class="btn btn-primary btn-glow">
+                  <i data-lucide="gauge"></i> Auditar métricas
+                </button>
+                <button type="button" id="meta-audit-prefill-btn" class="btn btn-secondary">
+                  <i data-lucide="file-input"></i> Prefill desde informe abierto
+                </button>
+              </div>
+            </div>
+            <div id="meta-audit-results" class="meta-audit-results"></div>
           </div>
 
         </div>
@@ -985,9 +1071,10 @@
           <i data-lucide="clipboard-check" class="terminal-header-icon"></i>
         </div>
         <div class="terminal-body manual-eval-body">
-          <p class="manual-eval-intro">Metodología determinística para validar productos de dropshipping — 100% offline, sin API ni login.</p>
+          <p class="manual-eval-intro">Checklist offline alineado al <strong>método Audisio & Domingo</strong> (pilares Winner + gates de margen/CPA/tamaño). Sin API ni login. Si un gate falla, no puedes obtener veredicto <strong>Lanzar</strong> aunque el score sea alto.</p>
           <label class="manual-eval-label" for="manual-eval-product-input">Nombre del producto</label>
           <input type="text" id="manual-eval-product-input" class="manual-eval-product-input" placeholder="Ej: Smart Pet Feeder">
+          <div id="manual-eval-gates" class="manual-eval-gates"></div>
           <div id="manual-eval-criteria" class="manual-eval-criteria"></div>
           <div class="manual-eval-preview">
             <div class="manual-eval-preview-row">
@@ -998,6 +1085,7 @@
               <span>Veredicto:</span>
               <strong id="manual-eval-preview-verdict">—</strong>
             </div>
+            <div id="manual-eval-gates-status" class="manual-eval-gates-status"></div>
             <p id="manual-eval-preview-explanation" class="manual-eval-explanation"></p>
           </div>
           <div class="manual-eval-actions">

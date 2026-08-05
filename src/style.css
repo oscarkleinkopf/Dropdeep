@@ -2680,6 +2680,137 @@ button {
   padding: 1.5rem;
   color: var(--text-light);
 }
+
+/* Audisio pricing panel (T38) */
+.audisio-pricing-panel {
+  background: rgba(8, 18, 28, 0.85);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem 1.5rem 1.5rem;
+  color: var(--text-light);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.audisio-pricing-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+.audisio-pricing-header h4 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-emerald);
+}
+.audisio-disclaimer {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 42rem;
+  line-height: 1.4;
+}
+.audisio-fx-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.audisio-fx-row input {
+  width: 7rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.audisio-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 900px) {
+  .audisio-pricing-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.audisio-metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+.audisio-metric-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.audisio-metric-val {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.audisio-metric-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+.audisio-metric-good { color: var(--accent-emerald); }
+.audisio-metric-bad { color: #ef4444; }
+.audisio-actions {
+  margin: 0.5rem 0 0.75rem;
+}
+.audisio-flags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.audisio-flag {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+.audisio-flag-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.audisio-flag-warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+.audisio-flag-ok {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+.audisio-flag-info {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--text-secondary);
+}
+.audisio-gift-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--accent-amber);
+}
 .calc-grid {
   display: grid;
   grid-template-columns: 1.2fr 1.2fr 1.6fr;
@@ -3654,6 +3785,64 @@ button {
   margin-bottom: 1rem;
 }
 
+.manual-eval-gates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.06);
+}
+.manual-eval-gates-header h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  color: var(--accent-emerald);
+  font-family: var(--font-display);
+}
+.manual-eval-number {
+  width: 100%;
+  max-width: 220px;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.manual-eval-criterion-check {
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.manual-eval-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.manual-eval-checkbox {
+  margin-top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent-emerald);
+}
+.manual-eval-gates-status {
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+}
+.manual-eval-gates-status ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+.manual-eval-gate-ok { color: var(--accent-emerald); margin: 0; }
+.manual-eval-gate-fail { color: #fca5a5; margin: 0; font-weight: 600; }
+.manual-eval-gate-blocker { color: #fca5a5; margin-bottom: 0.25rem; }
+.manual-eval-gate-warn { color: #fcd34d; margin-bottom: 0.25rem; }
 .manual-eval-criteria {
   display: flex;
   flex-direction: column;
@@ -4615,6 +4804,345 @@ body.auth-locked {
   align-items: center;
   gap: 0.4rem;
   margin-bottom: 1rem;
+}
+
+/* Meta Ads audit (T40) */
+.meta-audit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.85rem 1rem;
+}
+.meta-audit-advanced {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.meta-audit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+}
+.meta-audit-check-row {
+  display: flex;
+  align-items: flex-end;
+}
+.meta-audit-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.meta-audit-results {
+  margin-top: 0.5rem;
+}
+.meta-audit-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.meta-audit-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+@media (max-width: 700px) {
+  .meta-audit-summary { grid-template-columns: 1fr; }
+}
+.meta-audit-summary-ok {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.meta-audit-summary-bad {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.meta-audit-metric-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+.meta-audit-metric-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.meta-audit-breakdown {
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.meta-audit-breakdown h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  color: var(--accent-cyan);
+}
+.meta-audit-breakdown ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.meta-audit-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.meta-audit-metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.85rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.meta-audit-metric-card p { margin: 0.35rem 0 0; line-height: 1.4; }
+.meta-audit-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.meta-audit-badge-good { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+.meta-audit-badge-ok { background: rgba(34,211,238,0.15); color: var(--accent-cyan); }
+.meta-audit-badge-warn { background: rgba(245,158,11,0.2); color: #fcd34d; }
+.meta-audit-badge-bad { background: rgba(239,68,68,0.2); color: #fca5a5; }
+.meta-audit-verdicts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.meta-audit-flag {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+.meta-audit-flag-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.meta-audit-flag-warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+.meta-audit-flag-ok {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+.meta-audit-flag-info {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--text-secondary);
+}
+.meta-audit-disclaimer {
+  margin-top: 0.85rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Section 24 — VSL & launch checklist (Audisio) */
+.vsl-specs-card,
+.vsl-checklist-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  margin: 1rem 0 1.25rem;
+}
+.vsl-specs-card h3,
+.vsl-checklist-card h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.vsl-specs-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.vsl-scripts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.vsl-script-card .vsl-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.vsl-block {
+  margin-bottom: 0.65rem;
+}
+.vsl-block-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-cyan);
+  margin-bottom: 0.25rem;
+}
+.vsl-hook {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.vsl-checklist {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.vsl-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+.vsl-check-input {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  accent-color: var(--accent-cyan);
+}
+@media (max-width: 640px) {
+  .vsl-specs-card,
+  .vsl-checklist-card {
+    padding: 0.85rem;
+  }
+}
+
+/* Section 20 — Audisio test budget + Montecarlo */
+.mc-audisio-banner {
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+.mc-audisio-banner-lead {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+.mc-audisio-banner-sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.mc-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.mc-test-plan {
+  margin-bottom: 1.25rem;
+}
+.mc-test-plan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+}
+.mc-test-plan-card h4 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--accent-cyan);
+}
+.mc-test-plan-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+.mc-metric-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.mc-metric-val {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.15rem;
+}
+.mc-metric-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+  line-height: 1.35;
+}
+.mc-test-plan-note {
+  margin: 0.35rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.mc-test-plan-ok {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: #6ee7b7;
+}
+.mc-plan-flags {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.mc-plan-flag {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.mc-plan-flag-warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+.mc-plan-flag-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.mc-plan-flag-info {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--text-secondary);
 }
 
 .terminal-cancel-btn {

@@ -6,10 +6,10 @@
 
 | Recurso | Descripción |
 |---------|-------------|
-| [Manual de usuario (español)](docs/MANUAL.md) | Guía task-oriented: ruta gratis (Copiloto Express, evaluación manual, packs), API BYOK/proxy (prioridad con sesión), lectura de informes, comparador, privacidad y solución de problemas. |
+| [Manual de usuario (español)](docs/MANUAL.md) | Guía task-oriented: ruta gratis, API BYOK/proxy, informes, comparador, y [metodología Audisio y Domingo (Chile)](docs/MANUAL.md#12-metodología-audisio-y-domingo-chile). |
 | [CHANGELOG.md](CHANGELOG.md) | Historial de cambios visibles para el usuario (newest first). |
 
-En la app en vivo, el botón **Ayuda** (icono `circle-help`) abre el manual en GitHub.
+En la app en vivo, el botón **Ayuda** (icono `circle-help`) abre el manual en GitHub en la sección de metodología Audisio.
 
 ## Quick start
 
@@ -20,6 +20,15 @@ npm run dev
 ```
 
 Open [http://localhost:3000/Dropdeep/](http://localhost:3000/Dropdeep/) (base path matches GitHub Pages). Vite will start the dev server and open the app in your browser.
+
+### Tests
+
+```bash
+npm test           # Vitest (reportParse, rúbrica Winner, fórmulas Audisio)
+npm run test:watch
+```
+
+CI (`.github/workflows/ci.yml`) runs `npm test` + `npm run build` on PR/push (Node 22, no Supabase secrets required for unit tests).
 
 ### Production build
 

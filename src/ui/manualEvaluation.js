@@ -3,8 +3,10 @@ import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
 import {
   RUBRIC_CRITERIA,
+  WINNER_GATE_FIELDS,
   computeManualEvaluation,
   getDefaultRubricInputs,
+  normalizeRubricInputs,
   verdictColor,
 } from '../research/manualRubric.js';
 import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
@@ -22,11 +24,67 @@ function getModal() {
   return document.getElementById('manual-eval-modal');
 }
 
+function prefillGatesFromReport(report) {
+  if (!report) return;
+  const cost = Number(report.cost);
+  const retail = Number(report.retail);
+  if (Number.isFinite(retail) && retail > 0) {
+    evalInputs.productTicketUsd = Math.round(retail * 100) / 100;
+  }
+  if (Number.isFinite(cost) && Number.isFinite(retail) && retail > 0) {
+    evalInputs.grossMarginUsd = Math.round((retail - cost) * 100) / 100;
+  }
+}
+
+function renderGateFields() {
+  const container = document.getElementById('manual-eval-gates');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="manual-eval-gates-header">
+      <h4>Gates Winner (Audisio & Domingo)</h4>
+      <p class="manual-eval-hint">Si fallan, el veredicto no puede ser <strong>Lanzar</strong> aunque el score sea ≥ 70. Offline — no usa API.</p>
+    </div>
+    ${WINNER_GATE_FIELDS.map((f) => {
+      const val = evalInputs[f.id] ?? '';
+      return `
+        <div class="manual-eval-criterion" data-gate="${f.id}">
+          <label class="manual-eval-label" for="manual-gate-${f.id}">${f.label}</label>
+          ${f.hint ? `<p class="manual-eval-hint">${f.hint}</p>` : ''}
+          <input type="number" class="manual-eval-number" id="manual-gate-${f.id}" data-id="${f.id}"
+            min="${f.min || '0'}" step="${f.step || '0.01'}" placeholder="${f.placeholder || ''}"
+            value="${val === '' || val == null ? '' : val}">
+        </div>`;
+    }).join('')}
+  `;
+
+  container.querySelectorAll('.manual-eval-number').forEach((input) => {
+    input.addEventListener('input', (e) => {
+      const id = e.target.getAttribute('data-id');
+      const raw = e.target.value;
+      evalInputs[id] = raw === '' ? '' : Number(raw);
+      updatePreview();
+    });
+  });
+}
+
 function renderCriteriaForm() {
   const container = document.getElementById('manual-eval-criteria');
   if (!container) return;
 
   container.innerHTML = RUBRIC_CRITERIA.map((c) => {
+    if (c.type === 'checkbox') {
+      const checked = !!Number(evalInputs[c.id]);
+      return `
+        <div class="manual-eval-criterion manual-eval-criterion-check" data-criterion="${c.id}">
+          <label class="manual-eval-check-label">
+            <input type="checkbox" class="manual-eval-checkbox" data-id="${c.id}" ${checked ? 'checked' : ''}>
+            <span>${c.label} <span class="manual-eval-weight">(${(c.weight * 100).toFixed(0)}%)</span></span>
+          </label>
+          ${c.hint ? `<p class="manual-eval-hint">${c.hint}</p>` : ''}
+        </div>`;
+    }
+
     if (c.type === 'select') {
       const options = c.options
         .map(
@@ -70,6 +128,13 @@ function renderCriteriaForm() {
       updatePreview();
     });
   });
+
+  container.querySelectorAll('.manual-eval-checkbox').forEach((box) => {
+    box.addEventListener('change', (e) => {
+      evalInputs[e.target.getAttribute('data-id')] = e.target.checked ? 1 : 0;
+      updatePreview();
+    });
+  });
 }
 
 function updatePreview() {
@@ -77,6 +142,7 @@ function updatePreview() {
   const scoreEl = document.getElementById('manual-eval-preview-score');
   const verdictEl = document.getElementById('manual-eval-preview-verdict');
   const explEl = document.getElementById('manual-eval-preview-explanation');
+  const gatesEl = document.getElementById('manual-eval-gates-status');
 
   if (scoreEl) scoreEl.textContent = `${result.score}/100`;
   if (verdictEl) {
@@ -84,6 +150,24 @@ function updatePreview() {
     verdictEl.style.color = verdictColor(result.verdict);
   }
   if (explEl) explEl.textContent = result.explanation;
+
+  if (gatesEl) {
+    const g = result.winnerGates;
+    if (!g) {
+      gatesEl.innerHTML = '';
+      return;
+    }
+    const blockerHtml = g.blockers
+      .map((b) => `<li class="manual-eval-gate-blocker">${b.message}</li>`)
+      .join('');
+    const warnHtml = g.warnings
+      .map((w) => `<li class="manual-eval-gate-warn">${w.message}</li>`)
+      .join('');
+    const status = g.passed
+      ? `<p class="manual-eval-gate-ok">Gates Winner: OK (${g.pillarsHit}/3 pilares).</p>`
+      : `<p class="manual-eval-gate-fail">Gates Winner: bloquean “Lanzar” (${g.blockers.length}).</p>`;
+    gatesEl.innerHTML = `${status}<ul>${blockerHtml}${warnHtml}</ul>`;
+  }
 }
 
 function attachEvaluationToReport(report, evaluation, productName) {
@@ -152,12 +236,18 @@ export function openManualEvaluation(productName = '', existingReport = null) {
   evalInputs = getDefaultRubricInputs();
 
   if (existingReport?.manualEvaluation?.criteria) {
-    evalInputs = { ...evalInputs, ...existingReport.manualEvaluation.criteria };
+    evalInputs = {
+      ...evalInputs,
+      ...normalizeRubricInputs(existingReport.manualEvaluation.criteria),
+    };
   }
+
+  prefillGatesFromReport(existingReport || state.currentReport);
 
   const nameInput = document.getElementById('manual-eval-product-input');
   if (nameInput) nameInput.value = evalProductName;
 
+  renderGateFields();
   renderCriteriaForm();
   updatePreview();
 
@@ -228,7 +318,8 @@ export function renderManualEvalBadgeHtml(report) {
   const ev = report?.manualEvaluation;
   if (!ev) return '';
   const color = verdictColor(ev.verdict);
-  return `<span class="report-badge-status" style="margin-left:0.5rem; border-color:${color}; color:${color}">Evaluación manual: ${ev.verdict} (${ev.score}/100)</span>`;
+  const gateNote = ev.winnerGates && !ev.winnerGates.passed ? ' · gates' : '';
+  return `<span class="report-badge-status" style="margin-left:0.5rem; border-color:${color}; color:${color}">Evaluación manual: ${ev.verdict} (${ev.score}/100)${gateNote}</span>`;
 }
 
 export function getManualEvalSummaryMarkdown(report) {
@@ -237,6 +328,9 @@ export function getManualEvalSummaryMarkdown(report) {
   let md = `\n## Evaluación manual (sin IA)\n\n`;
   md += `- **Score:** ${ev.score}/100\n`;
   md += `- **Veredicto:** ${ev.verdict}\n`;
+  if (ev.winnerGates) {
+    md += `- **Gates Winner:** ${ev.winnerGates.passed ? 'OK' : 'Bloquean Lanzar'} (${ev.winnerGates.pillarsHit}/3 pilares)\n`;
+  }
   md += `- **Explicación:** ${ev.explanation}\n\n`;
   return md;
 }

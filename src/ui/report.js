@@ -15,11 +15,29 @@ import { openManualEvaluation } from './manualEvaluation.js';
 import { exportCampaignKit } from './export.js';
 import { setResearchMode, RESEARCH_MODE_COMPLETE } from '../config/researchMode.js';
 import { runMonteCarloSimulation } from '../research/montecarlo.js';
+import {
+  AUDISIO_DEFAULT_MC_CPC_USD,
+  AUDISIO_LAUNCH_BUDGET_BEGINNER_USD,
+  AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD,
+  AUDISIO_TEST_AD_BUDGET_USD,
+} from '../config/audisioRules.js';
 import { generateBundleStructure } from '../research/bundles.js';
 import { generateHTMLConversionBlocks } from '../research/htmlBlocks.js';
 import { generateWhatsAppSalesScripts } from '../research/whatsappScripts.js';
+import {
+  formatVslScriptCopy,
+  generateVslScripts,
+  getLaunchChecklistItems,
+  getProductionSpecs,
+  loadLaunchChecklistState,
+  saveLaunchChecklistState,
+} from '../research/vslAudisio.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { getCompareMax } from '../config/freeTier.js';
+import {
+  ensureAudisioPricingPanel,
+  refreshAudisioPricingPanel,
+} from './audisioPricingPanel.js';
 
 export function openDeepResearchReport(productOrReport) {
   if (typeof productOrReport === 'string') {
@@ -380,6 +398,7 @@ export function openDeepResearchReport(productOrReport) {
 
     // Trigger ad profitability recalculation
     recalculateAdsProfitability();
+    refreshAudisioPricingPanel();
 
     // Regenerate print layout in background
     renderPrintableReport();
@@ -396,6 +415,16 @@ export function openDeepResearchReport(productOrReport) {
 
   // Initialize both calculator values and chart
   recalculateAdsProfitability();
+
+  ensureAudisioPricingPanel(calcPanel, {
+    getCost: () => parseFloat(costInput.value) || 0,
+    getRetail: () => parseFloat(retailInput.value) || 0,
+    setRetail: (value) => {
+      retailInput.value = Number(value).toFixed(2);
+      if (aovInput) aovInput.value = Number(value).toFixed(2);
+      updateSnapshotCalculations();
+    },
+  });
 
   // Render Report Sections in tab contents & build printable container
   renderReportContent();
@@ -599,7 +628,11 @@ export function switchReportTab(sectionId) {
 export function renderReportContent() {
   const container = document.getElementById('report-content-container');
   const report = state.currentReport;
-  
+  const vslScripts = generateVslScripts(report);
+  const vslSpecs = getProductionSpecs();
+  const launchChecklist = getLaunchChecklistItems();
+  const checklistState = loadLaunchChecklistState(report?.name || 'general');
+
   container.innerHTML = `
     <!-- SECTION 1: DEMOGRAPHICS & PSYCHOGRAPHICS -->
     <section id="section-demographics" class="report-section">
@@ -1547,7 +1580,16 @@ export function renderReportContent() {
     <!-- SECTION 20: MONTE CARLO FINANCIAL SIMULATOR -->
     <section id="section-montecarlo-finance" class="report-section hidden">
       <h2>20. Simulador Financiero Probabilístico Montecarlo (1,000 Escenarios)</h2>
-      <p class="report-section-desc">Ejecuta 1,000 simulaciones estocásticas con variaciones de CPC y conversión para estimar la probabilidad real de rentabilidad (%) y proyectar 3 escenarios financieros antes de invertir.</p>
+      <p class="report-section-desc">Proyección orientativa (no predice Meta/Google). Anclado al <strong>presupuesto de testeo del método</strong>: $${AUDISIO_TEST_AD_BUDGET_USD} USD el primer mes / mes y medio; después el negocio debería autofinanciarse.</p>
+
+      <div class="mc-audisio-banner" id="mc-audisio-banner">
+        <p class="mc-audisio-banner-lead">Pool de test Audisio: <strong>$${AUDISIO_TEST_AD_BUDGET_USD} USD</strong></p>
+        <p class="mc-audisio-banner-sub">A $${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}/día ≈ ${Math.round(AUDISIO_TEST_AD_BUDGET_USD / AUDISIO_LAUNCH_BUDGET_BEGINNER_USD)} días · A $${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}/día ≈ ${Math.round(AUDISIO_TEST_AD_BUDGET_USD / AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD)} días. Tras el test: autofinanciar con margen, no seguir inyectando a ciegas.</p>
+        <div class="mc-preset-row">
+          <button type="button" class="btn btn-secondary btn-sm mc-budget-preset" data-mc-budget="${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}">$${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}/día principiante</button>
+          <button type="button" class="btn btn-secondary btn-sm mc-budget-preset" data-mc-budget="${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}">$${AUDISIO_LAUNCH_BUDGET_EXPERIENCED_USD}/día experimentado</button>
+        </div>
+      </div>
 
       <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
         <h4 style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--accent-cyan);">Parámetros de Entrada para la Simulación</h4>
@@ -1556,14 +1598,14 @@ export function renderReportContent() {
             <label>Presupuesto Ads ($/día)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-budget" value="50" min="5" step="5">
+              <input type="number" id="mc-budget" value="${AUDISIO_LAUNCH_BUDGET_BEGINNER_USD}" min="5" step="5">
             </div>
           </div>
           <div class="input-row">
             <label>CPC Esperado ($)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-cpc" value="0.80" min="0.05" step="0.05">
+              <input type="number" id="mc-cpc" value="${AUDISIO_DEFAULT_MC_CPC_USD}" min="0.05" step="0.05">
             </div>
           </div>
           <div class="input-row">
@@ -1589,6 +1631,8 @@ export function renderReportContent() {
           </div>
         </div>
       </div>
+
+      <div id="mc-test-plan-container" class="mc-test-plan"></div>
 
       <!-- Monte Carlo Results Grid -->
       <div id="mc-results-container">
@@ -1719,15 +1763,64 @@ export function renderReportContent() {
         `).join('')}
       </div>
     </section>
+
+    <!-- SECTION 24: VSL + LAUNCH CHECKLIST (AUDISIO) -->
+    <section id="section-vsl-launch" class="report-section hidden">
+      <h2>24. Kit VSL & Checklist de Lanzamiento (Audisio)</h2>
+      <p class="report-section-desc">${vslSpecs.disclaimer} Videos ${vslSpecs.duration}; estructura Hook (${vslSpecs.hookWindow}) → Body → CTA.</p>
+
+      <div class="vsl-specs-card">
+        <h3>Specs de producción</h3>
+        <ul>
+          <li><strong>CapCut:</strong> ${vslSpecs.capcut}</li>
+          <li><strong>Canva:</strong> ${vslSpecs.canva}</li>
+          <li><strong>Hook visual:</strong> ${vslSpecs.hookVisual}</li>
+          <li><strong>Locución:</strong> ${vslSpecs.voice}</li>
+        </ul>
+      </div>
+
+      <div class="vsl-scripts-list">
+        ${vslScripts.map((script) => `
+          <div class="prompt-card vsl-script-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; gap:0.75rem; flex-wrap:wrap;">
+              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">VSL — ${script.angle}</h4>
+              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(formatVslScriptCopy(script))}">
+                <i data-lucide="copy"></i> Copiar guion
+              </button>
+            </div>
+            <p class="vsl-meta">Duración ${script.durationHint} · Hook ${script.hookSec}</p>
+            <div class="vsl-block"><span class="vsl-block-label">HOOK</span><div class="prompt-code vsl-hook">${script.hook.replace(/</g, '&lt;')}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">BODY</span><div class="prompt-code">${script.body.replace(/</g, '&lt;')}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">CTA</span><div class="prompt-code">${script.cta.replace(/</g, '&lt;')}</div></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="vsl-checklist-card">
+        <h3>Checklist de lanzamiento</h3>
+        <p class="report-section-desc" style="margin-top:0">Marca lo que ya tienes listo. Se guarda en este navegador por producto.</p>
+        <ul class="vsl-checklist" id="vsl-launch-checklist">
+          ${launchChecklist.map((item) => `
+            <li>
+              <label class="vsl-check-label">
+                <input type="checkbox" class="vsl-check-input" data-check-id="${item.id}" ${checklistState[item.id] ? 'checked' : ''}>
+                <span>${item.label}</span>
+              </label>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    </section>
   `;
 
   // Bind Monte Carlo recalculations
   const updateMonteCarloUI = () => {
     const mcContainer = container.querySelector('#mc-results-container');
+    const planContainer = container.querySelector('#mc-test-plan-container');
     if (!mcContainer) return;
 
-    const budgetVal = container.querySelector('#mc-budget')?.value || 50;
-    const cpcVal = container.querySelector('#mc-cpc')?.value || 0.80;
+    const budgetVal = container.querySelector('#mc-budget')?.value || AUDISIO_LAUNCH_BUDGET_BEGINNER_USD;
+    const cpcVal = container.querySelector('#mc-cpc')?.value || AUDISIO_DEFAULT_MC_CPC_USD;
     const convVal = container.querySelector('#mc-conv')?.value || 2.5;
     const aovVal = container.querySelector('#mc-aov')?.value || (typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99);
     const costVal = container.querySelector('#mc-cost')?.value || (typeof report.cost === 'number' ? report.cost : parseFloat(report.cost) || 10.00);
@@ -1739,6 +1832,29 @@ export function renderReportContent() {
       aov: aovVal,
       cost: costVal
     });
+
+    const plan = res.testPlan;
+    if (planContainer && plan) {
+      const flagHtml = (plan.flags || [])
+        .map(
+          (f) =>
+            `<li class="mc-plan-flag mc-plan-flag-${f.level === 'error' ? 'error' : f.level === 'warn' ? 'warn' : 'info'}">${f.message}</li>`,
+        )
+        .join('');
+      planContainer.innerHTML = `
+        <div class="mc-test-plan-card">
+          <h4>Plan de testeo Audisio ($${plan.totalTestBudgetUsd})</h4>
+          <div class="mc-test-plan-metrics">
+            <div><span class="mc-metric-label">Runway</span><span class="mc-metric-val">${plan.daysRunway} días</span><span class="mc-metric-sub">${plan.weeksRunway} sem · ${plan.paceLabel}</span></div>
+            <div><span class="mc-metric-label">CPA proyectado</span><span class="mc-metric-val">$${plan.projectedCpaUsd}</span><span class="mc-metric-sub">CPC ÷ conversión</span></div>
+            <div><span class="mc-metric-label">Pedidos estimados</span><span class="mc-metric-val">${plan.estimatedOrdersFromTest}</span><span class="mc-metric-sub">con el pool de $${plan.totalTestBudgetUsd} (mín. aprendizaje ${plan.minLearningOrders})</span></div>
+          </div>
+          <p class="mc-test-plan-note">${plan.methodNote}</p>
+          <p class="mc-test-plan-note">${plan.autofinanceNote}</p>
+          ${flagHtml ? `<ul class="mc-plan-flags">${flagHtml}</ul>` : '<p class="mc-test-plan-ok">CPA y volumen de pedidos del test se ven razonables con estos inputs.</p>'}
+        </div>
+      `;
+    }
 
     mcContainer.innerHTML = `
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
@@ -1774,7 +1890,31 @@ export function renderReportContent() {
     if (inputEl) inputEl.addEventListener('input', updateMonteCarloUI);
   });
 
+  container.querySelectorAll('.mc-budget-preset').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const budgetInput = container.querySelector('#mc-budget');
+      const val = btn.getAttribute('data-mc-budget');
+      if (budgetInput && val) {
+        budgetInput.value = val;
+        updateMonteCarloUI();
+      }
+    });
+  });
+
   updateMonteCarloUI();
+
+  // Persist VSL launch checklist (local)
+  const checklistRoot = container.querySelector('#vsl-launch-checklist');
+  if (checklistRoot) {
+    const slug = report?.name || 'general';
+    checklistRoot.querySelectorAll('.vsl-check-input').forEach((input) => {
+      input.addEventListener('change', () => {
+        const next = loadLaunchChecklistState(slug);
+        next[input.getAttribute('data-check-id')] = !!input.checked;
+        saveLaunchChecklistState(slug, next);
+      });
+    });
+  }
 
   // Bind clipboard copies
   container.querySelectorAll('.btn-copy-clipboard').forEach(btn => {

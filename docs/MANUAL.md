@@ -1,7 +1,8 @@
 # Manual de usuario — DropDeep
 
-> **Versión del manual:** alineada con el código en `master`.  
-> **App en vivo:** [https://oscarkleinkopf.github.io/Dropdeep/](https://oscarkleinkopf.github.io/Dropdeep/)
+> **Versión del manual:** alineada con el código en `main`.  
+> **App en vivo:** [https://oscarkleinkopf.github.io/Dropdeep/](https://oscarkleinkopf.github.io/Dropdeep/)  
+> **Metodología Chile:** [§12 Audisio y Domingo](#12-metodología-audisio-y-domingo-chile)
 
 ---
 
@@ -13,7 +14,7 @@
 4. [Ruta gratis (sin API de pago)](#4-ruta-gratis-sin-api-de-pago)
    - [4.1 Packs por vertical en Prompt Hub](#41-packs-por-vertical-en-prompt-hub)
    - [4.2 Modo Copiloto paso a paso](#42-modo-copiloto-paso-a-paso)
-   - [4.3 Evaluación manual (10 criterios)](#43-evaluación-manual-10-criterios)
+   - [4.3 Evaluación manual + gates Winner (Audisio)](#43-evaluación-manual--gates-winner-audisio)
    - [4.4 Guardar en portafolio y exportar](#44-guardar-en-portafolio-y-exportar)
 5. [Ruta con API (Gemini)](#5-ruta-con-api-gemini)
    - [5.1 BYOK — tu propia clave](#51-byok--tu-propia-clave)
@@ -26,6 +27,7 @@
 9. [Cuenta, privacidad y datos](#9-cuenta-privacidad-y-datos)
 10. [Solución de problemas](#10-solución-de-problemas)
 11. [Glosario](#11-glosario)
+12. [Metodología Audisio y Domingo (Chile)](#12-metodología-audisio-y-domingo-chile)
 
 ---
 
@@ -42,6 +44,8 @@ El problema que resuelve: cuando ves un producto “viral” en TikTok o AliExpr
 
 **Filosofía del producto:** el camino gratuito debe ser **realmente útil**. No necesitas pagar ni registrarte para investigar con **Modo Copiloto**, **Evaluación manual** o **Prompt Hub**. La API de Gemini (BYOK o proxy) es un **acelerador opcional** que automatiza el mismo flujo.
 
+Para precios, gates Winner, auditoría de ads y lanzamiento en **Chile (CLP)**, DropDeep codifica el **[método Audisio y Domingo](#12-metodología-audisio-y-domingo-chile)** de forma **offline** (sin sync a Meta ni tipo de cambio en vivo).
+
 ---
 
 ## 2. Qué NO hace DropDeep
@@ -55,7 +59,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Tiene paywall ni Stripe | No hay planes de pago integrados en la app. |
 | Simula investigaciones | No hay datos falsos ni “modo demo” de reportes. Todo viene de tu chatbot, de Gemini en vivo, de tu portafolio o de caché local reciente. |
 | Gestiona tu tienda | No conecta con Shopify, Meta Ads ni proveedores de forma automática. |
-| Espía competidores sin IA | **Spy** (análisis de URL de tienda) requiere clave Gemini BYOK o proxy con sesión; sin API verás un mensaje claro, no datos inventados. |
+| Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro. La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
 | Sincroniza en la nube sin cuenta | El portafolio local funciona sin login; la nube (Supabase) es opcional. |
 
 ---
@@ -69,7 +73,7 @@ Sé honesto contigo mismo sobre estos límites:
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
-| **Spy** | Espionaje competitivo (URL de tienda + intereses Meta ocultos). |
+| **Spy** | Espionaje competitivo: URL de tienda (Gemini), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
 
 ### Buscador en Inicio
 
@@ -215,40 +219,49 @@ El copiloto guarda automáticamente tu progreso parcial en este navegador (hasta
 - **Cerrar** (punto rojo) pausa la sesión — usa **Retomar copiloto** para continuar.
 - **Cancelar sesión** o **Descartar progreso** elimina el borrador sin guardar informe incompleto.
 
-### 4.3 Evaluación manual (10 criterios)
+### 4.3 Evaluación manual + gates Winner (Audisio)
 
-La **Evaluación manual (sin IA)** es un checklist **100% offline** con puntuación determinística. Ideal para validar una idea antes de invertir tiempo en prompts o API.
+La **Evaluación manual (sin IA)** es un checklist **100% offline** con puntuación determinística, alineado al **método Audisio & Domingo**. Ideal para validar una idea antes de invertir en ads.
 
-**Cómo abrirla:** botón **Evaluación manual (sin IA)** en Inicio, o desde el panel **Primeros pasos**.
+**Cómo abrirla:** botón **Evaluación manual (sin IA)** en Inicio, panel **Primeros pasos**, o desde **Próxima decisión** en un informe.
 
-#### Los 10 criterios y sus pesos reales
+#### Gates Winner (bloquean “Lanzar”)
+
+Aunque el score sea ≥ 70, el veredicto **no puede ser Lanzar** si falla un gate:
+
+| Gate | Regla |
+|------|--------|
+| Pilares Winner | Cumplir **mínimo 1** de 3 (ideal 3): solución de problemas · conexión emocional · efecto WOW |
+| Tamaño/peso | Deslizador ≥ **50/100** (empaque ≤ caja de zapatos) |
+| Margen bruto USD | Si lo completas: debe ser **> 15 USD** (se puede autocompletar desde costo/retail del informe) |
+| CPA proyectado | Ideal **5–7 USD**; máx. **15 USD** (hasta **20 USD** solo si el ticket ≈ **100 USD**+) |
+
+Los avisos (CPA faltante, pilares parciales, etc.) no bloquean solos, pero aparecen en la explicación.
+
+#### Criterios ponderados (score 0–100)
 
 | # | Criterio | Peso |
 |---|----------|------|
-| 1 | Margen neto (costo vs precio de venta) | **15%** |
-| 2 | Problema que resuelve / factor wow | **12%** |
-| 3 | Tamaño y peso de envío | **10%** |
-| 4 | Saturación / competencia visible | **12%** |
-| 5 | Disponibilidad de proveedores | **10%** |
-| 6 | Estacionalidad | **8%** |
-| 7 | Riesgo de políticas de anuncios (Meta/TikTok) | **10%** |
-| 8 | Potencial de UGC / creativos | **8%** |
-| 9 | Ticket promedio y potencial AOV/upsell | **10%** |
-| 10 | Devoluciones / fragilidad del producto | **5%** |
+| 1 | Margen neto (deslizador) | **15%** |
+| 2–4 | Pilares Winner (checkboxes: solución / emoción / WOW) | **4%** c/u |
+| 5 | Tamaño y peso de envío | **10%** |
+| 6 | Saturación / competencia visible | **12%** |
+| 7 | Disponibilidad de proveedores | **10%** |
+| 8 | Estacionalidad / atemporalidad | **8%** |
+| 9 | Riesgo de políticas de anuncios | **10%** |
+| 10 | Potencial de UGC / creativos | **8%** |
+| 11 | Ticket promedio y potencial AOV/upsell | **10%** |
+| 12 | Calidad / devoluciones / fragilidad | **5%** |
 
-**Total:** 100%.
-
-Los criterios 1–4, 8–10 usan un **deslizador** de 0 a 100. Los criterios 5–7 usan **opciones predefinidas** con puntuación fija (ej. proveedores: “Varios proveedores confiables” = 100).
+**Total pesos:** 100%.
 
 #### Veredictos automáticos
 
-| Score | Veredicto |
-|-------|-----------|
-| ≥ 70 | **Lanzar** |
-| 45–69 | **Validar más** |
-| < 45 | **Descartar** |
-
-La explicación incluye fortalezas, puntos débiles y alertas (margen bajo, riesgo en ads, sin proveedor).
+| Score | Veredicto base | Nota |
+|-------|----------------|------|
+| ≥ 70 | **Lanzar** | Solo si **todos** los gates duros pasan |
+| 45–69 | **Validar más** | También se usa si score ≥ 70 pero un gate falla |
+| < 45 | **Descartar** | — |
 
 **Guardar:** **Guardar en portafolio** o **Guardar y ver reporte**.
 
@@ -396,6 +409,22 @@ Flujo recomendado para principiantes:
 
 Métricas editables: **Costo Proveedor**, **Precio Retail**, **Margen Neto**, **ROI Est.**, **Envío Promedio**, **Saturación**, **Tendencia**.
 
+### Panel Precios Audisio (Chile / CLP)
+
+Bajo la calculadora de ads aparece **Precios Audisio**: reglas offline del **método Audisio & Domingo** (no son cotizaciones ni datos de Meta en vivo).
+
+| Control / dato | Qué hace |
+|----------------|----------|
+| **CLP por 1 USD** | Tipo de cambio **editable** (se guarda en tu navegador). Por defecto 950 — ajústalo a tu realidad. |
+| **PVP sugerido (costo × 2.5)** | Si el costo es 10 USD, sugiere ~25 USD. Botón **Aplicar PVP sugerido al retail**. |
+| **Tu PVP en CLP** | Equivalente del retail actual. Alerta roja si estás bajo el **piso 20.000 CLP**. |
+| **Banda recomendada** | 40.000–100.000 CLP. |
+| **Margen bruto (USD)** | Retail − costo. El método pide **más de 15 USD** por unidad. |
+| **Contribución %** | (Retail − costo) / retail. Objetivo orientativo ~**35%** (aproxima el margen neto del método; no incluye IVA Chile, pasarela ni ads). |
+| **Budget test ads** | Referencia **300 USD** el primer mes / mes y medio; después autofinanciar. |
+
+Si el margen va corto, verás una pista de **oferta/regalo** de alto valor percibido sin bajar el PVP bajo el piso CLP.
+
 Al cambiar costo/precio se recalcula margen, ROI y **Product Score**.
 
 ### Product Score (informe)
@@ -432,7 +461,7 @@ Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
 
 En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
 
-### Secciones del sidebar (23 pestañas)
+### Secciones del sidebar (24 pestañas)
 
 | # | Sección | Para qué sirve | Decisión que ayuda |
 |---|---------|----------------|-------------------|
@@ -455,16 +484,41 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 17 | Customer Journey Map | Etapas del comprador | Retargeting y secuencias |
 | 18 | Prompts para Mockups | Imágenes de producto | Creativos visuales |
 | 19 | Prompts para Chatbot | Secuencia enriquecida | Iterar con IA externa |
-| 20 | Simulador Montecarlo | Escenarios P10/P50/P90 de beneficio diario (inputs editables: presupuesto, CPC, conversión, AOV, coste) | ¿Cuánto riesgo asumes antes de gastar en ads? |
+| 20 | Simulador Montecarlo | Escenarios P10/P50/P90 + plan de test Audisio ($300, ritmo $10–20/día, aviso CPA/aprendizaje) | ¿Cuánto riesgo asumes antes de gastar en ads? |
 | 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
 | 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
 | 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
+| 24 | VSL & Lanzamiento Audisio | 3 guiones Hook→Body→CTA + specs CapCut/Canva/ElevenLabs + checklist de lanzamiento | ¿Tienes creativos y presupuesto listos antes de gastar? |
 
-**Simulador Montecarlo:** es una proyección **orientativa** con 1000 ensayos y variación aleatoria sobre tus inputs; no predice resultados reales de Meta/Google Ads.
+**Simulador Montecarlo:** proyección **orientativa** con 1000 ensayos; no predice resultados reales de Meta/Google Ads. Defaults del método: presupuesto **$10/día** (o preset **$20**), CPC ~$0.15 (banda Chile), pool de test **$300 USD** el primer mes / mes y medio y luego **autofinanciar**. Si el CPA proyectado (CPC ÷ conversión) deja pocos pedidos en esos $300, verás un aviso de riesgo de quemar el budget sin aprendizaje.
+
+### Kit VSL & checklist de lanzamiento (sección 24)
+
+Plantillas **offline** del método Audisio & Domingo (no predicen CTR ni ventas):
+
+| Bloque | Qué incluye |
+|--------|-------------|
+| Specs | Videos 20–60 s; hook 3–7 s; CapCut Montserrat 13; Canva Poppins; hook visual MAYÚSCULAS negro/blanco; locución ~1.15× |
+| Guiones | 3 ángulos (dolor, testimonio, oferta) con botones de copiar; se rellenan con dolor/beneficio del informe si existen |
+| Checklist | Mín. 5 videos, 5–10 imágenes, calentamiento 1–2 días a $5/día, lanzamiento principiante $10/día ≥ 4 días (o $20 si ya tienes experiencia), sin audiencia manual | 
+
+El estado de la checklist se guarda en `localStorage` por nombre de producto. El **kit de campaña** (export `.md`) incluye esta sección.
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
 **Gráfico de tendencia (sección 03):** muestra una curva **offline** derivada del campo *Tendencia* del informe (ej. `+120%`). **No son datos verificados de Google Trends.** Si falta el dato, verás *Sin datos de tendencia verificados para mostrar el gráfico.*
+
+### Auditoría Meta Ads Chile (pestaña Spy)
+
+En **Spy → Auditoría Meta Ads (Chile)** pegas métricas de tu Ads Manager. DropDeep **no** se conecta a Meta.
+
+| Entrada | Uso |
+|---------|-----|
+| PVP y costo producto (CLP) | Calcula **CPA máximo** = margen final tras IVA AliExpress 19%, pasarela, Shopify e IVA venta (editables en “avanzado”) |
+| CPA campaña | Si supera el CPA máx → alerta *estás perdiendo plata* |
+| CTR / CPC / ATC / CPM | Semáforo con umbrales Audisio Chile (CTR mín. 2%; CPC ideal 100–200 CLP; ATC 1k–3k o 1/5–1/3 del CPA máx; CPM típico 3k–6k, 10k–15k OK en nicho competitivo) |
+
+Botón **Prefill desde informe abierto** convierte retail/costo USD del informe a CLP con el FX guardado en Precios Audisio.
 
 ## 8. Comparar productos y decidir cuál lanzar primero
 
@@ -590,6 +644,15 @@ Mensajes **reales** de la app y qué hacer:
 |---------|-------|-----------|
 | *Portafolio limitado a 10 productos. Exporta JSON o elimina uno.* | Cap alcanzado | **Exportar Portafolio** y elimina entradas viejas |
 
+### Precios Audisio / Meta Ads Chile
+
+| Situación | Causa | Qué hacer |
+|-----------|-------|-----------|
+| CLP “raro” vs tu banco | FX por defecto (950) **no** es feed en vivo | Edita **CLP por 1 USD** en Precios Audisio; se guarda en el navegador |
+| Auditoría pide PVP/costo y no trae datos de Meta | **No hay sync Meta** | Pega métricas desde Ads Manager o usa **Prefill desde informe** |
+| Score alto pero veredicto **Validar más** | Falló un **gate Winner** | Revisa pilares / tamaño / margen &gt; \$15 / CPA en el modal de evaluación manual |
+| Montecarlo avisa pocos pedidos con \$300 | CPA proyectado (CPC ÷ conv.) alto | Baja CPC asumido, sube conversión, o no gastes el pool hasta mejorar oferta |
+
 ---
 
 ## 11. Glosario
@@ -610,9 +673,84 @@ Mensajes **reales** de la app y qué hacer:
 | **Modo Express** | Copiloto en 1 pegado (investigación + copys); default sin API. |
 | **Deep Research** | Investigación automática vía API Gemini (BYOK o proxy). |
 | **Investigación (cuota proxy)** | Una ejecución Completo o Rápido vía proxy = 1 unidad diaria (varios pasos Gemini internos). |
-| **Kit de campaña** | Export `.md` con resumen listo para lanzar ads y emails. |
+| **Kit de campaña** | Export `.md` con resumen listo para lanzar ads, emails y kit VSL/checklist Audisio. |
 | **Verbatim** | Frase textual de un comprador real (foros, reseñas). |
 | **Dropshipping** | Vender sin stock propio; el proveedor envía al cliente final. |
+| **Método Audisio & Domingo** | Reglas de negocio DropDeep para Chile (×2.5, banda CLP, margen, test \$300, Winner, auditoría Meta, VSL). Offline — ver [§12](#12-metodología-audisio-y-domingo-chile). |
+| **VSL** | *Video Sales Letter* corto (20–60 s) con Hook → Body → CTA; plantillas en sección 24 del informe. |
+| **PVP** | Precio de venta al público (retail en el snapshot). |
+| **FX (CLP/USD)** | Tipo de cambio editable en el panel Audisio; no es feed en vivo. |
+| **CPA máximo** | Margen final por venta tras costo+IVA, pasarela, Shopify e IVA venta — techo del CPA de campaña (auditor Spy). |
+| **ATC** | Costo por Add to Cart en Meta Ads (CLP). |
+| **Gates Winner** | Condiciones que bloquean el veredicto **Lanzar** en evaluación manual: ≥1 pilar Winner, empaque ≤ caja de zapatos, margen bruto &gt; \$15, CPA proyectado en banda de test. |
+| **CPA proyectado (Montecarlo)** | Estimación offline ≈ CPC ÷ (conversión %). No es el CPA de Ads Manager. |
+
+---
+
+## 12. Metodología Audisio y Domingo (Chile)
+
+DropDeep incorpora reglas de negocio del **método Audisio y Domingo** orientadas a dropshipping en **Chile (precios y umbrales en CLP / USD)**. Sirven para decidir precio, validar un “winner”, auditar métricas de Meta que **tú pegas**, planificar un test de ads de **\$300** y preparar creativos VSL — no para predecir ventas.
+
+### Disclaimers (léelos antes de confiar en un número)
+
+| Qué sí | Qué no |
+|--------|-------|
+| Cálculos **offline** en tu navegador con las constantes del método | Cotizaciones bancarias, FX en vivo ni scrapers |
+| FX **editable** (CLP por 1 USD) guardado en `localStorage` | Feed oficial de tipo de cambio |
+| Auditoría Meta con métricas que **pegas** desde Ads Manager | Conexión a **Meta Ads API**, sync de campañas ni datos inventados |
+| Umbrales Chile (CTR, CPC, ATC, CPM, CPA máx.) como **referencia** | Garantía de resultados en tu cuenta publicitaria |
+| Montecarlo / VSL / checklist como **plantillas orientativas** | Predicción de CTR, ROAS o learning phase de Meta |
+
+Si operas fuera de Chile, usa el FX editable y trata las bandas CLP como punto de partida, no como ley local.
+
+### Dónde aparece en la app
+
+| Pieza del método | Dónde |
+|------------------|-------|
+| Precios (×2.5, piso/banda CLP, margen &gt; \$15, ~35%, test \$300) | Informe → panel **Precios Audisio** (bajo la calculadora) |
+| Gates Winner + rúbrica | **Evaluación manual (sin IA)** — ver [§4.3](#43-evaluación-manual--gates-winner-audisio) |
+| CPA máximo + semáforo CTR/CPC/ATC/CPM | **Spy → Auditoría Meta Ads (Chile)** |
+| Pool \$300, ritmo \$10–\$20/día, autofinanciar | Informe → sección **20 Montecarlo** |
+| Guiones VSL + checklist de lanzamiento | Informe → sección **24** |
+
+### Reglas de precio (resumen)
+
+| Regla | Valor de referencia |
+|-------|---------------------|
+| Multiplicador costo → PVP | × **2.5** |
+| Piso de venta en tienda | **20.000 CLP** |
+| Banda recomendada de PVP | **40.000–100.000 CLP** |
+| Margen bruto mínimo | **&gt; 15 USD** por unidad |
+| Contribución orientativa | ~**35%** (retail − costo) / retail — sin IVA/pasarela/ads |
+| Presupuesto de test ads | **300 USD** el primer mes / mes y medio → luego **autofinanciar** |
+| Ritmo diario típico | **\$10/día** principiante · **\$20/día** si ya tienes experiencia |
+
+Detalle de controles en el informe: [Panel Precios Audisio](#panel-precios-audisio-chile--clp).
+
+### Cuándo usar la Auditoría Meta Ads (Chile)
+
+Úsala **después** de tener una campaña real (o al menos gastos y métricas en Ads Manager):
+
+1. Abre **Spy → Auditoría Meta Ads (Chile)**.
+2. Pega **PVP y costo en CLP** (o **Prefill desde informe abierto**, que usa el FX guardado en Precios Audisio).
+3. Revisa el **CPA máximo**: si el CPA de campaña lo supera, el método interpreta que **estás perdiendo plata** por venta pagada.
+4. Completa CTR / CPC / ATC / CPM para el semáforo (umbrales Chile: CTR mín. ~2%; CPC ideal 100–200 CLP; etc.).
+
+No hace falta API key de Meta. Sin métricas reales, el panel no inventa resultados — solo calcula con lo que ingresas.
+
+Detalle: [Auditoría Meta Ads Chile](#auditoría-meta-ads-chile-pestaña-spy).
+
+### Winner gates (decisión Lanzar)
+
+En evaluación manual, aunque el score sea ≥ 70, **no** obtienes **Lanzar** si falla un gate (pilares, tamaño/envío, margen bruto o CPA proyectado). Completa los campos de margen/CPA/ticket del modal para ver el estado de cada gate.
+
+### Orden práctico sugerido
+
+1. Ajusta costo/retail + FX en **Precios Audisio**.
+2. Corre **Evaluación manual** (gates Winner).
+3. Simula el test de **\$300** en **Montecarlo** (sección 20).
+4. Prepara creativos con **VSL & Lanzamiento** (sección 24).
+5. Cuando tengas métricas reales → **Auditoría Meta Ads** en Spy.
 
 ---
 

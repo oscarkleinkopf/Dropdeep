@@ -43,4 +43,4 @@ Actualiza `docs/MANUAL.md` y añade entrada en `CHANGELOG.md` si cambias cualqui
 | `CHANGELOG.md` | Historial user-visible, newest first, commits con hash |
 | `README.md` | Setup técnico; enlace a manual y changelog |
 
-Manual público: `https://github.com/oscarkleinkopf/Dropdeep/blob/master/docs/MANUAL.md`
+Manual público: `https://github.com/oscarkleinkopf/Dropdeep/blob/main/docs/MANUAL.md#12-metodología-audisio-y-domingo-chile`

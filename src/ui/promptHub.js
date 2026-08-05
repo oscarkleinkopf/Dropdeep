@@ -101,11 +101,12 @@ Basándote en el producto "${name}" y el avatar psicográfico, diseña la Estrat
   const step4 = `[FASE 4: CREATIVOS PUBLICITARIOS - GUIONES UGC & AD COPY]
 Genera los Activos de Publicidad de Conversión para "${name}":${insights}
 
-1. 3 GUIONES DE VIDEO UGC PARA TIKTOK / REELS / SHORTS:
+1. 3 GUIONES DE VIDEO UGC / VSL CORTOS PARA TIKTOK / REELS / SHORTS (método Audisio: 20–60 s, hook 3–7 s):
    - Guion 1 (30s): Gancho de Curiosidad / Patrón Interrumpido.
    - Guion 2 (45s): Historia Empática de Dolor a Transformación.
    - Guion 3 (60s): Explicación Científica del Mecanismo Único.
-   (Para cada guion incluye: Marca de tiempo, Dirección Visual de Cámara, Locución de Voz en Off y Texto en Pantalla).
+   (Para cada guion incluye: Marca de tiempo, Dirección Visual de Cámara, Locución de Voz en Off ~1.15x y Texto en Pantalla MAYÚSCULAS negro/blanco estilo CapCut Montserrat.)
+   NOTA: En DropDeep, la pestaña «24. VSL & Lanzamiento Audisio» del informe tiene plantillas offline + checklist (5 videos, calentamiento, presupuestos).
 
 2. 3 VARIANTES DE META ADS (Facebook & Instagram):
    - Variante 1: Gancho Emocional
