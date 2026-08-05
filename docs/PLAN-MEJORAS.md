@@ -63,7 +63,7 @@ Commits recientes en `main` (ago 2026 — oleada cierre plan):
 | `#23` T08 | E2E Playwright copiloto |
 | `#22` T20 | Rate limit / abuse proxy |
 
-**Producción Supabase:** migraciones **001–004** aplicadas históricamente; **`005_proxy_abuse.sql` + redeploy `gemini-proxy`** pendientes de confirmar en el proyecto live (código cliente/Edge listos en repo). Secretos `GEMINI_API_KEY` + `GEMINI_PROXY_DAILY_LIMIT`; `VITE_GEMINI_PROXY=true` en GitHub Pages.
+**Producción Supabase:** migraciones **001–004** aplicadas históricamente. **Ops T20:** script `scripts/deploy-t20-proxy.sh` + workflow `deploy-supabase-proxy.yml` listos; **pendiente** `SUPABASE_ACCESS_TOKEN` para aplicar `005` + redeploy `gemini-proxy` en `texzlizelxavrybkdjdj`. Secretos `GEMINI_API_KEY` + `GEMINI_PROXY_DAILY_LIMIT`; `VITE_GEMINI_PROXY=true` en GitHub Pages.
 
 ---
 
@@ -1713,7 +1713,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 | Prioridad | Acción | Por qué |
 |-----------|--------|---------|
-| 1 | **Ops T20 en prod** | Aplicar `005_proxy_abuse.sql` + `supabase functions deploy gemini-proxy` |
+| 1 | **Ops T20 en prod** | `bash scripts/deploy-t20-proxy.sh` (requiere `SUPABASE_ACCESS_TOKEN`) o workflow `Deploy Supabase proxy (T20)` |
 | 2 | **Dogfooding founder** | 3–5 productos reales: Express → eval → auditor → VSL → feedback T35 |
 | 3 | **Abrir T45+** | Solo si el dogfooding confirma fricción (CTAs densos, Express vs API, etc.) |
 | — | Backlog diferido §7 | Spy B, sync CRDT, imagen in-app — no priorizar aún |
