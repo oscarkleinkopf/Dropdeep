@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Deploy Pages desde `main`:** el workflow ya no dispara solo en `master` (estaba ~55 commits atrás); dogfooding debe usar el sitio tras el redeploy.
 - **Ops T20 en prod:** migración `005` + redeploy `gemini-proxy` aplicados ([Actions](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319)); PLAN actualizado — siguiente ciclo = dogfooding.
 - **Ops T20 (herramientas):** script `scripts/deploy-t20-proxy.sh` + workflow GitHub `Deploy Supabase proxy (T20)`.
 - **Plan de mejoras (higiene):** T01–T44 marcados cerrados; §4/§6/§9.5 actualizados.

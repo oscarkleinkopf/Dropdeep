@@ -40,7 +40,7 @@ npm run preview
 
 ## GitHub Pages
 
-The site deploys automatically from the `master` branch via GitHub Actions to:
+The site deploys automatically from the `main` branch via GitHub Actions to:
 
 **https://oscarkleinkopf.github.io/Dropdeep/**
 
@@ -56,7 +56,7 @@ Add GitHub repository secrets (**Settings → Secrets and variables → Actions*
 | `VITE_SUPABASE_ANON_KEY` | **publishable** / anon key (never the secret/service_role) |
 | `VITE_GEMINI_PROXY` | `true` only after deploying the Edge Function (optional) |
 
-Then push to `master` (or re-run the workflow) so the build embeds those values.
+Then push to `main` (or re-run the **Deploy to GitHub Pages** workflow) so the build embeds those values.
 
 If Supabase secrets are unset, the site still deploys in **demo mode** (local-only, no accounts).
 

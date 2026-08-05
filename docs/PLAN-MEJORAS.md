@@ -2,7 +2,7 @@
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
 >
-> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅ (migración `005` + `gemini-proxy`, [run Actions](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319)). Siguiente ciclo = **dogfooding founder** → abrir **T45+** solo con fricción real.
+> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅. Deploy Pages alineado a **`main`**. Siguiente ciclo = **dogfooding founder** → **T45+** solo con fricción real.
 >
 > **Última higiene plan ↔ repo:** 2026-08-05 — cierre de auditoría Antigravity; polish P2 (T17/T22–T24/T28) y E2E/proxy (T08/T20) en `main`.
 >
@@ -1308,7 +1308,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 **Archivos**
 
 - `index.html` — footer o menú usuario
-- URL: `https://github.com/oscarkleinkopf/Dropdeep/blob/master/docs/MANUAL.md`
+- URL: `https://github.com/oscarkleinkopf/Dropdeep/blob/main/docs/MANUAL.md`
 
 **Pasos**
 
