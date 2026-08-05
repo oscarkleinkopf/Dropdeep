@@ -1,6 +1,8 @@
 # Plan de mejoras DropDeep
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
+>
+> **Última auditoría de código:** 2026-08-05 — contraste plan ↔ repo tras import desde Antigravity (`silly-meitner`). Varias tareas quedaron **a medias** (posible corte por límite de tokens). Leyenda de estado: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado.
 
 ---
 
@@ -9,10 +11,11 @@
 1. [Contexto del producto y reglas fijas](#1-contexto-del-producto-y-reglas-fijas)
 2. [Evaluación end-to-end (2026-07-29)](#2-evaluación-end-to-end-2026-07-29)
 3. [Estado actual (qué ya existe)](#3-estado-actual-qué-ya-existe)
-4. [Tareas numeradas (T01–T37)](#4-tareas-numeradas-t01t37)
-5. [Orden sugerido de ejecución](#5-orden-sugerido-de-ejecución)
-6. [Backlog diferido](#6-backlog-diferido)
-7. [Índice rápido de tareas](#7-índice-rápido-de-tareas)
+4. [Auditoría 2026-08-05 — ¿qué quedó a medias?](#4-auditoría-2026-08-05--qué-quedó-a-medias)
+5. [Tareas numeradas (T01–T37)](#5-tareas-numeradas-t01t37)
+6. [Orden sugerido de ejecución](#6-orden-sugerido-de-ejecución)
+7. [Backlog diferido](#7-backlog-diferido)
+8. [Índice rápido de tareas](#8-índice-rápido-de-tareas)
 
 ---
 
@@ -71,36 +74,39 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | Seguridad base | RLS en `001_profiles.sql`, `002_research_reports.sql`, `003_gemini_usage.sql`; export `stripSensitiveFields` en `export.js` |
 | PWA staleness mitigado | `public/sw.js` v6 — network-first para HTML y `/assets/` hasheados |
 
-### Top 5 debilidades (con evidencia)
+### Top 5 debilidades (histórico 2026-07-29)
 
-| # | Debilidad | Archivos | Impacto |
-|---|-----------|----------|---------|
-| 1 | **BYOK ignorada si hay sesión + proxy** — usuario con clave guardada sigue consumiendo cuota proxy | `flow.js:54-56`, `gemini.js:377`, `spy.js:174-190` | Founder dogfooding con BYOK pierde control y cuota |
-| 2 | **Gráfico “Google Trends” simulado con `Math.random()`** — copy afirma datos reales | `charts.js:13-16`, `report.js:545-548` | Fuga de confianza en informe copiloto/API |
-| 3 | **Sin bloque “próxima decisión”** — comparador ignora eval manual para ganador (`Product Score` only) | `report.js` (T09 resuelto; comparador T10 pendiente) | Principiante no sabe lanzar/validar/descartar |
-| 4 | **Sesión copiloto volátil** — cerrar modal = perder progreso | `copilotFlow.js` (T05 resuelto) | Fricción alta en flujo gratis multi-paso |
-| 5 | **Sin tests ni CI** — solo deploy Pages | `package.json` (sin `test`), `.github/workflows/deploy-pages.yml` | Regresiones silenciosas en parse/rubric |
+> **Nota 2026-08-05:** los puntos 1–4 ya están resueltos (T33, T34, T09+T10, T05). El #5 sigue vigente. Ver [§4 Auditoría](#4-auditoría-2026-08-05--qué-quedó-a-medias) para el top actual.
 
-### Otras observaciones
+| # | Debilidad | Estado hoy |
+|---|-----------|------------|
+| 1 | BYOK ignorada si hay sesión + proxy | ✅ Resuelto T33 |
+| 2 | Gráfico Trends simulado con `Math.random()` | ✅ Resuelto T34 |
+| 3 | Sin “próxima decisión” / comparador sin eval manual | ✅ Resuelto T09 + T10 |
+| 4 | Sesión copiloto volátil | ✅ Resuelto T05 |
+| 5 | Sin tests ni CI | ⬜ Sigue abierto (T25 + T36) |
 
-- **Cuota proxy UI parcial:** hint `Proxy: N/M` solo tras usar proxy (`geminiProxy.js` + `researchMode.js`); no visible al login ni en menú usuario (T16 incompleto).
-- **Spy inferido como verificado:** pixel/GA mostrados Sí/No definitivos (`spy.js:96-98`); disclaimer solo en empty state, no en resultados.
-- **Sync remoto unidireccional:** `historySync.js` upsert al completar; `portfolio.js:308-324` borra solo localStorage.
-- **Caché sin fuente/modo:** `cache.js:1-3` — misma clave para copiloto vs API.
-- **Código muerto:** `src/data.js` exporta `generateCompetitorStoreAnalysis` inexistente en `data/index.js`; `reportGenerator.js` ya eliminado.
-- **CI Node:** workflow ya usa Node **22** (`deploy-pages.yml:28`); falta job **test** separado (T26).
+### Otras observaciones (actualizado 2026-08-05)
+
+- ~~**Cuota proxy UI parcial**~~ — ✅ T16: badge en menú usuario + fetch al login.
+- **Spy inferido como verificado:** ⬜ T11 — pixel/GA siguen Sí/No definitivos; sin badge “Inferido por IA”.
+- **Sync remoto unidireccional:** 🟡 T19 — upsert sí; borrar local **no** borra en Supabase.
+- **Caché sin fuente/modo:** ⬜ T28 — `getCacheKey(query, language)` solo.
+- **Código muerto:** 🟡 T30 — `reportGenerator.js` eliminado; shim `src/data.js` aún exporta `generateCompetitorStoreAnalysis` inexistente.
+- **CI Node:** ✅ T37 pins OK; ⬜ falta job **test** (T25/T36).
+- **Bundles a medias:** `generateBundleStructure` importado en `report.js` pero **nunca llamado** — UI de sección 21 hardcodeada (corte típico mid-task).
 
 ### Coherencia producto (ruta gratis → decisión)
 
 | Paso | ¿Entrega valor? | Nota |
 |------|-----------------|------|
-| Wizard / onboarding | Sí | Empuja pack → copiloto; onboarding alineado (`onboarding.js`) |
+| Wizard / onboarding | Sí (con fricción) | 🟡 T13/T14 — wizard/CTA no cierran del todo el camino gratis |
 | Copiloto Express | Sí | 1 pegado → Product Score + copys |
 | Eval manual | Sí | Veredicto explícito offline |
-| Reporte → guardar | Sí | Portafolio local + sync opcional |
-| Reporte → decidir | **Parcial** | Score sí; falta CTA decisión integrada (T09) |
-| Comparar | **Parcial** | Muestra eval manual pero ganador = Product Score |
-| Export / kit | Sí | CSV/MD/JSON + sanitización |
+| Reporte → guardar | Sí | Portafolio local + sync opcional (borrado remoto pendiente T19) |
+| Reporte → decidir | Sí | ✅ T09 panel Próxima decisión |
+| Comparar | Sí | ✅ T10 pondera eval manual cuando todos la tienen |
+| Export / kit | Sí | CSV/MD/JSON + Shopify/Woo + ops 20–23 |
 
 ### UX walk-through (fricciones)
 
@@ -178,20 +184,73 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 - `.github/workflows/deploy-pages.yml` — Node 22, `npm ci`, `npm run build`, secrets Supabase/proxy
 - **Sin tests** en el repo (`package.json` solo `dev`, `build`, `preview`, `icons`)
 
-### Deuda / inconsistencias observadas (post-sprint jul 2026)
+### Deuda / inconsistencias observadas (auditoría 2026-08-05)
 
-1. ~~**BYOK pierde frente a proxy con sesión**~~ — resuelto T33 (`geminiRoute.js`).
-2. ~~**Gráfico tendencia simulado**~~ — resuelto T34 (`charts.js` + copy `report.js`).
-3. **Sesión copiloto volátil** — resuelto T05 (`copilotFlow.js` + `copilotPanel.js` + banner Inicio).
-4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
-5. **`src/data.js` shim roto** — export `generateCompetitorStoreAnalysis` no existe en `data/index.js` (T30).
-6. **Sin tests E2E/unit** — paste-back crítico sin regresión automática (T08, T25, T26).
-7. **Comparador no pondera eval manual** en fila “Cuál lanzar primero” (T10).
-8. **Caché no distingue fuente/modo** — `getCacheKey(query, language)` solo (T28).
+1. ~~**BYOK pierde frente a proxy con sesión**~~ — ✅ T33.
+2. ~~**Gráfico tendencia simulado**~~ — ✅ T34.
+3. ~~**Sesión copiloto volátil**~~ — ✅ T05.
+4. ~~**Comparador sin eval manual**~~ — ✅ T10.
+5. **Spy sin verificación** — ⬜ T11-A: sin badge “Inferido por IA”; pixel/GA como booleanos.
+6. **`src/data.js` shim roto** — 🟡 T30: export fantasma `generateCompetitorStoreAnalysis`.
+7. **Sin tests E2E/unit ni CI de test** — ⬜ T08, T25, T36.
+8. **Caché no distingue fuente/modo** — ⬜ T28.
+9. **Bundles half-wired** — `src/research/bundles.js` importado, helper no usado (residuo post-ops 20–23).
+10. **Sync delete solo local** — 🟡 T19.
+11. **Validación JSON copiloto incompleta** — 🟡 T06/T07 (campo sí; ejemplos/pasos completados no).
 
 ---
 
-## 4. Tareas numeradas (T01–T37)
+## 4. Auditoría 2026-08-05 — ¿qué quedó a medias?
+
+> Contraste del plan frente al código en `main` (`d5c6f46` + working tree). Motivo probable de cortes: sesiones Antigravity agotando tokens a mitad de tarea.
+
+### Resumen cuantitativo
+
+| Estado | Cantidad | IDs |
+|--------|----------|-----|
+| ✅ Hecho | 17 | T01–T05, T09–T10, T12, T15, T16, T27, T32–T34, T37 |
+| 🟡 Parcial | 11 | T06, T07, T13, T14, T18, T19, T21, T24, T29, T30, T31 |
+| ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
+| Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
+
+### Cortes mid-task (alta confianza de “se quedó a medias”)
+
+| Ítem | Qué hay | Qué falta |
+|------|---------|-----------|
+| **Bundles (ops §21)** | `bundles.js` + `import` en `report.js` + tab en `index.html` | Llamar `generateBundleStructure(report)`; hoy la sección 21 está hardcodeada inline |
+| **T06** | Errores por campo en `validateStepPayload` | Tips de `SyntaxError` (markdown/truncado) + “Ver ejemplo de JSON” en UI |
+| **T07** | Catch no avanza índice; botón Reintentar | UI “Ver pasos completados” / “Paso anterior” |
+| **T14** | `_isDraft` + badge en **feed** | Badge “Borrador” en **portafolio**; CTAs wizard (pack debería ser primario) |
+| **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
+| **T19** | Upsert + merge al login | `delete` remoto al borrar local |
+| **T30** | `reportGenerator.js` ya no existe | Arreglar o eliminar shim `src/data.js` |
+| **T31** | `#meta-interests-disclaimer` en HTML | Empieza `.hidden`; solo se muestra tras búsqueda |
+
+### Hecho y verificado en código (no solo en changelog)
+
+| ID | Evidencia clave |
+|----|-----------------|
+| T01–T04, T12, T27 | `gemini.js` + `reportParse` / `reportFallbacks` / `ALL_IN_ONE` / A/B determinista |
+| T05 | `dropdeep_copilot_session` en `copilotFlow.js` + banner retomar |
+| T09–T10 | `getNextDecision` / `pickCompareWinner` en `scoring.js` |
+| T15 | CTAs vacíos en feed, portafolio, spy |
+| T16 | Badge proxy en `userMenu.js` + `geminiProxy.js` |
+| T32–T34 | Ayuda HTML; `geminiRoute.js`; `buildTrendSeries` sin random |
+| T37 | `checkout@v5`, `setup-node@v5`, Node 22 en `deploy-pages.yml` |
+
+### Features recientes (fuera de T01–T37) — cableado
+
+| Feature | Estado |
+|---------|--------|
+| CSV Shopify / WooCommerce | ✅ Cableado (`export.js`, `events.js`, `index.html`) |
+| Montecarlo (§20) | ✅ UI + listeners en `report.js` |
+| HTML blocks (§22) | ✅ Usa `htmlBlocks.js` |
+| WhatsApp scripts (§23) | ✅ Usa `whatsappScripts.js` |
+| Bundles (§21) | 🟡 **A medias** — ver tabla mid-task |
+
+---
+
+## 5. Tareas numeradas (T01–T37)
 
 ---
 
@@ -413,6 +472,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T06 — Validación JSON pegado: feedback accionable
 
+> **Estado (2026-08-05):** 🟡 Parcial — `validateStepPayload` ya cita campos; faltan tips de `SyntaxError` en `json.js` y UI “Ver ejemplo de JSON”.
+
 **Objetivo:** Errores de pegado en copiloto explican qué campo falta y cómo arreglarlo (markdown, comillas, truncado).
 
 | Campo | Valor |
@@ -445,6 +506,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T07 — Recuperación de errores en copiloto (reintentar paso sin perder anteriores)
 
+> **Estado (2026-08-05):** 🟡 Parcial — catch no avanza índice + botón Reintentar; falta UI “Ver pasos completados” / “Paso anterior”.
+
 **Objetivo:** Tras error de validación, el usuario no pierde pasos ya completados.
 
 | Campo | Valor |
@@ -475,6 +538,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T08 — Tests E2E paste-back del copiloto (Playwright)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `playwright.config.js`, `e2e/` ni script `test:e2e`.
 
 **Objetivo:** Regresión automática del flujo gratis crítico.
 
@@ -576,6 +641,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T11 — Spy: mantener honesto o añadir fuente verificada
 
+> **Estado (2026-08-05):** ⬜ No iniciado (Opción A) — pixel/GA como Sí/No; sin badge “Inferido por IA” en resultados. Opción B sigue en backlog diferido.
+
 **Objetivo:** Usuario entiende límites; opcionalmente datos verificables (Shopify/Wappalyzer) sin inventar.
 
 | Campo | Valor |
@@ -650,6 +717,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T13 — Onboarding: alinear pasos con ruta copiloto por defecto
 
+> **Estado (2026-08-05):** 🟡 Parcial — pasos pack→copiloto→eval→portafolio existen; CTA “Iniciar Copiloto” no fuerza `setResearchPath(COPILOT)`.
+
 **Objetivo:** Checklist empuja el camino gratis real (pack → copiloto → eval → portafolio).
 
 | Campo | Valor |
@@ -679,6 +748,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T14 — Wizard primer producto: reducir dead-ends
+
+> **Estado (2026-08-05):** 🟡 Parcial — `_isDraft` + badge en feed; falta badge en portafolio y reordenar CTAs (pack primario).
 
 **Objetivo:** Wizard siempre lleva a acción con valor (copiar pack, copiloto, eval).
 
@@ -710,6 +781,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T15 — Estados vacíos coherentes (feed, portafolio, spy)
+
+> **Estado (2026-08-05):** ✅ Hecho — CTAs en feed, portafolio vacío y spy empty state.
 
 **Objetivo:** CTAs útiles en cada vacío.
 
@@ -776,6 +849,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T17 — Manejo unificado errores Gemini en copiloto (paridad con API)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — `classifyGeminiError` no se usa en `copilotPanel.js`.
+
 **Objetivo:** Mismos mensajes clasificados si en futuro copiloto llama API (no aplica hoy) y para flujos híbridos.
 
 | Campo | Valor |
@@ -797,6 +872,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T18 — Límite portafolio: UX export + eliminar rápido
+
+> **Estado (2026-08-05):** 🟡 Parcial — toast + auto-export al tope; falta modal con listado/eliminar.
 
 **Objetivo:** Al llegar a 10 productos, flujo claro sin frustración.
 
@@ -824,6 +901,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T19 — Sync remoto: conflictos y borrado
+
+> **Estado (2026-08-05):** 🟡 Parcial — upsert/merge al login; borrar producto solo limpia localStorage (no Supabase).
 
 **Objetivo:** Portafolio nube + local no duplica ni pierde datos silenciosamente.
 
@@ -856,6 +935,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T20 — Rate limiting / abuso proxy (server-side)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin migración `005`; solo cuota diaria en proxy.
+
 **Objetivo:** Proteger costo Gemini del fundador.
 
 | Campo | Valor |
@@ -881,6 +962,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T21 — Privacidad BYOK: aclaraciones y no loguear claves
+
+> **Estado (2026-08-05):** 🟡 Parcial — input password + nota de seguridad; falta copy explícito “no se envía a DropDeep…”.
 
 **Objetivo:** Usuario entiende dónde vive la clave; auditoría de fugas.
 
@@ -908,6 +991,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T22 — Bundle: auto-host o lazy-load Chart.js y Lucide
+
+> **Estado (2026-08-05):** ⬜ No iniciado — siguen CDN en `index.html`; no están deps npm.
 
 **Objetivo:** Reducir dependencia CDN y peso inicial.
 
@@ -939,6 +1024,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T23 — Accesibilidad básica (modales, navegación, formularios)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `aria-modal` / focus trap / Escape en modales.
+
 **Objetivo:** WCAG mínimo viable — foco, labels, aria.
 
 | Campo | Valor |
@@ -969,6 +1056,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T24 — Responsive móvil: copiloto y reporte
 
+> **Estado (2026-08-05):** 🟡 Parcial — reporte con tabs horizontales bajo 900px; copiloto sin full-screen bajo 640px ni touch targets 44px.
+
 **Objetivo:** Paste-back usable en móvil (textareas, botones).
 
 | Campo | Valor |
@@ -994,6 +1083,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T25 — Tests unitarios `reportParse` + `manualRubric`
+
+> **Estado (2026-08-05):** ⬜ No iniciado — sin Vitest, sin carpeta `tests/`, sin script `test`.
 
 **Objetivo:** CI no frágil — lógica pura sin browser.
 
@@ -1021,6 +1112,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T26 — CI mínimo: build + test en PR
+
+> **Estado (2026-08-05):** ⬜ No iniciado — subsumido por **T36** (mismo objetivo; preferir T36).
 
 **Objetivo:** No depender solo de deploy Pages para detectar roturas.
 
@@ -1073,6 +1166,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T28 — Caché: invalidar al cambiar modo o fuente
 
+> **Estado (2026-08-05):** ⬜ No iniciado — `getCacheKey(query, language)` sin source/mode.
+
 **Objetivo:** No servir reporte API cacheado cuando usuario elige copiloto (o viceversa).
 
 | Campo | Valor |
@@ -1097,6 +1192,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T29 — Product Score: documentar y alinear con eval manual
+
+> **Estado (2026-08-05):** 🟡 Parcial — pesos en MANUAL + comentarios `scoring.js`; badge del informe sin tooltip.
 
 **Objetivo:** Principiante entiende diferencia Product Score (datos reporte) vs eval manual (criterios propios).
 
@@ -1124,6 +1221,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T30 — Limpiar código muerto (`reportGenerator.js`, shim `data.js`)
 
+> **Estado (2026-08-05):** 🟡 Parcial — `reportGenerator.js` ya no existe; `src/data.js` aún reexporta símbolo inexistente.
+
 **Objetivo:** Reducir confusión para futuros agentes.
 
 | Campo | Valor |
@@ -1150,6 +1249,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T31 — Meta Hidden Interests: disclaimer visible por defecto
+
+> **Estado (2026-08-05):** 🟡 Parcial — disclaimer en HTML pero `.hidden` hasta que hay resultados de búsqueda.
 
 **Objetivo:** Datos curados estáticos (`metaInterests.js`) no parecen audiencias Meta en vivo.
 
@@ -1287,6 +1388,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T35 — Captura feedback dogfooding por reporte (local)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `dropdeep_report_feedback_*` ni panel en `report.js`.
+
 **Objetivo:** Tras revisar un informe, el founder (y cualquier usuario) puede registrar “¿Te ayudó a decidir?” sin backend — para iterar producto con señal real.
 
 | Campo | Valor |
@@ -1322,6 +1425,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T36 — CI mínimo: build + unit tests (sin bloquear deploy)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — depende de T25; no existe `.github/workflows/ci.yml`.
+
 **Objetivo:** Complemento de T26 orientado a dogfooding: detectar roturas en `reportParse` / `manualRubric` en cada push, sin flaky E2E como gate.
 
 | Campo | Valor |
@@ -1354,6 +1459,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T37 — Pin acciones GitHub y eliminar warnings deprecación
 
+> **Estado (2026-08-05):** ✅ Hecho — `actions/checkout@v5`, `setup-node@v5`, Node 22 en `deploy-pages.yml`. Residual: alinear pins cuando exista `ci.yml` (T36).
+
 **Objetivo:** Mantener workflow deploy sin warnings Node 20; acciones en majors recientes.
 
 | Campo | Valor |
@@ -1379,34 +1486,38 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ---
 
-## 5. Orden sugerido de ejecución
+## 6. Orden sugerido de ejecución
 
-### Fase dogfooding — founder solo (prioridad jul 2026)
+### Fase dogfooding — founder solo (actualizado 2026-08-05)
 
-Objetivo: **uso diario productivo y honesto** antes de escalar. Orden recomendado:
+Ya hechos en el camino crítico: **T33, T09, T05, T16, T10, T34**.
+
+**Siguiente oleada recomendada (cerrar cortes + red de seguridad):**
 
 ```
-T33 → T09 → T05 → T25 → T36 → T16 (completar badge)
-  │      │      │       │
-  │      │      │       └── red de seguridad mientras iteras
-  │      │      └── no perder pegados a medias
-  │      └── cerrar loop decisión en reporte
-  └── BYOK usable con sesión (bloqueo real del founder)
+Bundles wire-up → T30 → T06 → T07 → T25 → T36 → T35 → T11-A
+     │              │      │      │       │
+     │              │      │      │       └── feedback dogfooding
+     │              │      │      └── tests + CI
+     │              │      └── completar copiloto (parcial)
+     │              └── shim roto (rápido, bajo riesgo)
+     └── residuo mid-task ops §21 (1 archivo, alto ROI claridad)
 ```
 
 **Top 5 para empezar ya**
 
 | Orden | ID | Por qué primero |
 |-------|-----|-----------------|
-| 1 | **T33** | Founder con BYOK no debe gastar cuota proxy ni quedar atrapado en 429 |
-| 2 | **T09** | Reporte debe responder “¿lanzo, valido o descarto?” — núcleo del producto |
-| 3 | **T05** | Copiloto multi-paso frágil; dogfooding diario pierde trabajo |
-| 4 | **T25 + T36** | Tests + CI antes de más cambios en parse/rubric |
-| 5 | **T16** (completar) | Visibilidad cuota proxy restante antes de invertir en investigación |
+| 0 | **Bundles** | Import muerto + UI hardcodeada — cierre de corte Antigravity |
+| 1 | **T30** | Shim roto confunde agentes; esfuerzo bajo |
+| 2 | **T06 + T07** | Completar parciales del camino gratis (validación/recuperación) |
+| 3 | **T25 + T36** | Tests + CI antes de más cambios en parse/rubric |
+| 4 | **T35** | Señal de dogfooding local |
+| 5 | **T11-A** | Honestidad Spy (badge + “No verificado”) |
 
-**Siguiente oleada (P1, paralelo moderado)**
+**Oleada P1 restante**
 
-- T10, T34, T35, T08 (E2E paste-back), T06, T07, T11-A, T19, T20
+- T19 (delete remoto), T20 (abuso proxy), T08 (E2E), T13/T14 (cerrar parciales onboarding/wizard), T18 (modal límite)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1414,48 +1525,44 @@ T33 → T09 → T05 → T25 → T36 → T16 (completar badge)
 T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase jul 2026)
 ```
 
-### Fase 1 — Calidad camino gratis + tests (P1)
+### Fase 1 — Calidad camino gratis + tests (P1) — en curso
 
-Paralelo posible en **equipos separados**:
-
-| Stream A (copiloto + decisión) | Stream B (infra + tests) | Stream C (honestidad UI) |
-|-------------------------------|--------------------------|--------------------------|
-| T05, T06, T07, T09 | T25, T36, T08 | T11-A, T34 |
-| T33 (BYOK) | T16 (badge completo) | T35 (feedback) |
-
-**Solapamiento crítico:** no paralelizar T33 con T16 en `userMenu.js` sin coordinar.
+| Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) |
+|---------------------|--------------------------|--------------------------|
+| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜ | T11⬜, T35⬜ |
+| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
-T19, T20 (sync/abuso)  ||  T13, T14, T15 (onboarding/wizard/vacíos)
-T10 (comparador + eval manual)  ||  T18 (límites portafolio)
+T19 (cerrar delete), T20  ||  T13/T14 (cerrar), T15✅
+T18 (modal límite)  ||  T21🟡
 ```
 
 ### Fase 3 — Polish (P2)
 
 ```
-T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
+T22⬜, T23⬜, T24🟡  ||  T28⬜, T29🟡, T30🟡, T31🟡, T17⬜
+T37✅ (re-verificar pins al crear ci.yml)
 ```
 
 ### Matriz de solapamiento de archivos (evitar paralelo)
 
 | Archivo | Tareas que lo tocan |
 |---------|---------------------|
-| `src/research/flow.js` | T33 |
-| `src/research/gemini.js` | T33 |
-| `src/ui/spy.js` | T11, T33 |
-| `src/research/copilotFlow.js` | T04✅, T05, T07 |
-| `src/ui/copilotPanel.js` | T04✅, T05, T06, T07 |
-| `src/ui/report.js` | T02✅, T09, T12✅, T29, T34, T35 |
-| `src/ui/charts.js` | T34 |
-| `supabase/functions/gemini-proxy` | T03✅, T16, T20 |
-| `index.html` | T04✅, T23, T24, T32✅, T33 |
-| `.github/workflows/*` | T08, T26, T36, T37 |
+| `src/ui/spy.js` | T11, T31 |
+| `src/research/copilotFlow.js` | T07 |
+| `src/ui/copilotPanel.js` | T06, T07, T17 |
+| `src/ui/report.js` | T29, T35, Bundles |
+| `src/research/bundles.js` | Bundles residual |
+| `supabase/functions/gemini-proxy` | T20 |
+| `index.html` | T14, T18, T23, T24 |
+| `.github/workflows/*` | T08, T26/T36 |
+| `src/data.js` | T30 |
 
 ---
 
-## 6. Backlog diferido
+## 7. Backlog diferido
 
 | Item | Razón de postponer |
 |------|-------------------|
@@ -1465,54 +1572,57 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | **Comparar >3 productos** | Mensaje "Pro próximamente" en UI — sin producto Pro definido. |
 | **Sincronización offline-first completa** | Supabase sync es best-effort; CRDT/queue es over-engineering hasta validar uso. |
 | **i18n inglés** | Producto es UI español; `outputLanguage` en Gemini no implica UI bilingüe. |
-| **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental (T09, T12). |
+| **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental. |
 | **Integración Meta Ads API** | Coste, OAuth, fuera de alcance tier gratis. |
 | **Imagen/mockup generation in-app** | Sección prompts IA en reporte es copy-paste externo; gateway Netlify no configurado. |
 
 ---
 
-## 7. Índice rápido de tareas
+## 8. Índice rápido de tareas
 
-| ID | Título | P | Estado |
-|----|--------|---|--------|
-| T01 | Refactor API → `reportParse.js` | P0 | ✅ `e3b43d1` |
-| T02 | Fallbacks API honestos | P0 | ✅ `e3b43d1` |
-| T03 | Cuota proxy por investigación | P0 | ✅ `e3b43d1` + prod |
-| T04 | Copiloto 1 pegado (express) | P0 | ✅ `e3b43d1` |
-| T05 | Persistir sesión copiloto | P1 | ✅ jul 2026 |
-| T06 | Validación JSON accionable | P1 | pendiente |
-| T07 | Recuperación errores copiloto | P1 | pendiente |
-| T08 | E2E Playwright paste-back | P1 | pendiente |
-| T09 | Bloque "Próxima decisión" en reporte | P1 | ✅ jul 2026 |
-| T10 | Comparador + eval manual | P1 | ✅ jul 2026 |
-| T11 | Spy honesto / fuente real | P1 | pendiente |
-| T12 | A/B heurístico (no CTR falso) | P1 | ✅ `e3b43d1` |
-| T13 | Onboarding alineado copiloto | P2 | pendiente |
-| T14 | Wizard sin dead-ends | P2 | pendiente |
-| T15 | Estados vacíos CTAs | P2 | pendiente |
-| T16 | UI cuota proxy restante | P1 | ✅ jul 2026 |
-| T17 | Errores unificados copiloto | P2 | pendiente |
-| T18 | UX límite portafolio 10 | P2 | pendiente |
-| T19 | Sync remoto borrado/conflictos | P1 | pendiente |
-| T20 | Rate limit abuso proxy | P1 | pendiente |
-| T21 | Privacidad BYOK | P2 | pendiente |
-| T22 | Bundle Chart/Lucide | P2 | pendiente |
-| T23 | Accesibilidad modales | P2 | pendiente |
-| T24 | Móvil copiloto/reporte | P2 | pendiente |
-| T25 | Tests unitarios parse/rubric | P1 | pendiente |
-| T26 | CI build + test (legacy) | P1 | pendiente → ver T36 |
-| T27 | Unificar prompts API/schema | P1 | ✅ `e3b43d1` |
-| T28 | Caché por fuente/modo | P2 | pendiente |
-| T29 | Documentar Product Score | P2 | pendiente |
-| T30 | Limpiar código muerto | P2 | pendiente |
-| T31 | Disclaimer Meta interests | P2 | pendiente |
-| T32 | Enlace ayuda → manual | P2 | ✅ `7aafdea` |
-| T33 | BYOK gana sobre proxy | P0 | ✅ jul 2026 |
-| T34 | Gráfico tendencia honesto | P1 | ✅ jul 2026 |
-| T35 | Feedback dogfooding local | P1 | **nuevo** |
-| T36 | CI build + unit tests | P1 | **nuevo** |
-| T37 | Pin acciones GitHub / Node | P2 | **nuevo** |
+Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciado
+
+| ID | Título | P | Estado | Nota auditoría 2026-08-05 |
+|----|--------|---|--------|---------------------------|
+| T01 | Refactor API → `reportParse.js` | P0 | ✅ | Verificado |
+| T02 | Fallbacks API honestos | P0 | ✅ | Verificado |
+| T03 | Cuota proxy por investigación | P0 | ✅ | Verificado + prod |
+| T04 | Copiloto 1 pegado (express) | P0 | ✅ | Verificado |
+| T05 | Persistir sesión copiloto | P1 | ✅ | Verificado |
+| T06 | Validación JSON accionable | P1 | 🟡 | Campos OK; falta UX SyntaxError + ejemplo |
+| T07 | Recuperación errores copiloto | P1 | 🟡 | Reintentar OK; falta UI pasos completados |
+| T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
+| T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |
+| T10 | Comparador + eval manual | P1 | ✅ | Verificado |
+| T11 | Spy honesto / fuente real | P1 | ⬜ | Sin badge Inferido; Opción B diferida |
+| T12 | A/B heurístico (no CTR falso) | P1 | ✅ | Verificado |
+| T13 | Onboarding alineado copiloto | P2 | 🟡 | CTA no setea ruta copiloto |
+| T14 | Wizard sin dead-ends | P2 | 🟡 | Draft en feed; falta portafolio + CTAs |
+| T15 | Estados vacíos CTAs | P2 | ✅ | Verificado |
+| T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
+| T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
+| T18 | UX límite portafolio 10 | P2 | 🟡 | Toast+export; sin modal |
+| T19 | Sync remoto borrado/conflictos | P1 | 🟡 | Upsert sí; delete remoto no |
+| T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
+| T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
+| T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
+| T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
+| T24 | Móvil copiloto/reporte | P2 | 🟡 | Reporte OK parcial; copiloto no |
+| T25 | Tests unitarios parse/rubric | P1 | ⬜ | Sin Vitest |
+| T26 | CI build + test (legacy) | P1 | ⬜ | Usar T36 |
+| T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |
+| T28 | Caché por fuente/modo | P2 | ⬜ | Clave solo query+lang |
+| T29 | Documentar Product Score | P2 | 🟡 | Docs sí; tooltip UI no |
+| T30 | Limpiar código muerto | P2 | 🟡 | Shim `data.js` roto |
+| T31 | Disclaimer Meta interests | P2 | 🟡 | Hidden hasta búsqueda |
+| T32 | Enlace ayuda → manual | P2 | ✅ | Verificado |
+| T33 | BYOK gana sobre proxy | P0 | ✅ | Verificado |
+| T34 | Gráfico tendencia honesto | P1 | ✅ | Verificado |
+| T35 | Feedback dogfooding local | P1 | ⬜ | Sin storage/panel |
+| T36 | CI build + unit tests | P1 | ⬜ | Sin `ci.yml` |
+| T37 | Pin acciones GitHub / Node | P2 | ✅ | checkout/setup-node v5 + Node 22 |
+| — | Bundles ops §21 wire-up | — | 🟡 | `generateBundleStructure` importado, no llamado |
 
 ---
 
-*Actualizado 2026-07-29 tras evaluación end-to-end y sprint `e3b43d1` + prod Supabase. Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado docs en paralelo.*
+*Actualizado 2026-08-05 tras auditoría código ↔ plan (post-import Antigravity). Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado el repo en paralelo.*
