@@ -13,6 +13,7 @@ import {
   setActiveVerticalPack,
 } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
+import { showMetaAdsAuditPanel } from './ui/metaAdsAuditPanel.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
 import { upsertProfilePrefs } from './auth/profile.js';
@@ -137,27 +138,36 @@ export function setupEventListeners() {
   // Subtab switching in Espionaje Competitivo
   const subtabCompBtn = document.getElementById('subtab-competitor-btn');
   const subtabMetaBtn = document.getElementById('subtab-meta-btn');
+  const subtabAuditBtn = document.getElementById('subtab-meta-audit-btn');
   const subtabCompPanel = document.getElementById('subtab-competitor-panel');
   const subtabMetaPanel = document.getElementById('subtab-meta-panel');
+  const subtabAuditPanel = document.getElementById('subtab-meta-audit-panel');
+
+  const styleSpySubtab = (activeBtn) => {
+    [subtabCompBtn, subtabMetaBtn, subtabAuditBtn].forEach((btn) => {
+      if (!btn) return;
+      const on = btn === activeBtn;
+      btn.style.borderColor = on ? 'var(--accent-cyan)' : 'var(--border-color)';
+      btn.style.color = on ? 'var(--accent-cyan)' : 'var(--text-secondary)';
+    });
+    subtabCompPanel?.classList.toggle('hidden', activeBtn !== subtabCompBtn);
+    subtabMetaPanel?.classList.toggle('hidden', activeBtn !== subtabMetaBtn);
+    subtabAuditPanel?.classList.toggle('hidden', activeBtn !== subtabAuditBtn);
+  };
 
   if (subtabCompBtn && subtabMetaBtn) {
-    subtabCompBtn.addEventListener('click', () => {
-      subtabCompBtn.style.borderColor = "var(--accent-cyan)";
-      subtabCompBtn.style.color = "var(--accent-cyan)";
-      subtabMetaBtn.style.borderColor = "var(--border-color)";
-      subtabMetaBtn.style.color = "var(--text-secondary)";
-      subtabCompPanel.classList.remove('hidden');
-      subtabMetaPanel.classList.add('hidden');
-    });
+    subtabCompBtn.addEventListener('click', () => styleSpySubtab(subtabCompBtn));
 
     subtabMetaBtn.addEventListener('click', () => {
-      subtabMetaBtn.style.borderColor = "var(--accent-cyan)";
-      subtabMetaBtn.style.color = "var(--accent-cyan)";
-      subtabCompBtn.style.borderColor = "var(--border-color)";
-      subtabCompBtn.style.color = "var(--text-secondary)";
-      subtabMetaPanel.classList.remove('hidden');
-      subtabCompPanel.classList.add('hidden');
+      styleSpySubtab(subtabMetaBtn);
       renderMetaHiddenInterests();
+    });
+  }
+
+  if (subtabAuditBtn) {
+    subtabAuditBtn.addEventListener('click', () => {
+      styleSpySubtab(subtabAuditBtn);
+      showMetaAdsAuditPanel();
     });
   }
 

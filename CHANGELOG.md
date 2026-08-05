@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Auditoría Meta Ads Chile (T40):** pestaña en Spy para pegar CTR/CPC/ATC/CPM/CPA y calcular CPA máximo Audisio (IVA AliExpress, pasarela, Shopify, IVA venta). Semáforo offline con umbrales Chile; alerta si el CPA de campaña supera el máximo. Sin API Meta.
 - **Tests + CI (T25/T44/T36):** Vitest con suite offline de `reportParse`, evaluación manual/gates Winner y fórmulas Audisio (`npm test`); workflow `.github/workflows/ci.yml` (Node 22) corre tests + build en PR/push sin secretos.
 - **Rúbrica Winner Audisio (T39):** la evaluación manual usa 3 pilares (solución / emoción / WOW), gates de tamaño ≤ caja de zapatos, margen bruto &gt; \$15 y CPA proyectado (\$5–\$7 ideal); si un gate falla, el veredicto no puede ser **Lanzar** aunque el score sea ≥ 70. Campos de margen/CPA/ticket + estado de gates en el modal.
 - **Precios Audisio (T38):** panel en el informe con reglas offline del método Audisio & Domingo — PVP sugerido (costo × 2.5), conversión CLP con FX editable, piso 20.000 CLP, banda 40k–100k, margen bruto mínimo 15 USD, objetivo ~35% de contribución, presupuesto de test 300 USD y botón para aplicar el PVP sugerido al retail. No es cotización en vivo.

@@ -54,3 +54,33 @@ export const AUDISIO_SHIPPING_SIZE_MIN_SCORE = 50;
 export const AUDISIO_WINNER_PILLARS_MIN = 1;
 
 export const AUDISIO_WINNER_PILLAR_IDS = ['solvesPain', 'emotionalHook', 'wowFactor'];
+
+/** IVA AliExpress / importación por defecto (Chile). */
+export const AUDISIO_ALIEXPRESS_VAT_RATE = 0.19;
+
+/** Defaults editables de comisiones (fracción del PVP). */
+export const AUDISIO_DEFAULT_PAYMENT_FEE_RATE = 0.035; // Mercado Pago aprox.
+export const AUDISIO_DEFAULT_SHOPIFY_FEE_RATE = 0.02;
+export const AUDISIO_DEFAULT_SALES_VAT_RATE = 0.19; // IVA venta Chile típico
+
+/** Umbrales Meta Ads Chile (métricas pegadas por el usuario — no API Meta). */
+export const AUDISIO_CTR_MIN = 2;
+export const AUDISIO_CTR_GOOD_MIN = 3;
+export const AUDISIO_CTR_GOOD_MAX = 4;
+export const AUDISIO_CTR_EXCELLENT_MIN = 6;
+export const AUDISIO_CTR_EXCELLENT_MAX = 8;
+
+export const AUDISIO_CPC_IDEAL_MIN_CLP = 100;
+export const AUDISIO_CPC_IDEAL_MAX_CLP = 200;
+export const AUDISIO_CPC_MAX_CLP = 300;
+
+export const AUDISIO_ATC_NORMAL_MIN_CLP = 1_000;
+export const AUDISIO_ATC_NORMAL_MAX_CLP = 3_000;
+/** ATC tolerado si está entre 1/5 y 1/3 del CPA máx. */
+export const AUDISIO_ATC_TOLERANCE_MIN_FRACTION = 1 / 5;
+export const AUDISIO_ATC_TOLERANCE_MAX_FRACTION = 1 / 3;
+
+export const AUDISIO_CPM_TYPICAL_MIN_CLP = 3_000;
+export const AUDISIO_CPM_TYPICAL_MAX_CLP = 6_000;
+export const AUDISIO_CPM_COMPETITIVE_MIN_CLP = 10_000;
+export const AUDISIO_CPM_COMPETITIVE_MAX_CLP = 15_000;

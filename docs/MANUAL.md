@@ -55,7 +55,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Tiene paywall ni Stripe | No hay planes de pago integrados en la app. |
 | Simula investigaciones | No hay datos falsos ni “modo demo” de reportes. Todo viene de tu chatbot, de Gemini en vivo, de tu portafolio o de caché local reciente. |
 | Gestiona tu tienda | No conecta con Shopify, Meta Ads ni proveedores de forma automática. |
-| Espía competidores sin IA | **Spy** (análisis de URL de tienda) requiere clave Gemini BYOK o proxy con sesión; sin API verás un mensaje claro, no datos inventados. |
+| Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro. La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
 | Sincroniza en la nube sin cuenta | El portafolio local funciona sin login; la nube (Supabase) es opcional. |
 
 ---
@@ -69,7 +69,7 @@ Sé honesto contigo mismo sobre estos límites:
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
-| **Spy** | Espionaje competitivo (URL de tienda + intereses Meta ocultos). |
+| **Spy** | Espionaje competitivo: URL de tienda (Gemini), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
 
 ### Buscador en Inicio
 
@@ -491,6 +491,18 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 
 **Gráfico de tendencia (sección 03):** muestra una curva **offline** derivada del campo *Tendencia* del informe (ej. `+120%`). **No son datos verificados de Google Trends.** Si falta el dato, verás *Sin datos de tendencia verificados para mostrar el gráfico.*
 
+### Auditoría Meta Ads Chile (pestaña Spy)
+
+En **Spy → Auditoría Meta Ads (Chile)** pegas métricas de tu Ads Manager. DropDeep **no** se conecta a Meta.
+
+| Entrada | Uso |
+|---------|-----|
+| PVP y costo producto (CLP) | Calcula **CPA máximo** = margen final tras IVA AliExpress 19%, pasarela, Shopify e IVA venta (editables en “avanzado”) |
+| CPA campaña | Si supera el CPA máx → alerta *estás perdiendo plata* |
+| CTR / CPC / ATC / CPM | Semáforo con umbrales Audisio Chile (CTR mín. 2%; CPC ideal 100–200 CLP; ATC 1k–3k o 1/5–1/3 del CPA máx; CPM típico 3k–6k, 10k–15k OK en nicho competitivo) |
+
+Botón **Prefill desde informe abierto** convierte retail/costo USD del informe a CLP con el FX guardado en Precios Audisio.
+
 ## 8. Comparar productos y decidir cuál lanzar primero
 
 1. Guarda al menos **2 productos** en **Portafolio**.
@@ -641,6 +653,8 @@ Mensajes **reales** de la app y qué hacer:
 | **Método Audisio & Domingo** | Reglas de negocio de DropDeep para precios Chile (multiplicador ×2.5, banda CLP, margen bruto mínimo, test ads 300 USD). Offline; ver panel Precios Audisio. |
 | **PVP** | Precio de venta al público (retail en el snapshot). |
 | **FX (CLP/USD)** | Tipo de cambio editable en el panel Audisio; no es feed en vivo. |
+| **CPA máximo** | Margen final por venta tras costo+IVA, pasarela, Shopify e IVA venta — techo del CPA de campaña (auditor Spy). |
+| **ATC** | Costo por Add to Cart en Meta Ads (CLP). |
 
 ---
 
