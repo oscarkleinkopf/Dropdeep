@@ -20,6 +20,10 @@ import {
 } from '../config/freeTier.js';
 import { exportPortfolioJSON, exportCampaignKit } from './export.js';
 
+function isDraftPortfolioItem(item) {
+  return !!(item?.fullReport?._isDraft || item?._isDraft);
+}
+
 export function updatePortfolioBadge() {
   const badge = document.getElementById('portfolio-count');
   if (state.portfolio.length > 0) {
@@ -149,6 +153,10 @@ export function renderPortfolioList() {
     if (score < 50) scoreColor = 'var(--accent-red)';
     else if (score < 75) scoreColor = 'var(--accent-amber)';
 
+    const draftBadge = isDraftPortfolioItem(item)
+      ? '<span class="portfolio-draft-badge" title="Borrador del wizard — completa con Copiloto o API">Borrador</span>'
+      : '';
+
     const itemContainer = document.createElement('div');
     itemContainer.className = `portfolio-item-container ${activeClass}`;
     itemContainer.style = "display: flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 0.75rem; transition: var(--transition-smooth); cursor: pointer; margin-bottom: 0.25rem;";
@@ -156,8 +164,8 @@ export function renderPortfolioList() {
     itemContainer.innerHTML = `
       <input type="checkbox" class="portfolio-compare-checkbox" data-id="${item.id}" ${isChecked} style="width: 16px; height: 16px; accent-color: var(--accent-cyan); cursor: pointer;">
       <div class="portfolio-item-info" style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-family: var(--font-display); font-weight:700; color:var(--text-light); font-size:0.85rem">${item.name}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.35rem;">
+          <span style="font-family: var(--font-display); font-weight:700; color:var(--text-light); font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">${escapeHtml(item.name)}${draftBadge}</span>
           <span style="font-family: var(--font-mono); font-size: 0.7rem; color: ${scoreColor}; font-weight:700;">${score} pts</span>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted);">
@@ -238,12 +246,16 @@ export function renderActivePortfolioDetail() {
     : null;
 
   const syncStatus = getPortfolioSyncStatus(activeItem);
+  const draftBadge = isDraftPortfolioItem(activeItem)
+    ? '<span class="portfolio-draft-badge" title="Borrador del wizard — completa con Copiloto o API">Borrador</span>'
+    : '';
 
   detailPanel.innerHTML = `
     <div class="portfolio-detail-header">
       <div class="portfolio-detail-title">
         <h3 style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
           ${escapeHtml(activeItem.name)}
+          ${draftBadge}
           <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 0.15rem 0.4rem; border-radius: 4px; color: ${scoreColor}">${score} pts</span>
         </h3>
         <p>

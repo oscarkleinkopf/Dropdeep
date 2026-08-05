@@ -1,12 +1,12 @@
-import { getCurrentUserId, isAuthenticated, isAuthConfigured, onAuthStateChange } from '../auth/auth.js';
-import { hasGeminiKey } from '../utils/geminiStorage.js';
-import { isGeminiProxyEnabled, isGeminiProxyConfigured } from '../research/geminiProxy.js';
+import { getCurrentUserId, isAuthenticated, onAuthStateChange } from '../auth/auth.js';
+import { isGeminiProxyConfigured } from '../research/geminiProxy.js';
 import { openSettingsModal } from './geminiKeyBanner.js';
 import { state } from '../state.js';
 import { switchView } from './navigation.js';
 import { openAuthModal } from './authModal.js';
 import { shouldShowWizard } from './firstProductWizard.js';
 import { setPromptHubMode } from './promptHub.js';
+import { setResearchPath, RESEARCH_PATH_COPILOT } from '../config/researchPath.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
 
@@ -60,6 +60,15 @@ function shouldShowOnboarding() {
   return true;
 }
 
+/** Prefocus dashboard search with Copiloto path selected (T13). */
+export function focusCopilotSearch() {
+  setResearchPath(RESEARCH_PATH_COPILOT);
+  switchView('dashboard-view');
+  const input = document.getElementById('search-input');
+  input?.focus();
+  input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function renderSteps(panel) {
   const promptsDone = hasUsedPromptHub();
   const researchDone = hasCompletedFirstResearch();
@@ -77,7 +86,7 @@ function renderSteps(panel) {
       id: 'copilot',
       label: 'Modo Copiloto — genera reporte estructurado sin API',
       done: researchDone,
-      action: researchDone ? null : 'search',
+      action: researchDone ? null : 'copilot',
       cta: 'Iniciar Copiloto',
     },
     {
@@ -126,9 +135,8 @@ function renderSteps(panel) {
         switchView('prompt-hub-view');
         setPromptHubMode('packs');
         markPromptHubDone();
-      } else if (action === 'search') {
-        document.getElementById('search-input')?.focus();
-        document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (action === 'copilot' || action === 'search') {
+        focusCopilotSearch();
       } else if (action === 'manual') {
         document.getElementById('manual-eval-cta-btn')?.click();
       } else if (action === 'portfolio') {

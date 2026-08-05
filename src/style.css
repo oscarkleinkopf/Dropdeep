@@ -1105,6 +1105,20 @@ button {
   color: var(--text-light);
 }
 
+.portfolio-draft-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--accent-amber) 45%, var(--border-color));
+  color: var(--accent-amber);
+  vertical-align: middle;
+}
+
 .portfolio-sync-badge {
   display: inline-block;
   margin-left: 0.5rem;
@@ -4184,6 +4198,16 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.wizard-action-grid .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+
+.wizard-name-hint {
+  color: var(--accent-amber);
 }
 
 .wizard-footnote {

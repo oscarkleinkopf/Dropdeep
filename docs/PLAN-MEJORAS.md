@@ -109,7 +109,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Paso | ¿Entrega valor? | Nota |
 |------|-----------------|------|
-| Wizard / onboarding | Sí (con fricción) | 🟡 T13/T14 — wizard/CTA no cierran del todo el camino gratis |
+| Wizard / onboarding | Sí | ✅ T13/T14 — CTA copiloto + wizard pack-first + badge Borrador |
 | Copiloto Express | Sí | 1 pegado → Product Score + copys |
 | Eval manual | Sí | Veredicto explícito offline |
 | Reporte → guardar | Sí | Portafolio local + sync opcional (delete remoto T19 ✅) |
@@ -217,8 +217,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 | Estado | Cantidad | IDs |
 |--------|----------|-----|
-| ✅ Hecho | 20 | T01–T07, T09–T10, T12, T15, T16, T19, T27, T32–T34, T37 |
-| 🟡 Parcial | 8 | T13, T14, T18, T21, T24, T29, T30, T31 |
+| ✅ Hecho | 22 | T01–T07, T09–T10, T12–T16, T19, T27, T32–T34, T37 |
+| 🟡 Parcial | 6 | T18, T21, T24, T29, T30, T31 |
 | ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
 | Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
 
@@ -229,7 +229,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | **Bundles (ops §21)** | `bundles.js` + uso en `report.js` + tab en `index.html` | ✅ UI usa `generateBundleStructure(report)` (PR #5) |
 | **T06** | Tips parse + ejemplo JSON en modal | ✅ Cerrado |
 | **T07** | Peek pasos completados + caption; error no avanza | ✅ Cerrado |
-| **T14** | `_isDraft` + badge en **feed** | Badge “Borrador” en **portafolio**; CTAs wizard (pack debería ser primario) |
+| **T14** | Badge Borrador en portafolio + CTAs pack-first | ✅ Cerrado |
 | **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
 | **T19** | Delete remoto + tombstones + badge sync | ✅ Cerrado |
 | **T30** | `reportGenerator.js` ya no existe | Arreglar o eliminar shim `src/data.js` |
@@ -727,7 +727,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T13 — Onboarding: alinear pasos con ruta copiloto por defecto
 
-> **Estado (2026-08-05):** 🟡 Parcial — pasos pack→copiloto→eval→portafolio existen; CTA “Iniciar Copiloto” no fuerza `setResearchPath(COPILOT)`.
+> **Estado (2026-08-05):** ✅ Hecho — CTA **Iniciar Copiloto** llama `setResearchPath(COPILOT)` + focus buscador; copy del panel prioriza camino gratis; `markFirstResearchDone` ya en copiloto.
 
 **Objetivo:** Checklist empuja el camino gratis real (pack → copiloto → eval → portafolio).
 
@@ -740,8 +740,9 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/onboarding.js`
-- `src/config/researchPath.js` — asegurar default copiloto
+- `src/ui/onboarding.js` — `focusCopilotSearch()`
+- `src/config/researchPath.js` — default ya era copiloto
+- `index.html` — copy onboarding
 
 **Pasos**
 
@@ -759,7 +760,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T14 — Wizard primer producto: reducir dead-ends
 
-> **Estado (2026-08-05):** 🟡 Parcial — `_isDraft` + badge en feed; falta badge en portafolio y reordenar CTAs (pack primario).
+> **Estado (2026-08-05):** ✅ Hecho — CTAs: Copiar pack primario → Copiloto → Prompt Hub → API (tooltip clave); sin nombre deshabilita Copiloto/API; badge **Borrador** en lista y detalle de portafolio.
 
 **Objetivo:** Wizard siempre lleva a acción con valor (copiar pack, copiloto, eval).
 
@@ -773,13 +774,14 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 **Archivos**
 
 - `src/ui/firstProductWizard.js`
+- `src/ui/portfolio.js` — badge Borrador
 - `index.html` (wizard modal)
 
 **Pasos**
 
 1. Paso 3: ordenar CTAs — "Copiar pack" primario, "Copiloto" secundario, "Deep Research API" terciario con tooltip "requiere clave".
 2. Si sin nombre producto, deshabilitar API/copiloto con mensaje claro.
-3. Borrador `_isDraft: true` ya existe — mostrar badge en portafolio.
+3. Borrador `_isDraft: true` — badge en portafolio.
 
 **Criterio de aceptación**
 
@@ -1723,7 +1725,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T20, T08, T13/T14, T18, T35 (T06/T07/T11-A/T19 ✅)
+- T20, T08, T18, T35 (T06/T07/T11-A/T13/T14/T19 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1736,12 +1738,12 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
 | T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
-| T13🟡, T14🟡 | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
+| T13✅, T14✅ | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
-T19 ✅  ||  T13/T14 (cerrar), T15✅
+T19 ✅  ||  T13/T14 ✅, T15✅
 T18 (modal límite)  ||  T21🟡
 ```
 
