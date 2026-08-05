@@ -1,3 +1,4 @@
+import { refreshIcons } from './utils/icons.js';
 import { renderDashboardStats, renderResearchFeed, offerCopilotResumeToast } from './ui/feed.js';
 import { updatePortfolioBadge, initPortfolioLimitModal } from './ui/portfolio.js';
 import { setupEventListeners } from './events.js';
@@ -26,7 +27,7 @@ async function bootstrapAppShell() {
   updatePortfolioBadge();
   updateWizardVisibility();
   setupEventListeners();
-  lucide.createIcons();
+  refreshIcons();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -55,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await bootstrapAppShell();
   });
 
-  lucide.createIcons();
+  refreshIcons();
   await bootstrapAppShell();
 });
 

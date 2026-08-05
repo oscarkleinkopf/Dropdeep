@@ -1008,7 +1008,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T22 — Bundle: auto-host o lazy-load Chart.js y Lucide
 
-> **Estado (2026-08-05):** ⬜ No iniciado — siguen CDN en `index.html`; no están deps npm.
+> **Estado (2026-08-05):** ✅ Hecho — `chart.js` + `lucide` npm; Lucide vía `src/utils/icons.js` (shim `window.lucide`); Chart lazy `import()` desde reporte; CDN eliminado; CSP sin jsdelivr/unpkg.
 
 **Objetivo:** Reducir dependencia CDN y peso inicial.
 
@@ -1755,7 +1755,7 @@ T18 ✅  ||  T21 ✅
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23✅, T24✅  ||  T28✅, T29✅, T30✅, T31✅, T17✅
+T22✅, T23✅, T24✅  ||  T28✅, T29✅, T30✅, T31✅, T17✅
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1823,7 +1823,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES |
 | T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
-| T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
+| T22 | Bundle Chart/Lucide | P2 | ✅ | npm + lazy Chart; sin CDN |
 | T23 | Accesibilidad modales | P2 | ✅ | Trap + Escape + aria; focus-visible |
 | T24 | Móvil copiloto/reporte | P2 | ✅ | Full-screen &lt;640px + touch 44px |
 | T25 | Tests unitarios parse/rubric | P1 | ✅ | Vitest en `main` |

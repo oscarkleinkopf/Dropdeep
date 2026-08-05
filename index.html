@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://accounts.google.com https://*.googleapis.com; frame-src https://accounts.google.com https://*.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com https://*.supabase.co">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://accounts.google.com https://*.googleapis.com; frame-src https://accounts.google.com https://*.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com https://*.supabase.co">
   <title>DropDeep | Dropshipping & Marketing Intelligence Hub</title>
   
   <!-- SEO Meta Tags -->
@@ -16,11 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js + Lucide: bundled via Vite (T22) — no CDN -->
   
   <!-- Main Stylesheet (Vite rewrites on build; keep root-relative for /Dropdeep/ base) -->
   <link rel="stylesheet" href="./src/style.css">

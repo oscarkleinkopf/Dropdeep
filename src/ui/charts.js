@@ -1,3 +1,5 @@
+import Chart from 'chart.js/auto';
+
 let trendChartInstance = null;
 let sentimentChartInstance = null;
 let projectionChartInstance = null;
