@@ -78,7 +78,7 @@ Commits recientes en `main` (ago 2026 — oleada cierre plan):
 
 DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado)**, **evaluación manual offline** y **packs verticales** producen un informe accionable sin API pagada. El sprint `e3b43d1` eliminó las mayores fugas de confianza (plantillas API falsas, A/B con CTR aleatorio, cuota proxy por llamada).
 
-> **Actualización 2026-08-05:** las fricciones citadas abajo (BYOK vs proxy, sesión copiloto, Trends falso, cero tests, feedback) quedaron **cerradas** (T33, T05, T34, T25/T36/T44/T08, T35). El producto está listo para **dogfooding founder**; el valor siguiente viene del uso real, no de más T-numeradas abiertas.
+> **Actualización 2026-08-05 (tarde):** founder pide discovery real (no listas estáticas). Ciclo **T45–T50** abierto en [§10](#10-descubrimiento-real-de-productos-t45t50). Dogfooding sigue en paralelo.
 
 ### Fortalezas
 
@@ -1806,6 +1806,12 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T43 | MANUAL metodología Audisio | P1 | ✅ | Merge #12 |
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
 | — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
+| T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | ⬜ | §10 |
+| T46 | UI Descubrir + handoff research | P0 | ⬜ | §10 |
+| T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
+| T48 | Pre-filtro Audisio en candidatos | P1 | ⬜ | §10 |
+| T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
+| T50 | Retirar discovery falso de UI | P2 | ⬜ | §10 |
 
 ---
 
