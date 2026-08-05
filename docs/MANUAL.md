@@ -277,7 +277,9 @@ En el detalle del portafolio verás **Sincronizado** (hay copia en Supabase para
 
 Si eliminas un producto estando logueado, DropDeep también borra la fila en la nube. Sin conexión: se elimina aquí y se reintenta al sincronizar (no debería “reaparecer” solo por merge).
 
-Límite del tier gratis: **10 productos** en portafolio local. Al llenarse verás:
+Límite del tier gratis: **10 productos** en portafolio local. Al intentar guardar el 11.º se abre un modal: **Exportar JSON** o **eliminar** productos (listados del más antiguo al más reciente). Tras liberar espacio, el guardado se reintenta si venías del corazón del informe.
+
+Al llenarse verás también el mensaje:
 
 > *Portafolio local limitado a 10 productos. Exporta JSON o elimina uno para liberar espacio.*
 
@@ -663,7 +665,7 @@ Mensajes **reales** de la app y qué hacer:
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| *Portafolio limitado a 10 productos. Exporta JSON o elimina uno.* | Cap alcanzado | **Exportar Portafolio** y elimina entradas viejas |
+| *Portafolio limitado a 10 productos. Exporta JSON o elimina uno.* | Cap alcanzado | Modal: exportar o eliminar; o **Exportar Portafolio** desde el menú |
 
 ### Precios Audisio / Meta Ads Chile
 

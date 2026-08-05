@@ -9,10 +9,10 @@ import {
 } from '../data/verticalPacks.js';
 import { setPromptHubMode, setActiveVerticalPack } from './promptHub.js';
 import { markPromptHubDone, updateOnboardingPanel } from './onboarding.js';
-import { FREE_PORTFOLIO_CAP, isPortfolioAtCap } from '../config/freeTier.js';
+import { isPortfolioAtCap } from '../config/freeTier.js';
 import { savePortfolioLocal } from '../research/historySync.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
-import { updatePortfolioBadge, renderPortfolioList } from './portfolio.js';
+import { updatePortfolioBadge, renderPortfolioList, openPortfolioLimitModal } from './portfolio.js';
 import { runResearchDirect, runCopilotResearch } from '../research/flow.js';
 import { setResearchPath, RESEARCH_PATH_COPILOT, RESEARCH_PATH_API } from '../config/researchPath.js';
 
@@ -173,10 +173,7 @@ function saveDraftToPortfolio() {
   if (existing) return true;
 
   if (isPortfolioAtCap(state.portfolio.length)) {
-    showToast(
-      `Portafolio local limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno para liberar espacio.`,
-      'info'
-    );
+    openPortfolioLimitModal({ reason: 'save' });
     return false;
   }
 

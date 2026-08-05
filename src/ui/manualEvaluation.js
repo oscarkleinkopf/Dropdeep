@@ -10,11 +10,11 @@ import {
   verdictColor,
 } from '../research/manualRubric.js';
 import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
-import { updatePortfolioBadge } from './portfolio.js';
+import { updatePortfolioBadge, openPortfolioLimitModal } from './portfolio.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
-import { FREE_PORTFOLIO_CAP, isPortfolioAtCap } from '../config/freeTier.js';
+import { isPortfolioAtCap } from '../config/freeTier.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
 
 let evalInputs = getDefaultRubricInputs();
@@ -211,10 +211,7 @@ function saveEvaluationToPortfolio(report, productName) {
     state.portfolio[existingIdx] = { ...state.portfolio[existingIdx], ...item };
   } else {
     if (isPortfolioAtCap(state.portfolio.length)) {
-      showToast(
-        `Portafolio limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno.`,
-        'info'
-      );
+      openPortfolioLimitModal({ reason: 'save' });
       return null;
     }
     state.portfolio.push(item);

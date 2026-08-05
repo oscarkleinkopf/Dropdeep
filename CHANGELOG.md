@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Límite portafolio (T18):** al guardar con 10 productos se abre modal con listado (antiguo→reciente), checkboxes para eliminar, **Exportar JSON** y reintento de guardado al liberar cupo (también desde wizard y evaluación manual).
 - **Onboarding + wizard (T13/T14):** CTA **Iniciar Copiloto** fuerza ruta gratis y enfoca el buscador; wizard con **Copiar pack** como acción primaria; Copiloto/API deshabilitados sin nombre de producto; badge **Borrador** en lista y detalle del portafolio.
 - **Sync borrado portafolio (T19):** eliminar (detalle o corazón) borra también `research_reports` en Supabase; tombstone local si offline para que el merge no resucite el ítem; badge **Sincronizado** / **Solo local** en el detalle; toast si falla la nube.
 - **Recuperación de errores copiloto (T07):** un pegado inválido no avanza el paso ni borra `partialReport`; barra/caption de pasos completados; **Ver pasos completados** y **Paso anterior** para revisar prompts previos en solo lectura; **Volver al paso actual** para reintentar el pegado.

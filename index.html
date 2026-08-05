@@ -1156,6 +1156,38 @@
       </div>
     </div>
 
+    <!-- Portfolio limit modal (T18) -->
+    <div id="portfolio-limit-modal" class="terminal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="portfolio-limit-title">
+      <div class="terminal-container portfolio-limit-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="term-dot red" id="portfolio-limit-close-dot" style="cursor:pointer" title="Cerrar"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <span class="terminal-title">Límite de portafolio</span>
+          <i data-lucide="archive" class="terminal-header-icon"></i>
+        </div>
+        <div class="terminal-body portfolio-limit-body">
+          <h3 id="portfolio-limit-title">Límite 10 productos</h3>
+          <p id="portfolio-limit-copy" class="portfolio-limit-copy">
+            El portafolio local está lleno. Exporta un JSON de respaldo o elimina productos antiguos para liberar espacio.
+          </p>
+          <p id="portfolio-limit-count" class="portfolio-limit-count" aria-live="polite"></p>
+          <ul id="portfolio-limit-list" class="portfolio-limit-list"></ul>
+          <div class="portfolio-limit-actions">
+            <button type="button" class="btn btn-secondary" id="portfolio-limit-export-btn">
+              <i data-lucide="download"></i> Exportar JSON
+            </button>
+            <button type="button" class="btn btn-danger" id="portfolio-limit-delete-btn" disabled>
+              <i data-lucide="trash-2"></i> Eliminar seleccionados
+            </button>
+            <button type="button" class="btn btn-secondary" id="portfolio-limit-cancel-btn">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- First Product Wizard (works without login) -->
