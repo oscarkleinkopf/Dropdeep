@@ -20,6 +20,10 @@ import { generateHTMLConversionBlocks } from '../research/htmlBlocks.js';
 import { generateWhatsAppSalesScripts } from '../research/whatsappScripts.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { getCompareMax } from '../config/freeTier.js';
+import {
+  ensureAudisioPricingPanel,
+  refreshAudisioPricingPanel,
+} from './audisioPricingPanel.js';
 
 export function openDeepResearchReport(productOrReport) {
   if (typeof productOrReport === 'string') {
@@ -380,6 +384,7 @@ export function openDeepResearchReport(productOrReport) {
 
     // Trigger ad profitability recalculation
     recalculateAdsProfitability();
+    refreshAudisioPricingPanel();
 
     // Regenerate print layout in background
     renderPrintableReport();
@@ -396,6 +401,16 @@ export function openDeepResearchReport(productOrReport) {
 
   // Initialize both calculator values and chart
   recalculateAdsProfitability();
+
+  ensureAudisioPricingPanel(calcPanel, {
+    getCost: () => parseFloat(costInput.value) || 0,
+    getRetail: () => parseFloat(retailInput.value) || 0,
+    setRetail: (value) => {
+      retailInput.value = Number(value).toFixed(2);
+      if (aovInput) aovInput.value = Number(value).toFixed(2);
+      updateSnapshotCalculations();
+    },
+  });
 
   // Render Report Sections in tab contents & build printable container
   renderReportContent();

@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Precios Audisio (T38):** panel en el informe con reglas offline del método Audisio & Domingo — PVP sugerido (costo × 2.5), conversión CLP con FX editable, piso 20.000 CLP, banda 40k–100k, margen bruto mínimo 15 USD, objetivo ~35% de contribución, presupuesto de test 300 USD y botón para aplicar el PVP sugerido al retail. No es cotización en vivo.
 - **CSV Shopify y WooCommerce:** botones en la cabecera del informe descargan CSV listo para importar (título, HTML, precio, coste, SEO); sin conexión automática a la tienda.
 - **Secciones 20–23 del informe:** Simulador Montecarlo (P10/P50/P90 con inputs editables), Bundles & Upsells, bloques HTML de conversión (tabla, beneficios, FAQ) y guiones WhatsApp/soporte listos para copiar.
 - **Cuota proxy en menú usuario (T16):** badge persistente al iniciar sesión (`Proxy: N/M hoy`, restantes o agotado, día UTC); detalle en desplegable; se actualiza tras cada investigación proxy; con BYOK guardada muestra **Usando BYOK** sin implicar consumo proxy; oculto si no hay sesión o proxy desactivado.

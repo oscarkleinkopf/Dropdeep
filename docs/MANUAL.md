@@ -396,6 +396,22 @@ Flujo recomendado para principiantes:
 
 Métricas editables: **Costo Proveedor**, **Precio Retail**, **Margen Neto**, **ROI Est.**, **Envío Promedio**, **Saturación**, **Tendencia**.
 
+### Panel Precios Audisio (Chile / CLP)
+
+Bajo la calculadora de ads aparece **Precios Audisio**: reglas offline del **método Audisio & Domingo** (no son cotizaciones ni datos de Meta en vivo).
+
+| Control / dato | Qué hace |
+|----------------|----------|
+| **CLP por 1 USD** | Tipo de cambio **editable** (se guarda en tu navegador). Por defecto 950 — ajústalo a tu realidad. |
+| **PVP sugerido (costo × 2.5)** | Si el costo es 10 USD, sugiere ~25 USD. Botón **Aplicar PVP sugerido al retail**. |
+| **Tu PVP en CLP** | Equivalente del retail actual. Alerta roja si estás bajo el **piso 20.000 CLP**. |
+| **Banda recomendada** | 40.000–100.000 CLP. |
+| **Margen bruto (USD)** | Retail − costo. El método pide **más de 15 USD** por unidad. |
+| **Contribución %** | (Retail − costo) / retail. Objetivo orientativo ~**35%** (aproxima el margen neto del método; no incluye IVA Chile, pasarela ni ads). |
+| **Budget test ads** | Referencia **300 USD** el primer mes / mes y medio; después autofinanciar. |
+
+Si el margen va corto, verás una pista de **oferta/regalo** de alto valor percibido sin bajar el PVP bajo el piso CLP.
+
 Al cambiar costo/precio se recalcula margen, ROI y **Product Score**.
 
 ### Product Score (informe)
@@ -613,6 +629,9 @@ Mensajes **reales** de la app y qué hacer:
 | **Kit de campaña** | Export `.md` con resumen listo para lanzar ads y emails. |
 | **Verbatim** | Frase textual de un comprador real (foros, reseñas). |
 | **Dropshipping** | Vender sin stock propio; el proveedor envía al cliente final. |
+| **Método Audisio & Domingo** | Reglas de negocio de DropDeep para precios Chile (multiplicador ×2.5, banda CLP, margen bruto mínimo, test ads 300 USD). Offline; ver panel Precios Audisio. |
+| **PVP** | Precio de venta al público (retail en el snapshot). |
+| **FX (CLP/USD)** | Tipo de cambio editable en el panel Audisio; no es feed en vivo. |
 
 ---
 

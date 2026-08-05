@@ -2680,6 +2680,137 @@ button {
   padding: 1.5rem;
   color: var(--text-light);
 }
+
+/* Audisio pricing panel (T38) */
+.audisio-pricing-panel {
+  background: rgba(8, 18, 28, 0.85);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem 1.5rem 1.5rem;
+  color: var(--text-light);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.audisio-pricing-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+.audisio-pricing-header h4 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-emerald);
+}
+.audisio-disclaimer {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 42rem;
+  line-height: 1.4;
+}
+.audisio-fx-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.audisio-fx-row input {
+  width: 7rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.audisio-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 900px) {
+  .audisio-pricing-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.audisio-metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+.audisio-metric-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.audisio-metric-val {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.audisio-metric-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+.audisio-metric-good { color: var(--accent-emerald); }
+.audisio-metric-bad { color: #ef4444; }
+.audisio-actions {
+  margin: 0.5rem 0 0.75rem;
+}
+.audisio-flags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.audisio-flag {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+.audisio-flag-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.audisio-flag-warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+.audisio-flag-ok {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+.audisio-flag-info {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--text-secondary);
+}
+.audisio-gift-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--accent-amber);
+}
 .calc-grid {
   display: grid;
   grid-template-columns: 1.2fr 1.2fr 1.6fr;
