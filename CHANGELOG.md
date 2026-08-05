@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Errores copiloto unificados (T17):** pegados JSON inválidos muestran título «Respuesta JSON ilegible» (paridad con terminal API); validación estructural T06 se conserva.
 - **Caché por fuente/modo (T28):** la clave local incluye ruta (API/Copiloto) y modo (Express/Rápido/Completo); el modal indica el origen y no reutiliza informes cruzados.
 - **E2E Copiloto (T08):** Playwright (`npm run test:e2e`) — Express 1 pegado y Rápido 2 pegados sin Gemini; job `e2e-copilot` en CI (Chromium).
 - **Rate limit proxy (T20):** Edge Function `gemini-proxy` rechaza payloads &gt; ~100k chars, ráfagas (&gt;10 req/10s) y sesiones nuevas con &lt;30s de cooldown; migración `005_proxy_abuse.sql`; mensajes ES en cliente; logs sin prompt.

@@ -861,7 +861,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T17 — Manejo unificado errores Gemini en copiloto (paridad con API)
 
-> **Estado (2026-08-05):** ⬜ No iniciado — `classifyGeminiError` no se usa en `copilotPanel.js`.
+> **Estado (2026-08-05):** ✅ Hecho — `classifyCopilotPasteError` (tipo `parse` / `validation`); UI copiloto muestra título + tips T06; tests `copilotErrors.test.js`.
 
 **Objetivo:** Mismos mensajes clasificados si en futuro copiloto llama API (no aplica hoy) y para flujos híbridos.
 
@@ -1755,7 +1755,7 @@ T18 ✅  ||  T21 ✅
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24🟡  ||  T28✅, T29✅, T30✅, T31✅, T17⬜
+T22⬜, T23⬜, T24🟡  ||  T28✅, T29✅, T30✅, T31✅, T17✅
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1818,7 +1818,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T14 | Wizard sin dead-ends | P2 | ✅ | Pack primario + badge Borrador |
 | T15 | Estados vacíos CTAs | P2 | ✅ | Verificado |
 | T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
-| T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
+| T17 | Errores unificados copiloto | P2 | ✅ | `classifyCopilotPasteError` + UI título |
 | T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES |
