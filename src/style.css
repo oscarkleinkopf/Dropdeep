@@ -1393,13 +1393,18 @@ button {
 }
 
 /* VIEW: DEEP RESEARCH REPORT (TABBED VIEW WITH SIDEBAR) */
+/* Must stay display:none when inactive — .view-section alone loses to this rule. */
 .report-view-container {
   max-width: 100%;
   padding: 0;
   margin: 0;
+  height: calc(100vh - 73px); /* 100vh minus header height */
+  overflow-x: hidden;
+}
+
+.view-section.report-view-container.active {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 73px); /* 100vh minus header height */
   animation: fadeIn 0.4s ease-out forwards;
 }
 
@@ -1490,7 +1495,9 @@ button {
 
 .report-header-actions {
   display: flex;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .btn-save {
@@ -1571,6 +1578,8 @@ button {
     grid-template-columns: 1fr;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    min-width: 0;
   }
   .report-sidebar {
     border-right: none;
@@ -1580,11 +1589,15 @@ button {
     overflow-y: hidden;
     white-space: nowrap;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    -webkit-overflow-scrolling: touch;
   }
   .report-sidebar-nav {
     flex-direction: row !important;
     gap: 0.5rem;
     width: max-content;
+    max-width: none;
   }
   .sidebar-tab-btn {
     padding: 0.65rem 0.85rem;
@@ -3967,6 +3980,13 @@ button {
     align-items: stretch;
     justify-content: stretch;
     padding: 0;
+    /* Evita translateY del fadeIn que desalinea el full-bleed en el primer paint */
+    animation: fadeInOpacity 0.2s ease-out forwards;
+  }
+
+  @keyframes fadeInOpacity {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   .terminal-container,
@@ -3980,6 +4000,7 @@ button {
     border-radius: 0;
     border-left: none;
     border-right: none;
+    margin: 0;
     display: flex;
     flex-direction: column;
   }
@@ -4024,12 +4045,60 @@ button {
     min-height: 44px;
   }
 
+  .report-header-nav {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    align-items: flex-start;
+  }
+
+  .report-header-title {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    order: -1;
+  }
+
+  .report-header-title h2 {
+    font-size: 1.05rem;
+  }
+
+  .report-badge-status {
+    display: none;
+  }
+
   .report-header-actions {
+    display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    width: 100%;
+    justify-content: stretch;
   }
 
   .report-header-actions .btn {
+    min-height: 44px;
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .research-path-btn,
+  .research-mode-btn {
+    min-height: 44px;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .research-mode-hint {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+
+  .nav-link {
+    min-height: 44px;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .btn-back {
     min-height: 44px;
   }
 
@@ -4048,6 +4117,12 @@ button {
 
   .report-section h2 {
     font-size: 1.35rem;
+  }
+
+  .app-container,
+  .main-content {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
@@ -4856,7 +4931,8 @@ body.auth-locked {
   }
 
   .nav-link {
-    padding: 0.4rem 0.5rem;
+    padding: 0.55rem 0.5rem;
+    min-height: 44px;
   }
 
   .nav-link-text {
