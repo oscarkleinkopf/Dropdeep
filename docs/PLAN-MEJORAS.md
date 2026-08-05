@@ -1735,7 +1735,7 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
-| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜, T44⬜ | T11⬜, T35⬜ | T38⬜, T39⬜ |
+| T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
 | T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
