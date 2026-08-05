@@ -1401,7 +1401,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T35 — Captura feedback dogfooding por reporte (local)
 
-> **Estado (2026-08-05):** ⬜ No iniciado — sin `dropdeep_report_feedback_*` ni panel en `report.js`.
+> **Estado (2026-08-05):** ✅ Hecho — `feedbackStorage.js` (`dropdeep_report_feedback_{slug}`); panel **¿Te ayudó a decidir?** en informe; badge **FB** en portafolio; export JSON no incluye feedback.
 
 **Objetivo:** Tras revisar un informe, el founder (y cualquier usuario) puede registrar “¿Te ayudó a decidir?” sin backend — para iterar producto con señal real.
 
@@ -1414,16 +1414,17 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/report.js` — panel compacto al final: 👍 Sí / 👎 No / “Aún no sé” + textarea opcional (280 chars)
-- `src/state.js` o `src/utils/feedbackStorage.js` (nuevo) — `localStorage` clave `dropdeep_report_feedback_{slug}`
-- `src/ui/portfolio.js` — icono discreto si hay feedback guardado
+- `src/ui/report.js` — panel compacto: Sí / No / “Aún no sé” + textarea (280 chars)
+- `src/utils/feedbackStorage.js` — `localStorage` clave `dropdeep_report_feedback_{slug}`
+- `src/ui/portfolio.js` — badge **FB** si hay feedback
+- `tests/feedbackStorage.test.js`
 - `docs/MANUAL.md`, `CHANGELOG.md`
 
 **Pasos**
 
 1. Esquema `{ productSlug, helpful: 'yes'|'no'|'unsure', note, updatedAt }`.
 2. Guardar al pulsar; toast confirmación.
-3. Export JSON portafolio **no** incluye feedback (o sección separada opcional).
+3. Export JSON portafolio **no** incluye feedback.
 
 **Criterio de aceptación**
 
@@ -1726,7 +1727,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T20, T08, T35 (T06/T07/T11-A/T13/T14/T18/T19 ✅)
+- T20, T08 (T06/T07/T11-A/T13/T14/T18/T19/T35 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1738,7 +1739,7 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
-| T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
+| T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35✅ | T38✅, T39✅ |
 | T13✅, T14✅ | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
@@ -1832,7 +1833,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T32 | Enlace ayuda → manual | P2 | ✅ | Verificado |
 | T33 | BYOK gana sobre proxy | P0 | ✅ | Verificado |
 | T34 | Gráfico tendencia honesto | P1 | ✅ | Verificado |
-| T35 | Feedback dogfooding local | P1 | ⬜ | Sin storage/panel |
+| T35 | Feedback dogfooding local | P1 | ✅ | Panel informe + badge FB + storage |
 | T36 | CI build + unit tests | P1 | ✅ | `ci.yml` en `main` |
 | T37 | Pin acciones GitHub / Node | P2 | ✅ | checkout/setup-node v5 + Node 22 |
 | T38 | Reglas financieras Audisio (CLP/margen) | P0 | ✅ | Merge #12 |

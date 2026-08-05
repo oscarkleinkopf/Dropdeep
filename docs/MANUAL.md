@@ -469,6 +469,10 @@ Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
 
 En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
 
+### Feedback dogfooding (local)
+
+Debajo de **Próxima decisión** hay un panel **¿Te ayudó a decidir?** (Sí / No / Aún no sé + nota opcional). Se guarda **solo en este navegador** (`dropdeep_report_feedback_{slug}`); no se envía a Supabase ni se incluye al exportar el portafolio JSON. En Portafolio verás un badge **FB** si ya dejaste feedback.
+
 ### Secciones del sidebar (24 pestañas)
 
 | # | Sección | Para qué sirve | Decisión que ayuda |
@@ -589,7 +593,7 @@ Filas dedicadas: **Evaluación manual (puntuación)**, **Evaluación manual (ver
 | Clave Gemini BYOK | Sí, por dispositivo/usuario | **Nunca** |
 | Preferencias Gemini (modelo, idioma) | Sí | Perfil (`profiles`) si hay sesión |
 | Evaluación manual | Dentro del reporte en portafolio | Igual que reportes |
-| Onboarding / wizard completado | Sí | No |
+| Feedback dogfooding por informe | Sí (`dropdeep_report_feedback_*`) | **Nunca** |
 
 ### Cuenta opcional
 

@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Feedback dogfooding por informe (T35):** panel **¿Te ayudó a decidir?** (Sí / No / Aún no sé + nota 280) guardado solo en `localStorage`; badge **FB** en portafolio; no se exporta ni sube a Supabase.
 - **Límite portafolio (T18):** al guardar con 10 productos se abre modal con listado (antiguo→reciente), checkboxes para eliminar, **Exportar JSON** y reintento de guardado al liberar cupo (también desde wizard y evaluación manual).
 - **Onboarding + wizard (T13/T14):** CTA **Iniciar Copiloto** fuerza ruta gratis y enfoca el buscador; wizard con **Copiar pack** como acción primaria; Copiloto/API deshabilitados sin nombre de producto; badge **Borrador** en lista y detalle del portafolio.
 - **Sync borrado portafolio (T19):** eliminar (detalle o corazón) borra también `research_reports` en Supabase; tombstone local si offline para que el merge no resucite el ítem; badge **Sincronizado** / **Solo local** en el detalle; toast si falla la nube.

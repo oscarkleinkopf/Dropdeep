@@ -8,7 +8,7 @@ import { sanitizeReport } from '../research/gemini.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
-import { toggleSaveProduct, openProductComparison } from './portfolio.js';
+import { toggleSaveProduct, openProductComparison, renderPortfolioList } from './portfolio.js';
 import { initTrendChart, initSentimentChart, initProjectionChart } from './charts.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { openManualEvaluation } from './manualEvaluation.js';
@@ -38,6 +38,15 @@ import {
   ensureAudisioPricingPanel,
   refreshAudisioPricingPanel,
 } from './audisioPricingPanel.js';
+import {
+  FEEDBACK_HELPFUL,
+  FEEDBACK_NOTE_MAX,
+  feedbackProductSlug,
+  getReportFeedback,
+  helpfulLabel,
+  saveReportFeedback,
+} from '../utils/feedbackStorage.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 export function openDeepResearchReport(productOrReport) {
   if (typeof productOrReport === 'string') {
@@ -430,6 +439,7 @@ export function openDeepResearchReport(productOrReport) {
   renderReportContent();
   renderPrintableReport();
   renderNextDecisionBlock(report);
+  renderReportFeedbackPanel(report);
 
   renderDashboardStats();
   renderResearchFeed();
@@ -590,6 +600,102 @@ function renderNextDecisionBlock(report) {
       searchInput?.focus();
     });
   }
+}
+
+/** Compact dogfooding panel — local only (T35). */
+function renderReportFeedbackPanel(report) {
+  const existing = document.getElementById('report-feedback-panel');
+  if (existing) existing.remove();
+
+  const slug = feedbackProductSlug(report?.name);
+  if (!slug) return;
+
+  const saved = getReportFeedback(slug);
+  let selected = saved?.helpful || null;
+
+  const panel = document.createElement('div');
+  panel.id = 'report-feedback-panel';
+  panel.className = 'report-feedback-panel';
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'Feedback del informe');
+
+  const statusText = saved
+    ? `Guardado: ${helpfulLabel(saved.helpful)}${saved.updatedAt ? ` · ${new Date(saved.updatedAt).toLocaleString('es')}` : ''}`
+    : 'Solo en este navegador — no se envía a la nube.';
+
+  panel.innerHTML = `
+    <div class="report-feedback-inner">
+      <div class="report-feedback-header">
+        <h3>¿Te ayudó a decidir?</h3>
+        <span class="report-feedback-privacy">Feedback local (dogfooding)</span>
+      </div>
+      <div class="report-feedback-choices" role="group" aria-label="¿Te ayudó?">
+        <button type="button" class="btn btn-secondary btn-sm report-feedback-choice" data-helpful="${FEEDBACK_HELPFUL.YES}" aria-pressed="false">👍 Sí</button>
+        <button type="button" class="btn btn-secondary btn-sm report-feedback-choice" data-helpful="${FEEDBACK_HELPFUL.NO}" aria-pressed="false">👎 No</button>
+        <button type="button" class="btn btn-secondary btn-sm report-feedback-choice" data-helpful="${FEEDBACK_HELPFUL.UNSURE}" aria-pressed="false">Aún no sé</button>
+      </div>
+      <label class="report-feedback-note-label" for="report-feedback-note">Nota opcional (máx. ${FEEDBACK_NOTE_MAX})</label>
+      <textarea id="report-feedback-note" class="report-feedback-note" maxlength="${FEEDBACK_NOTE_MAX}" rows="2" placeholder="Qué faltó, qué decidirías, qué mejorarías…">${escapeHtml(saved?.note || '')}</textarea>
+      <div class="report-feedback-footer">
+        <span id="report-feedback-status" class="report-feedback-status">${escapeHtml(statusText)}</span>
+        <button type="button" class="btn btn-primary btn-sm" id="report-feedback-save-btn">Guardar feedback</button>
+      </div>
+    </div>
+  `;
+
+  const reportView = document.getElementById('report-view');
+  const after = document.getElementById('report-next-decision')
+    || document.getElementById('report-save-banner')
+    || reportView?.querySelector('.report-header-nav');
+  if (after) {
+    after.insertAdjacentElement('afterend', panel);
+  } else if (reportView) {
+    reportView.prepend(panel);
+  } else {
+    return;
+  }
+
+  const syncChoiceUi = () => {
+    panel.querySelectorAll('.report-feedback-choice').forEach((btn) => {
+      const on = btn.getAttribute('data-helpful') === selected;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  };
+  syncChoiceUi();
+
+  panel.querySelectorAll('.report-feedback-choice').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      selected = btn.getAttribute('data-helpful');
+      syncChoiceUi();
+    });
+  });
+
+  document.getElementById('report-feedback-save-btn')?.addEventListener('click', () => {
+    const note = document.getElementById('report-feedback-note')?.value || '';
+    const result = saveReportFeedback({
+      productSlug: slug,
+      productName: report.name,
+      helpful: selected,
+      note,
+    });
+    const statusEl = document.getElementById('report-feedback-status');
+    if (!result.ok) {
+      showToast(result.error, 'info');
+      return;
+    }
+    if (statusEl) {
+      statusEl.textContent = `Guardado: ${helpfulLabel(result.feedback.helpful)} · ${new Date(result.feedback.updatedAt).toLocaleString('es')}`;
+    }
+    showToast('Feedback guardado en este navegador.', 'success');
+    try {
+      renderPortfolioList();
+    } catch {
+      /* portfolio view may be unmounted */
+    }
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // Switch tabs inside the report panel
