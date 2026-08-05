@@ -215,40 +215,49 @@ El copiloto guarda automáticamente tu progreso parcial en este navegador (hasta
 - **Cerrar** (punto rojo) pausa la sesión — usa **Retomar copiloto** para continuar.
 - **Cancelar sesión** o **Descartar progreso** elimina el borrador sin guardar informe incompleto.
 
-### 4.3 Evaluación manual (10 criterios)
+### 4.3 Evaluación manual + gates Winner (Audisio)
 
-La **Evaluación manual (sin IA)** es un checklist **100% offline** con puntuación determinística. Ideal para validar una idea antes de invertir tiempo en prompts o API.
+La **Evaluación manual (sin IA)** es un checklist **100% offline** con puntuación determinística, alineado al **método Audisio & Domingo**. Ideal para validar una idea antes de invertir en ads.
 
-**Cómo abrirla:** botón **Evaluación manual (sin IA)** en Inicio, o desde el panel **Primeros pasos**.
+**Cómo abrirla:** botón **Evaluación manual (sin IA)** en Inicio, panel **Primeros pasos**, o desde **Próxima decisión** en un informe.
 
-#### Los 10 criterios y sus pesos reales
+#### Gates Winner (bloquean “Lanzar”)
+
+Aunque el score sea ≥ 70, el veredicto **no puede ser Lanzar** si falla un gate:
+
+| Gate | Regla |
+|------|--------|
+| Pilares Winner | Cumplir **mínimo 1** de 3 (ideal 3): solución de problemas · conexión emocional · efecto WOW |
+| Tamaño/peso | Deslizador ≥ **50/100** (empaque ≤ caja de zapatos) |
+| Margen bruto USD | Si lo completas: debe ser **> 15 USD** (se puede autocompletar desde costo/retail del informe) |
+| CPA proyectado | Ideal **5–7 USD**; máx. **15 USD** (hasta **20 USD** solo si el ticket ≈ **100 USD**+) |
+
+Los avisos (CPA faltante, pilares parciales, etc.) no bloquean solos, pero aparecen en la explicación.
+
+#### Criterios ponderados (score 0–100)
 
 | # | Criterio | Peso |
 |---|----------|------|
-| 1 | Margen neto (costo vs precio de venta) | **15%** |
-| 2 | Problema que resuelve / factor wow | **12%** |
-| 3 | Tamaño y peso de envío | **10%** |
-| 4 | Saturación / competencia visible | **12%** |
-| 5 | Disponibilidad de proveedores | **10%** |
-| 6 | Estacionalidad | **8%** |
-| 7 | Riesgo de políticas de anuncios (Meta/TikTok) | **10%** |
-| 8 | Potencial de UGC / creativos | **8%** |
-| 9 | Ticket promedio y potencial AOV/upsell | **10%** |
-| 10 | Devoluciones / fragilidad del producto | **5%** |
+| 1 | Margen neto (deslizador) | **15%** |
+| 2–4 | Pilares Winner (checkboxes: solución / emoción / WOW) | **4%** c/u |
+| 5 | Tamaño y peso de envío | **10%** |
+| 6 | Saturación / competencia visible | **12%** |
+| 7 | Disponibilidad de proveedores | **10%** |
+| 8 | Estacionalidad / atemporalidad | **8%** |
+| 9 | Riesgo de políticas de anuncios | **10%** |
+| 10 | Potencial de UGC / creativos | **8%** |
+| 11 | Ticket promedio y potencial AOV/upsell | **10%** |
+| 12 | Calidad / devoluciones / fragilidad | **5%** |
 
-**Total:** 100%.
-
-Los criterios 1–4, 8–10 usan un **deslizador** de 0 a 100. Los criterios 5–7 usan **opciones predefinidas** con puntuación fija (ej. proveedores: “Varios proveedores confiables” = 100).
+**Total pesos:** 100%.
 
 #### Veredictos automáticos
 
-| Score | Veredicto |
-|-------|-----------|
-| ≥ 70 | **Lanzar** |
-| 45–69 | **Validar más** |
-| < 45 | **Descartar** |
-
-La explicación incluye fortalezas, puntos débiles y alertas (margen bajo, riesgo en ads, sin proveedor).
+| Score | Veredicto base | Nota |
+|-------|----------------|------|
+| ≥ 70 | **Lanzar** | Solo si **todos** los gates duros pasan |
+| 45–69 | **Validar más** | También se usa si score ≥ 70 pero un gate falla |
+| < 45 | **Descartar** | — |
 
 **Guardar:** **Guardar en portafolio** o **Guardar y ver reporte**.
 

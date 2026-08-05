@@ -985,9 +985,10 @@
           <i data-lucide="clipboard-check" class="terminal-header-icon"></i>
         </div>
         <div class="terminal-body manual-eval-body">
-          <p class="manual-eval-intro">Metodología determinística para validar productos de dropshipping — 100% offline, sin API ni login.</p>
+          <p class="manual-eval-intro">Checklist offline alineado al <strong>método Audisio & Domingo</strong> (pilares Winner + gates de margen/CPA/tamaño). Sin API ni login. Si un gate falla, no puedes obtener veredicto <strong>Lanzar</strong> aunque el score sea alto.</p>
           <label class="manual-eval-label" for="manual-eval-product-input">Nombre del producto</label>
           <input type="text" id="manual-eval-product-input" class="manual-eval-product-input" placeholder="Ej: Smart Pet Feeder">
+          <div id="manual-eval-gates" class="manual-eval-gates"></div>
           <div id="manual-eval-criteria" class="manual-eval-criteria"></div>
           <div class="manual-eval-preview">
             <div class="manual-eval-preview-row">
@@ -998,6 +999,7 @@
               <span>Veredicto:</span>
               <strong id="manual-eval-preview-verdict">—</strong>
             </div>
+            <div id="manual-eval-gates-status" class="manual-eval-gates-status"></div>
             <p id="manual-eval-preview-explanation" class="manual-eval-explanation"></p>
           </div>
           <div class="manual-eval-actions">

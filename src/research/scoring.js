@@ -174,15 +174,21 @@ export function getNextDecision(report) {
 
   if (report.manualEvaluation) {
     const me = report.manualEvaluation;
+    const gates = me.winnerGates;
+    let sourceLabel = 'Evaluación manual + gates Winner Audisio';
+    if (gates && !gates.passed) {
+      sourceLabel = 'Evaluación manual (gates Winner bloquean Lanzar)';
+    }
     return {
       verdict: me.verdict,
       score: me.score,
       source: 'manual',
-      sourceLabel: 'Evaluación manual (checklist offline)',
+      sourceLabel,
       explanation: me.explanation || `Puntuación ${me.score}/100 → ${me.verdict}.`,
       productScore,
       needsManualEval: false,
       needsCompleteSections: report._researchMode === 'fast' || !!report._incompleteSections?.length,
+      winnerGates: gates || null,
     };
   }
 

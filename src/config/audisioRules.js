@@ -32,3 +32,25 @@ export const AUDISIO_DEFAULT_FX_CLP_PER_USD = 950;
 export const AUDISIO_FX_STORAGE_KEY = 'dropdeep_audisio_fx_clp';
 
 export const AUDISIO_METHOD_LABEL = 'Según método Audisio & Domingo';
+
+/** CPA proyectado (USD): banda de testeo inicial. */
+export const AUDISIO_CPA_TEST_MIN_USD = 5;
+export const AUDISIO_CPA_TEST_IDEAL_MAX_USD = 7;
+
+/** CPA máximo aceptable en general (USD). */
+export const AUDISIO_CPA_ACCEPTABLE_MAX_USD = 15;
+
+/** CPA estirado solo si el ticket del producto es ~caro. */
+export const AUDISIO_CPA_STRETCH_MAX_USD = 20;
+export const AUDISIO_CPA_STRETCH_TICKET_USD = 100;
+
+/**
+ * Score mínimo de “tamaño/peso” (0–100) para considerar empaque ≤ caja de zapatos.
+ * En la rúbrica, 100 = pequeño/liviano.
+ */
+export const AUDISIO_SHIPPING_SIZE_MIN_SCORE = 50;
+
+/** Mínimo de pilares Winner (solución / emoción / WOW) que deben cumplirse. */
+export const AUDISIO_WINNER_PILLARS_MIN = 1;
+
+export const AUDISIO_WINNER_PILLAR_IDS = ['solvesPain', 'emotionalHook', 'wowFactor'];

@@ -3785,6 +3785,64 @@ button {
   margin-bottom: 1rem;
 }
 
+.manual-eval-gates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.06);
+}
+.manual-eval-gates-header h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  color: var(--accent-emerald);
+  font-family: var(--font-display);
+}
+.manual-eval-number {
+  width: 100%;
+  max-width: 220px;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.manual-eval-criterion-check {
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.manual-eval-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.manual-eval-checkbox {
+  margin-top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent-emerald);
+}
+.manual-eval-gates-status {
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+}
+.manual-eval-gates-status ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+.manual-eval-gate-ok { color: var(--accent-emerald); margin: 0; }
+.manual-eval-gate-fail { color: #fca5a5; margin: 0; font-weight: 600; }
+.manual-eval-gate-blocker { color: #fca5a5; margin-bottom: 0.25rem; }
+.manual-eval-gate-warn { color: #fcd34d; margin-bottom: 0.25rem; }
 .manual-eval-criteria {
   display: flex;
   flex-direction: column;
