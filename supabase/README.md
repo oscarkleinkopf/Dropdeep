@@ -2,35 +2,49 @@
 
 ## 1. Profiles table
 
-In Supabase Dashboard → **SQL Editor**, paste and run:
+In Supabase Dashboard → **SQL Editor**, paste and run (in order):
 
 - `supabase/migrations/001_profiles.sql`
 - `supabase/migrations/002_research_reports.sql` (cloud history sync)
 - `supabase/migrations/003_gemini_usage.sql` (daily proxy quota)
 - `supabase/migrations/004_research_session_quota.sql` (quota per investigation session)
+- `supabase/migrations/005_proxy_abuse.sql` (**T20** — rate 10/10s + cooldown 30s entre sesiones nuevas)
 
 `research_reports` stores completed Deep Research JSON per user (RLS by `user_id`). The app merges remote rows with local portfolio/cache on login.
 
 `gemini_usage` tracks per-user daily **investigations** (not individual Gemini RPC calls). The Edge Function increments via `check_and_increment_gemini_usage(user, limit, session_id)` — repeated calls with the same `researchSessionId` in one run do not consume extra quota.
 
+`gemini_proxy_hits` + RPCs `check_proxy_rate_limit` / `check_new_session_cooldown` (005) limit abuse; only `service_role` (Edge Function) can call them.
+
 ## 2. Gemini proxy Edge Function
 
-Keeps `GEMINI_API_KEY` on the server. Only authenticated users can call it. Enforces a **daily starter quota** (default **2 complete investigations**/user/day — not per Gemini call).
+Keeps `GEMINI_API_KEY` on the server. Only authenticated users can call it. Enforces a **daily starter quota** (default **2 complete investigations**/user/day — not per Gemini call) plus **T20** rate/cooldown/payload caps.
 
 The client sends `researchSessionId` (UUID per Deep Research run). All steps in the same run share one quota unit.
 
 ### Prerequisites
 
-- [Supabase CLI](https://supabase.com/docs/guides/cli)
-- Logged in: `supabase login`
-- Link project: `supabase link --project-ref texzlizelxavrybkdjdj`
+- [Supabase CLI](https://supabase.com/docs/guides/cli) (`npx supabase`)
+- Access token: [Account → Access Tokens](https://supabase.com/dashboard/account/tokens)
+- Project ref: `texzlizelxavrybkdjdj`
 
-### Deploy
+### Deploy T20 (migración 005 + función) — recomendado
 
 ```bash
-supabase secrets set GEMINI_API_KEY=your_google_ai_studio_key
-supabase secrets set GEMINI_PROXY_DAILY_LIMIT=2
-supabase functions deploy gemini-proxy
+export SUPABASE_ACCESS_TOKEN=sbp_...   # tu token personal
+bash scripts/deploy-t20-proxy.sh
+```
+
+O desde GitHub Actions: workflow **Deploy Supabase proxy (T20)** (`workflow_dispatch`) con secret `SUPABASE_ACCESS_TOKEN`.
+
+### Deploy manual (CLI)
+
+```bash
+export SUPABASE_ACCESS_TOKEN=sbp_...
+# SQL Editor: pegar 005_proxy_abuse.sql  —o—  supabase db push tras link
+supabase secrets set GEMINI_API_KEY=your_google_ai_studio_key --project-ref texzlizelxavrybkdjdj
+supabase secrets set GEMINI_PROXY_DAILY_LIMIT=2 --project-ref texzlizelxavrybkdjdj
+supabase functions deploy gemini-proxy --project-ref texzlizelxavrybkdjdj
 ```
 
 ### Enable in the frontend
@@ -45,6 +59,8 @@ VITE_FREE_TIER_PROXY_DAILY=2
 When `true` and the user is logged in, Deep Research uses the Edge Function instead of a browser-held Gemini key. When quota is exhausted, the client shows:
 
 > Cuota diaria agotada (investigaciones completas). Pega tu clave Gemini (gratis en AI Studio) o vuelve mañana.
+
+Rate limit / cooldown (T20) surfaces Spanish errors `proxy_rate_limit` / `proxy_session_cooldown` / `proxy_payload_too_large`.
 
 ## 3. Auth redirect URLs
 
