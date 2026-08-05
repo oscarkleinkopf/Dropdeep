@@ -214,8 +214,8 @@ El copiloto guarda automáticamente tu progreso parcial en este navegador (hasta
 
 #### Consejos para el Copiloto
 
-- Pide al chatbot **solo JSON**, sin texto extra. Si devuelve markdown con \`\`\`json, quita los delimitadores antes de pegar.
-- Si falla el parseo, usa **Reintentar** y pega de nuevo.
+- Pide al chatbot **solo JSON**, sin texto extra. Si devuelve markdown con \`\`\`json, quita los delimitadores antes de pegar (o pega igual: si falla, el error te lo indica).
+- Si falla el parseo, lee el mensaje: tip de **JSON truncado**/markdown o campo faltante (`demographics.who`, etc.). Usa **Reintentar** y, si hace falta, **Ver ejemplo de JSON**.
 - **Cerrar** (punto rojo) pausa la sesión — usa **Retomar copiloto** para continuar.
 - **Cancelar sesión** o **Descartar progreso** elimina el borrador sin guardar informe incompleto.
 
@@ -640,7 +640,8 @@ Mensajes **reales** de la app y qué hacer:
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
 | *Pega la respuesta del chatbot antes de procesar.* | Textarea vacío | Pega la respuesta completa |
-| *No se pudo interpretar la respuesta como JSON válido.* (+ **Reintentar**) | JSON mal formado o con markdown | Pide al chatbot solo JSON; quita \`\`\`; **Reintentar** |
+| *JSON inválido o truncado…* (+ tip markdown/comillas + **Reintentar**) | Pegado incompleto o con \`\`\`json | Quita markdown, copia hasta el `}` final, **Reintentar**; opcional **Ver ejemplo de JSON** |
+| *Falta el reporte base… "name" o "demographics"* (u otro campo del paso) | JSON parseable pero incompleto | Abre **Ver ejemplo de JSON** y pide al chatbot ese esquema |
 | *Avatar Brief inválido: falta el objeto "general".* (u otros de validación) | Paso incompleto | Regenera ese paso en el chatbot con el prompt exacto |
 | *No hay sesión de copiloto activa.* | Modal cerrado sin retomar | Usa **Retomar copiloto** en Inicio o reinicia **Iniciar Modo Copiloto** |
 

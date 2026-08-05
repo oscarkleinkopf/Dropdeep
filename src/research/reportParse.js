@@ -1,13 +1,21 @@
-import { cleanAndParseJSON } from '../utils/json.js';
+import { cleanAndParseJSON, formatJsonParseError } from '../utils/json.js';
 import { COPILOT_STEPS } from './reportSchema.js';
 import { buildFastModeReport } from './fastMode.js';
 
 /** Parse pasted chatbot response — same pipeline as API path. */
 export function parseResearchJson(rawText) {
   if (!rawText || !String(rawText).trim()) {
-    throw new Error('La respuesta está vacía.');
+    throw new Error('La respuesta está vacía. Pega el JSON completo del chatbot.');
   }
-  return cleanAndParseJSON(String(rawText));
+  try {
+    return cleanAndParseJSON(String(rawText));
+  } catch (err) {
+    // cleanAndParseJSON already wraps with formatJsonParseError; keep if present
+    if (err?.message && /JSON inválido|truncado|```json/i.test(err.message)) {
+      throw err;
+    }
+    throw new Error(formatJsonParseError(err, rawText));
+  }
 }
 
 function isObject(v) {
@@ -17,46 +25,64 @@ function isObject(v) {
 /** Minimum structural validation per step — rejects garbage without fabricating data. */
 export function validateStepPayload(stepId, parsed) {
   if (!isObject(parsed)) {
-    throw new Error('La respuesta debe ser un objeto JSON.');
+    throw new Error(
+      'La respuesta debe ser un objeto JSON ({ … }), no un array ni texto suelto.',
+    );
   }
 
   switch (stepId) {
     case COPILOT_STEPS.BASE_REPORT:
       if (!parsed.name && !parsed.demographics) {
-        throw new Error('Falta el reporte base: se espera al menos "name" o "demographics".');
+        throw new Error(
+          'Falta el reporte base: se espera al menos "name" o "demographics" (p. ej. demographics.who). Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.AVATAR_BRIEF:
       if (!isObject(parsed.general)) {
-        throw new Error('Avatar Brief inválido: falta el objeto "general".');
+        throw new Error(
+          'Avatar Brief inválido: falta el objeto "general" (campos esperados dentro de general, p. ej. general.age). Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.OFFER_BRIEF:
       if (!parsed.bigIdea && (!Array.isArray(parsed.names) || parsed.names.length === 0)) {
-        throw new Error('Offer Brief inválido: falta "bigIdea" o "names".');
+        throw new Error(
+          'Offer Brief inválido: falta "bigIdea" o el array "names". Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.CREATIVES:
       if (!Array.isArray(parsed.ugcScripts) && !isObject(parsed.landingPage)) {
-        throw new Error('Creativos inválidos: falta "ugcScripts" o "landingPage".');
+        throw new Error(
+          'Creativos inválidos: falta el array "ugcScripts" o el objeto "landingPage". Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.MARKETING_ASSETS:
       if (!parsed.adCopy && !Array.isArray(parsed.emailSequence)) {
-        throw new Error('Marketing inválido: falta "adCopy" o "emailSequence".');
+        throw new Error(
+          'Marketing inválido: falta "adCopy" (facebook/tiktok) o el array "emailSequence". Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.FAST_MARKETING:
       if (!parsed.adCopy && !Array.isArray(parsed.headlines)) {
-        throw new Error('Copys rápidos inválidos: falta "adCopy" o "headlines".');
+        throw new Error(
+          'Copys rápidos inválidos: falta "adCopy" o el array "headlines". Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     case COPILOT_STEPS.ALL_IN_ONE:
       if (!parsed.name && !parsed.demographics) {
-        throw new Error('Reporte express inválido: falta "name" o "demographics".');
+        throw new Error(
+          'Reporte express inválido: falta "name" o "demographics" (p. ej. demographics.who). Abre «Ver ejemplo de JSON».',
+        );
       }
       if (!parsed.adCopy && !Array.isArray(parsed.headlines)) {
-        throw new Error('Reporte express inválido: falta "adCopy" o "headlines".');
+        throw new Error(
+          'Reporte express inválido: falta "adCopy" o el array "headlines". Abre «Ver ejemplo de JSON».',
+        );
       }
       break;
     default:

@@ -478,3 +478,58 @@ ${base.replace(/^Realiza una investigación de mercado profunda en español sobr
 
   return base;
 }
+
+/**
+ * Snippet mínimo por paso para «Ver ejemplo de JSON» en el modal copiloto (T06).
+ * No inventa un informe completo — solo la forma mínima que pasa validateStepPayload.
+ */
+export function getCopilotStepJsonExample(stepId) {
+  const examples = {
+    [COPILOT_STEPS.BASE_REPORT]: {
+      name: 'Nombre del producto',
+      demographics: { who: 'Quién compra', belief: 'Creencia central' },
+      cost: 12.5,
+      retail: 39.9,
+    },
+    [COPILOT_STEPS.AVATAR_BRIEF]: {
+      general: { age: '30-45', gender: 'mixto', income: 'medio' },
+      painPoints: { p1: { name: 'Dolor principal' } },
+    },
+    [COPILOT_STEPS.OFFER_BRIEF]: {
+      bigIdea: 'La gran idea de la oferta',
+      names: ['Nombre oferta A'],
+      ump: 'Problema único',
+      ums: 'Solución única',
+    },
+    [COPILOT_STEPS.CREATIVES]: {
+      ugcScripts: [{ title: 'UGC 1', hook: 'Gancho', body: 'Cuerpo', cta: 'CTA' }],
+      landingPage: { outline: ['Hero'], html: '<section>…</section>' },
+    },
+    [COPILOT_STEPS.MARKETING_ASSETS]: {
+      adCopy: {
+        facebook: [{ primaryText: 'Texto', headline: 'Titular', description: 'Desc' }],
+        tiktok: [{ hook: 'Hook', body: 'Cuerpo', cta: 'CTA' }],
+      },
+      emailSequence: [{ subject: 'Asunto', preview: 'Preview', body: 'Cuerpo' }],
+    },
+    [COPILOT_STEPS.FAST_MARKETING]: {
+      headlines: ['Titular 1', 'Titular 2'],
+      adCopy: {
+        facebook: [{ primaryText: 'Texto', headline: 'Titular', description: 'Desc' }],
+        tiktok: [{ hook: 'Hook', body: 'Cuerpo', cta: 'CTA' }],
+      },
+    },
+    [COPILOT_STEPS.ALL_IN_ONE]: {
+      name: 'Nombre del producto',
+      demographics: { who: 'Quién compra' },
+      headlines: ['Titular gancho'],
+      adCopy: {
+        facebook: [{ primaryText: 'Texto', headline: 'Titular', description: 'Desc' }],
+        tiktok: [{ hook: 'Hook', body: 'Cuerpo', cta: 'CTA' }],
+      },
+    },
+  };
+  const sample = examples[stepId] || { name: 'ejemplo' };
+  return JSON.stringify(sample, null, 2);
+}
+

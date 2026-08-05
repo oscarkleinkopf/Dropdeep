@@ -2,6 +2,7 @@ import { showToast } from '../utils/toast.js';
 import { openDeepResearchReport } from './report.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
+import { getCopilotStepJsonExample } from '../research/reportSchema.js';
 import {
   startCopilotSession,
   cancelCopilotSession,
@@ -15,6 +16,14 @@ import {
 
 function getModal() {
   return document.getElementById('copilot-modal');
+}
+
+function updateJsonExample(step) {
+  const pre = document.getElementById('copilot-json-example-pre');
+  const details = document.getElementById('copilot-json-example');
+  if (!pre || !step?.stepId) return;
+  pre.textContent = getCopilotStepJsonExample(step.stepId);
+  if (details) details.open = false;
 }
 
 function renderStepUI(step) {
@@ -35,6 +44,7 @@ function renderStepUI(step) {
     errorEl.textContent = '';
     errorEl.classList.add('hidden');
   }
+  updateJsonExample(step);
   if (resumeNote) {
     if (step.index > 0) {
       resumeNote.textContent = `Progreso guardado — retomando paso ${step.index + 1} de ${step.total}.`;
@@ -71,6 +81,11 @@ function showError(message) {
   if (!errorEl) return;
   errorEl.textContent = message;
   errorEl.classList.remove('hidden');
+  // Expand example when validation mentions it
+  if (/Ver ejemplo de JSON/i.test(message)) {
+    const details = document.getElementById('copilot-json-example');
+    if (details) details.open = true;
+  }
 }
 
 function hideError() {
@@ -196,7 +211,7 @@ export function initCopilotPanel() {
 
     const result = processCopilotPaste(raw);
     if (!result.ok) {
-      showError(`${result.error} Usa "Reintentar" para pegar de nuevo.`);
+      showError(result.error);
       return;
     }
 
