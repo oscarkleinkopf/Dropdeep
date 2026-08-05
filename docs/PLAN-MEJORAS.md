@@ -1,6 +1,12 @@
 # Plan de mejoras DropDeep
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
+>
+> **Última auditoría de código:** 2026-08-05 — contraste plan ↔ repo tras import desde Antigravity (`silly-meitner`). Varias tareas quedaron **a medias** (posible corte por límite de tokens).
+>
+> **Metodología de negocio (2026-08-05):** DropDeep se alinea al **método Audisio & Domingo** (precios CLP Chile, calificación Winner, auditoría Meta Ads offline, creativos VSL). Ver [§9](#9-metodología-audisio--domingo) y tareas **T38–T44**.
+>
+> Leyenda de estado: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado.
 
 ---
 
@@ -9,10 +15,12 @@
 1. [Contexto del producto y reglas fijas](#1-contexto-del-producto-y-reglas-fijas)
 2. [Evaluación end-to-end (2026-07-29)](#2-evaluación-end-to-end-2026-07-29)
 3. [Estado actual (qué ya existe)](#3-estado-actual-qué-ya-existe)
-4. [Tareas numeradas (T01–T37)](#4-tareas-numeradas-t01t37)
-5. [Orden sugerido de ejecución](#5-orden-sugerido-de-ejecución)
-6. [Backlog diferido](#6-backlog-diferido)
-7. [Índice rápido de tareas](#7-índice-rápido-de-tareas)
+4. [Auditoría 2026-08-05 — ¿qué quedó a medias?](#4-auditoría-2026-08-05--qué-quedó-a-medias)
+5. [Tareas numeradas (T01–T44)](#5-tareas-numeradas-t01t44)
+6. [Orden sugerido de ejecución](#6-orden-sugerido-de-ejecución)
+7. [Backlog diferido](#7-backlog-diferido)
+8. [Índice rápido de tareas](#8-índice-rápido-de-tareas)
+9. [Metodología Audisio & Domingo](#9-metodología-audisio--domingo)
 
 ---
 
@@ -20,15 +28,19 @@
 
 ### Contexto (breve)
 
-**DropDeep** analiza productos para dropshipping, orientado a emprendedores principiantes. Ofrece investigación de mercado, copywriting, activos de campaña y validación de productos.
+**DropDeep** analiza productos para dropshipping, orientado a emprendedores principiantes (mercado Chile / CLP como referencia primaria). Ofrece investigación de mercado, copywriting, activos de campaña y validación de productos.
+
+**Norte de negocio:** metodología **Alejo Audisio & Domingo** — precios/márgenes, calificación de productos *Winner*, diagnóstico de métricas Meta Ads (inputs del usuario, sin API Meta) y directrices de creativos VSL. Detalle normativo en [§9](#9-metodología-audisio--domingo).
 
 ### Reglas fijas (no negociables)
 
 | Regla | Detalle |
 |-------|---------|
-| **Ruta gratis sin API pagada** | Debe ser realmente útil y **nunca bloquearse**: packs por vertical (`src/data/verticalPacks.js`), **Modo Copiloto** con paste-back (`src/research/copilotFlow.js`), **Evaluación manual** determinista (`src/research/manualRubric.js`). |
+| **Ruta gratis sin API pagada** | Debe ser realmente útil y **nunca bloquearse**: packs por vertical (`src/data/verticalPacks.js`), **Modo Copiloto** con paste-back (`src/research/copilotFlow.js`), **Evaluación manual** determinista (`src/research/manualRubric.js`). Calculadoras Audisio (T38–T40) son **100% offline**. |
 | **API opcional** | Gemini BYOK (`src/utils/geminiStorage.js`) o proxy Supabase con cuota diaria (`supabase/functions/gemini-proxy/`) es un **acelerador**, no requisito. |
-| **Prohibido** | Datos mock/simulados presentados como reales; Stripe/billing; secretos en git. |
+| **Prohibido** | Datos mock/simulados presentados como reales; Stripe/billing; secretos en git; **integración Meta Ads API** (el auditor usa métricas pegadas/manuales). |
+| **Metodología honesta** | Umbrales Audisio son **reglas de negocio del producto**, no datos de mercado en vivo. UI debe etiquetar “según método Audisio & Domingo” / “umbrales Chile de referencia”. |
+| **Logística del método** | AliExpress al inicio → proveedor privado con volumen. **No** modelar pago contraentrega ni Dropi como camino recomendado. |
 | **Auth modal** | `#auth-modal` debe permanecer **fuera** de `#app-shell` (`index.html` líneas 66–105 vs 108+). |
 | **Build y deploy** | `npm run build` debe pasar; GitHub Pages con base `/Dropdeep/` (`vite.config.js`). |
 | **UI** | Español; código modular en `src/`. |
@@ -71,36 +83,39 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | Seguridad base | RLS en `001_profiles.sql`, `002_research_reports.sql`, `003_gemini_usage.sql`; export `stripSensitiveFields` en `export.js` |
 | PWA staleness mitigado | `public/sw.js` v6 — network-first para HTML y `/assets/` hasheados |
 
-### Top 5 debilidades (con evidencia)
+### Top 5 debilidades (histórico 2026-07-29)
 
-| # | Debilidad | Archivos | Impacto |
-|---|-----------|----------|---------|
-| 1 | **BYOK ignorada si hay sesión + proxy** — usuario con clave guardada sigue consumiendo cuota proxy | `flow.js:54-56`, `gemini.js:377`, `spy.js:174-190` | Founder dogfooding con BYOK pierde control y cuota |
-| 2 | **Gráfico “Google Trends” simulado con `Math.random()`** — copy afirma datos reales | `charts.js:13-16`, `report.js:545-548` | Fuga de confianza en informe copiloto/API |
-| 3 | **Sin bloque “próxima decisión”** — comparador ignora eval manual para ganador (`Product Score` only) | `report.js` (T09 resuelto; comparador T10 pendiente) | Principiante no sabe lanzar/validar/descartar |
-| 4 | **Sesión copiloto volátil** — cerrar modal = perder progreso | `copilotFlow.js` (T05 resuelto) | Fricción alta en flujo gratis multi-paso |
-| 5 | **Sin tests ni CI** — solo deploy Pages | `package.json` (sin `test`), `.github/workflows/deploy-pages.yml` | Regresiones silenciosas en parse/rubric |
+> **Nota 2026-08-05:** los puntos 1–4 ya están resueltos (T33, T34, T09+T10, T05). El #5 sigue vigente. Ver [§4 Auditoría](#4-auditoría-2026-08-05--qué-quedó-a-medias) para el top actual.
 
-### Otras observaciones
+| # | Debilidad | Estado hoy |
+|---|-----------|------------|
+| 1 | BYOK ignorada si hay sesión + proxy | ✅ Resuelto T33 |
+| 2 | Gráfico Trends simulado con `Math.random()` | ✅ Resuelto T34 |
+| 3 | Sin “próxima decisión” / comparador sin eval manual | ✅ Resuelto T09 + T10 |
+| 4 | Sesión copiloto volátil | ✅ Resuelto T05 |
+| 5 | Sin tests ni CI | ✅ Resuelto T25 + T36 + T44 (Vitest + `ci.yml`) |
 
-- **Cuota proxy UI parcial:** hint `Proxy: N/M` solo tras usar proxy (`geminiProxy.js` + `researchMode.js`); no visible al login ni en menú usuario (T16 incompleto).
-- **Spy inferido como verificado:** pixel/GA mostrados Sí/No definitivos (`spy.js:96-98`); disclaimer solo en empty state, no en resultados.
-- **Sync remoto unidireccional:** `historySync.js` upsert al completar; `portfolio.js:308-324` borra solo localStorage.
-- **Caché sin fuente/modo:** `cache.js:1-3` — misma clave para copiloto vs API.
-- ~~**Código muerto:**~~ ✅ T30 — eliminados `reportGenerator.js` (ya ausente) y shim `src/data.js` (export fantasma; cero imports). Usar `src/data/index.js`.
-- **CI Node:** workflow ya usa Node **22** (`deploy-pages.yml:28`); falta job **test** separado (T26).
+### Otras observaciones (actualizado 2026-08-05)
+
+- ~~**Cuota proxy UI parcial**~~ — ✅ T16: badge en menú usuario + fetch al login.
+- **Spy inferido como verificado:** ⬜ T11 — pixel/GA siguen Sí/No definitivos; sin badge “Inferido por IA”.
+- **Sync remoto unidireccional:** 🟡 T19 — upsert sí; borrar local **no** borra en Supabase.
+- **Caché sin fuente/modo:** ⬜ T28 — `getCacheKey(query, language)` solo.
+- ~~**Código muerto**~~ — ✅ T30: eliminados `reportGenerator.js` y shim `src/data.js`.
+- **CI Node:** ✅ T37 pins OK; ✅ T25/T36 job `build-and-test` en `ci.yml`.
+- ~~**Bundles a medias**~~ — ✅ cableado a `generateBundleStructure` (PR #5).
 
 ### Coherencia producto (ruta gratis → decisión)
 
 | Paso | ¿Entrega valor? | Nota |
 |------|-----------------|------|
-| Wizard / onboarding | Sí | Empuja pack → copiloto; onboarding alineado (`onboarding.js`) |
+| Wizard / onboarding | Sí (con fricción) | 🟡 T13/T14 — wizard/CTA no cierran del todo el camino gratis |
 | Copiloto Express | Sí | 1 pegado → Product Score + copys |
 | Eval manual | Sí | Veredicto explícito offline |
-| Reporte → guardar | Sí | Portafolio local + sync opcional |
-| Reporte → decidir | **Parcial** | Score sí; falta CTA decisión integrada (T09) |
-| Comparar | **Parcial** | Muestra eval manual pero ganador = Product Score |
-| Export / kit | Sí | CSV/MD/JSON + sanitización |
+| Reporte → guardar | Sí | Portafolio local + sync opcional (borrado remoto pendiente T19) |
+| Reporte → decidir | Sí | ✅ T09 panel Próxima decisión |
+| Comparar | Sí | ✅ T10 pondera eval manual cuando todos la tienen |
+| Export / kit | Sí | CSV/MD/JSON + Shopify/Woo + ops 20–23 |
 
 ### UX walk-through (fricciones)
 
@@ -178,20 +193,73 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 - `.github/workflows/deploy-pages.yml` — Node 22, `npm ci`, `npm run build`, secrets Supabase/proxy
 - **Sin tests** en el repo (`package.json` solo `dev`, `build`, `preview`, `icons`)
 
-### Deuda / inconsistencias observadas (post-sprint jul 2026)
+### Deuda / inconsistencias observadas (auditoría 2026-08-05)
 
-1. ~~**BYOK pierde frente a proxy con sesión**~~ — resuelto T33 (`geminiRoute.js`).
-2. ~~**Gráfico tendencia simulado**~~ — resuelto T34 (`charts.js` + copy `report.js`).
-3. **Sesión copiloto volátil** — resuelto T05 (`copilotFlow.js` + `copilotPanel.js` + banner Inicio).
-4. **Spy sin verificación** — Gemini infiere pixel/CMS; resultados sin badge “Inferido por IA” (T11-A pendiente).
-5. ~~**`src/data.js` shim roto**~~ — ✅ T30 (2026-08-05): shim eliminado.
-6. **Sin tests E2E/unit** — paste-back crítico sin regresión automática (T08, T25, T26).
-7. **Comparador no pondera eval manual** en fila “Cuál lanzar primero” (T10).
-8. **Caché no distingue fuente/modo** — `getCacheKey(query, language)` solo (T28).
+1. ~~**BYOK pierde frente a proxy con sesión**~~ — ✅ T33.
+2. ~~**Gráfico tendencia simulado**~~ — ✅ T34.
+3. ~~**Sesión copiloto volátil**~~ — ✅ T05.
+4. ~~**Comparador sin eval manual**~~ — ✅ T10.
+5. **Spy sin verificación** — ⬜ T11-A: sin badge “Inferido por IA”; pixel/GA como booleanos.
+6. ~~**`src/data.js` shim roto**~~ — ✅ T30 eliminado.
+7. **Sin E2E Playwright** — ⬜ T08; ~~unit/CI~~ ✅ T25/T36/T44.
+8. **Caché no distingue fuente/modo** — ⬜ T28.
+9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
+10. **Sync delete solo local** — 🟡 T19.
+11. **Validación JSON copiloto incompleta** — 🟡 T06/T07 (campo sí; ejemplos/pasos completados no).
 
 ---
 
-## 4. Tareas numeradas (T01–T37)
+## 4. Auditoría 2026-08-05 — ¿qué quedó a medias?
+
+> Contraste del plan frente al código en `main` (`d5c6f46` + working tree). Motivo probable de cortes: sesiones Antigravity agotando tokens a mitad de tarea.
+
+### Resumen cuantitativo
+
+| Estado | Cantidad | IDs |
+|--------|----------|-----|
+| ✅ Hecho | 17 | T01–T05, T09–T10, T12, T15, T16, T27, T32–T34, T37 |
+| 🟡 Parcial | 11 | T06, T07, T13, T14, T18, T19, T21, T24, T29, T30, T31 |
+| ⬜ No iniciado | 9 | T08, T11, T17, T20, T22, T23, T25, T28, T35 (+ T26→T36) |
+| Residuo fuera de índice | 1 | Bundles: import muerto / UI hardcodeada |
+
+### Cortes mid-task (alta confianza de “se quedó a medias”)
+
+| Ítem | Qué hay | Qué falta |
+|------|---------|-----------|
+| **Bundles (ops §21)** | `bundles.js` + uso en `report.js` + tab en `index.html` | ✅ UI usa `generateBundleStructure(report)` (PR #5) |
+| **T06** | Errores por campo en `validateStepPayload` | Tips de `SyntaxError` (markdown/truncado) + “Ver ejemplo de JSON” en UI |
+| **T07** | Catch no avanza índice; botón Reintentar | UI “Ver pasos completados” / “Paso anterior” |
+| **T14** | `_isDraft` + badge en **feed** | Badge “Borrador” en **portafolio**; CTAs wizard (pack debería ser primario) |
+| **T18** | Toast + auto-export al límite 10 | Modal con listado/eliminar — no existe |
+| **T19** | Upsert + merge al login | `delete` remoto al borrar local |
+| **T30** | `reportGenerator.js` ya no existe | Arreglar o eliminar shim `src/data.js` |
+| **T31** | `#meta-interests-disclaimer` en HTML | Empieza `.hidden`; solo se muestra tras búsqueda |
+
+### Hecho y verificado en código (no solo en changelog)
+
+| ID | Evidencia clave |
+|----|-----------------|
+| T01–T04, T12, T27 | `gemini.js` + `reportParse` / `reportFallbacks` / `ALL_IN_ONE` / A/B determinista |
+| T05 | `dropdeep_copilot_session` en `copilotFlow.js` + banner retomar |
+| T09–T10 | `getNextDecision` / `pickCompareWinner` en `scoring.js` |
+| T15 | CTAs vacíos en feed, portafolio, spy |
+| T16 | Badge proxy en `userMenu.js` + `geminiProxy.js` |
+| T32–T34 | Ayuda HTML; `geminiRoute.js`; `buildTrendSeries` sin random |
+| T37 | `checkout@v5`, `setup-node@v5`, Node 22 en `deploy-pages.yml` |
+
+### Features recientes (fuera de T01–T37) — cableado
+
+| Feature | Estado |
+|---------|--------|
+| CSV Shopify / WooCommerce | ✅ Cableado (`export.js`, `events.js`, `index.html`) |
+| Montecarlo (§20) | ✅ UI + listeners en `report.js` |
+| HTML blocks (§22) | ✅ Usa `htmlBlocks.js` |
+| WhatsApp scripts (§23) | ✅ Usa `whatsappScripts.js` |
+| Bundles (§21) | 🟡 **A medias** — ver tabla mid-task |
+
+---
+
+## 5. Tareas numeradas (T01–T44)
 
 ---
 
@@ -413,6 +481,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T06 — Validación JSON pegado: feedback accionable
 
+> **Estado (2026-08-05):** 🟡 Parcial — `validateStepPayload` ya cita campos; faltan tips de `SyntaxError` en `json.js` y UI “Ver ejemplo de JSON”.
+
 **Objetivo:** Errores de pegado en copiloto explican qué campo falta y cómo arreglarlo (markdown, comillas, truncado).
 
 | Campo | Valor |
@@ -445,6 +515,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T07 — Recuperación de errores en copiloto (reintentar paso sin perder anteriores)
 
+> **Estado (2026-08-05):** 🟡 Parcial — catch no avanza índice + botón Reintentar; falta UI “Ver pasos completados” / “Paso anterior”.
+
 **Objetivo:** Tras error de validación, el usuario no pierde pasos ya completados.
 
 | Campo | Valor |
@@ -475,6 +547,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T08 — Tests E2E paste-back del copiloto (Playwright)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `playwright.config.js`, `e2e/` ni script `test:e2e`.
 
 **Objetivo:** Regresión automática del flujo gratis crítico.
 
@@ -576,6 +650,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T11 — Spy: mantener honesto o añadir fuente verificada
 
+> **Estado (2026-08-05):** ⬜ No iniciado (Opción A) — pixel/GA como Sí/No; sin badge “Inferido por IA” en resultados. Opción B sigue en backlog diferido.
+
 **Objetivo:** Usuario entiende límites; opcionalmente datos verificables (Shopify/Wappalyzer) sin inventar.
 
 | Campo | Valor |
@@ -650,6 +726,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T13 — Onboarding: alinear pasos con ruta copiloto por defecto
 
+> **Estado (2026-08-05):** 🟡 Parcial — pasos pack→copiloto→eval→portafolio existen; CTA “Iniciar Copiloto” no fuerza `setResearchPath(COPILOT)`.
+
 **Objetivo:** Checklist empuja el camino gratis real (pack → copiloto → eval → portafolio).
 
 | Campo | Valor |
@@ -679,6 +757,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T14 — Wizard primer producto: reducir dead-ends
+
+> **Estado (2026-08-05):** 🟡 Parcial — `_isDraft` + badge en feed; falta badge en portafolio y reordenar CTAs (pack primario).
 
 **Objetivo:** Wizard siempre lleva a acción con valor (copiar pack, copiloto, eval).
 
@@ -710,6 +790,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T15 — Estados vacíos coherentes (feed, portafolio, spy)
+
+> **Estado (2026-08-05):** ✅ Hecho — CTAs en feed, portafolio vacío y spy empty state.
 
 **Objetivo:** CTAs útiles en cada vacío.
 
@@ -776,6 +858,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T17 — Manejo unificado errores Gemini en copiloto (paridad con API)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — `classifyGeminiError` no se usa en `copilotPanel.js`.
+
 **Objetivo:** Mismos mensajes clasificados si en futuro copiloto llama API (no aplica hoy) y para flujos híbridos.
 
 | Campo | Valor |
@@ -797,6 +881,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T18 — Límite portafolio: UX export + eliminar rápido
+
+> **Estado (2026-08-05):** 🟡 Parcial — toast + auto-export al tope; falta modal con listado/eliminar.
 
 **Objetivo:** Al llegar a 10 productos, flujo claro sin frustración.
 
@@ -824,6 +910,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T19 — Sync remoto: conflictos y borrado
+
+> **Estado (2026-08-05):** 🟡 Parcial — upsert/merge al login; borrar producto solo limpia localStorage (no Supabase).
 
 **Objetivo:** Portafolio nube + local no duplica ni pierde datos silenciosamente.
 
@@ -856,6 +944,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T20 — Rate limiting / abuso proxy (server-side)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin migración `005`; solo cuota diaria en proxy.
+
 **Objetivo:** Proteger costo Gemini del fundador.
 
 | Campo | Valor |
@@ -881,6 +971,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T21 — Privacidad BYOK: aclaraciones y no loguear claves
+
+> **Estado (2026-08-05):** 🟡 Parcial — input password + nota de seguridad; falta copy explícito “no se envía a DropDeep…”.
 
 **Objetivo:** Usuario entiende dónde vive la clave; auditoría de fugas.
 
@@ -908,6 +1000,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T22 — Bundle: auto-host o lazy-load Chart.js y Lucide
+
+> **Estado (2026-08-05):** ⬜ No iniciado — siguen CDN en `index.html`; no están deps npm.
 
 **Objetivo:** Reducir dependencia CDN y peso inicial.
 
@@ -939,6 +1033,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T23 — Accesibilidad básica (modales, navegación, formularios)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `aria-modal` / focus trap / Escape en modales.
+
 **Objetivo:** WCAG mínimo viable — foco, labels, aria.
 
 | Campo | Valor |
@@ -969,6 +1065,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T24 — Responsive móvil: copiloto y reporte
 
+> **Estado (2026-08-05):** 🟡 Parcial — reporte con tabs horizontales bajo 900px; copiloto sin full-screen bajo 640px ni touch targets 44px.
+
 **Objetivo:** Paste-back usable en móvil (textareas, botones).
 
 | Campo | Valor |
@@ -994,6 +1092,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T25 — Tests unitarios `reportParse` + `manualRubric`
+
+> **Estado (2026-08-05):** ✅ Hecho — Vitest (`npm test`) + suite parse/rubric/Audisio en `main` vía stack #12.
 
 **Objetivo:** CI no frágil — lógica pura sin browser.
 
@@ -1021,6 +1121,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T26 — CI mínimo: build + test en PR
+
+> **Estado (2026-08-05):** ⬜ No iniciado — subsumido por **T36** (mismo objetivo; preferir T36).
 
 **Objetivo:** No depender solo de deploy Pages para detectar roturas.
 
@@ -1073,6 +1175,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T28 — Caché: invalidar al cambiar modo o fuente
 
+> **Estado (2026-08-05):** ⬜ No iniciado — `getCacheKey(query, language)` sin source/mode.
+
 **Objetivo:** No servir reporte API cacheado cuando usuario elige copiloto (o viceversa).
 
 | Campo | Valor |
@@ -1097,6 +1201,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T29 — Product Score: documentar y alinear con eval manual
+
+> **Estado (2026-08-05):** 🟡 Parcial — pesos en MANUAL + comentarios `scoring.js`; badge del informe sin tooltip.
 
 **Objetivo:** Principiante entiende diferencia Product Score (datos reporte) vs eval manual (criterios propios).
 
@@ -1124,7 +1230,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T30 — Limpiar código muerto (`reportGenerator.js`, shim `data.js`)
 
-> **Estado (2026-08-05):** ✅ Hecho — `reportGenerator.js` ya ausente; eliminado shim `src/data.js` (cero imports; exportaba `generateCompetitorStoreAnalysis` inexistente). Preferir `src/data/index.js`.
+> **Estado (2026-08-05):** ✅ Hecho — shim `src/data.js` eliminado (PR #4).
 
 **Objetivo:** Reducir confusión para futuros agentes.
 
@@ -1152,6 +1258,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ---
 
 ### T31 — Meta Hidden Interests: disclaimer visible por defecto
+
+> **Estado (2026-08-05):** 🟡 Parcial — disclaimer en HTML pero `.hidden` hasta que hay resultados de búsqueda.
 
 **Objetivo:** Datos curados estáticos (`metaInterests.js`) no parecen audiencias Meta en vivo.
 
@@ -1289,6 +1397,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T35 — Captura feedback dogfooding por reporte (local)
 
+> **Estado (2026-08-05):** ⬜ No iniciado — sin `dropdeep_report_feedback_*` ni panel en `report.js`.
+
 **Objetivo:** Tras revisar un informe, el founder (y cualquier usuario) puede registrar “¿Te ayudó a decidir?” sin backend — para iterar producto con señal real.
 
 | Campo | Valor |
@@ -1324,6 +1434,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T36 — CI mínimo: build + unit tests (sin bloquear deploy)
 
+> **Estado (2026-08-05):** ✅ Hecho — `.github/workflows/ci.yml` (Node 22, test + build).
+
 **Objetivo:** Complemento de T26 orientado a dogfooding: detectar roturas en `reportParse` / `manualRubric` en cada push, sin flaky E2E como gate.
 
 | Campo | Valor |
@@ -1356,6 +1468,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T37 — Pin acciones GitHub y eliminar warnings deprecación
 
+> **Estado (2026-08-05):** ✅ Hecho — `actions/checkout@v5`, `setup-node@v5`, Node 22 en `deploy-pages.yml`. Residual: alinear pins cuando exista `ci.yml` (T36).
+
 **Objetivo:** Mantener workflow deploy sin warnings Node 20; acciones en majors recientes.
 
 | Campo | Valor |
@@ -1381,34 +1495,234 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ---
 
-## 5. Orden sugerido de ejecución
+### T38 — Motor de reglas financieras Audisio (constantes + precio/margen)
 
-### Fase dogfooding — founder solo (prioridad jul 2026)
+> **Estado (2026-08-05):** ✅ Hecho — `audisioRules.js`, `pricingAudisio.js`, panel Precios Audisio (merge #12).
 
-Objetivo: **uso diario productivo y honesto** antes de escalar. Orden recomendado:
+**Objetivo:** Codificar políticas §9.1 como módulo puro reutilizable (offline): multiplicador costo→PVP ≈2.5, margen neto objetivo 35%, rango PVP 40k–100k CLP, piso 20k CLP, margen bruto mínimo $15 USD, presupuesto test $300 USD.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P0 (metodología) |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Sí (archivos nuevos) |
+
+**Archivos**
+
+- Nuevo: `src/config/audisioRules.js` — constantes + helpers (`suggestRetailFromCost`, `checkPriceBandClp`, `netMarginTarget`, `grossMarginUsd`)
+- Nuevo: `src/research/pricingAudisio.js` — cálculo con inputs usuario (costo AliExpress, FX CLP/USD editable, comisiones)
+- `src/ui/report.js` — panel “Precios Audisio” en snapshot o sección ops
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos**
+
+1. Constantes con comentarios citando §9; FX **no** live — default documentado + input usuario.
+2. Dado costo origen: sugerir PVP ≈ costo×2.5; flags si bajo 20k CLP o fuera de 40k–100k.
+3. Mostrar margen bruto USD y si cumple mínimo $15; hint oferta/regalo para acercarse a 35% neto.
+4. Disclaimer UI: “Reglas del método Audisio & Domingo — no cotización en vivo”.
+
+**Criterio de aceptación**
+
+- Sin API: usuario ingresa costo 10 USD → ve PVP sugerido ~25 USD / equivalente CLP con FX editable.
+- PVP bajo 20k CLP → alerta bloqueante “no vender bajo este piso”.
+- `npm run build` pasa.
+
+**NO romper:** Calculadora ROAS/CPA actual; añadir, no reemplazar a ciegas.
+
+---
+
+### T39 — Rúbrica Winner Audisio (gates + alineación eval manual)
+
+> **Estado (2026-08-05):** ✅ Hecho — pilares Winner + gates en evaluación manual (merge #12).
+
+**Objetivo:** Evaluación manual (y opcionalmente Product Score) emite veredicto Winner alineado al método: Solución / Emoción / WOW (mín. 1, ideal 3), caja no mayor que zapatos, margen bruto sobre $15 USD, CPA test $5–$7 (máx $12–$15; $20 solo ticket ~$100), calidad + atemporalidad.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P0 (metodología) |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | T38 (margen absoluto / precio) |
+| **Paralelizable** | Solapa `manualRubric.js`, `manualEvaluation.js`, `scoring.js` |
+
+**Archivos**
+
+- `src/research/manualRubric.js` — separar `problemWow` en 3 criterios o checkboxes; gates duros
+- `src/ui/manualEvaluation.js`, `index.html` — UI de gates
+- `src/research/scoring.js` — `getNextDecision` menciona gates Winner
+- Tests: extender T25 con casos Winner
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos**
+
+1. Criterios booleanos/slider: `solvesPain`, `emotionalHook`, `wowFactor` — fail si los 3 son falsos/bajos.
+2. Gate tamaño/peso (reusar `shippingSize` con umbral).
+3. Gate margen bruto USD (desde T38 o inputs rubrica).
+4. Campo CPA proyectado (usuario) vs bandas Audisio → contribución + alerta.
+5. Veredicto: si falla gate indispensable → no puede ser “Lanzar” aunque score ≥70.
+
+**Criterio de aceptación**
+
+- Producto sin solución/emoción/WOW → Descartar o Validar con explicación explícita del gate.
+- Margen $10 USD → no “Lanzar”.
+- Offline, sin Gemini.
+
+---
+
+### T40 — Auditor Meta Ads Chile (umbrales offline)
+
+> **Estado (2026-08-05):** ✅ Hecho — Spy Auditoría Meta Ads Chile offline (merge #12).
+
+**Objetivo:** Herramienta offline: inputs CTR, CPC, ATC, CPM, venta, costos → CPA Máximo Audisio + semáforo de umbrales Chile.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | T38 (componentes de margen para CPA máx) |
+| **Paralelizable** | Parcial — UI nueva; no tocar Spy API |
+
+**Archivos**
+
+- Nuevo: `src/research/metaAdsAudit.js` — fórmulas puras
+- Nuevo UI: sección en Spy o vista “Auditoría ads” / panel en reporte
+- `index.html`, `src/events.js`, `src/style.css`
+- `docs/MANUAL.md`, `CHANGELOG.md`
+- Tests unitarios fórmulas (con T25/T44)
+
+**Fórmulas / umbrales (codificar exactamente)**
+
+- CPA Máx = margen final tras: costo AliExpress+IVA 19%, comisión pasarela (MP), comisión Shopify, IVA venta 10–19% (input).
+- CTR: bajo 2% malo; 3–4% bueno; 6–8% excelente.
+- CPC: ideal 100–200 CLP; techo aceptable bajo 300 CLP.
+- ATC: normal 1k–3k CLP; tolerar si = 1/3–1/5 del CPA máx.
+- CPM Chile: 3k–6k tipico; 10k–15k OK en nichos competitivos si tráfico calidad.
+
+**Criterio de aceptación**
+
+- Usuario ingresa métricas → diagnóstico en español con semáforo; si CPA campaña &gt; CPA máx → “estás perdiendo plata”.
+- Cero llamadas a Meta API; disclaimer “umbrales de referencia del método, no benchmark en vivo”.
+
+**NO romper:** T12 comparador de titulares; Spy inferido (T11).
+
+---
+
+### T41 — Kit creativos VSL + checklist de lanzamiento (Audisio)
+
+> **Estado (2026-08-05):** ✅ Hecho — §24 VSL + checklist + export kit (merge #12).
+
+**Objetivo:** En informe o Prompt Hub: plantillas de guión VSL (20–60s), tipografías (Montserrat 13 CapCut; Poppins Canva; hook MAYÚSCULAS negro/blanco), locución ElevenLabs 1.15x, checklist lanzamiento (mín. 5 videos + 5–10 imágenes; warm-up Interacción $5/día 1–2 días; budget inicial $10/día × 4 días principiantes / $20 experimentados; sin segmentación manual).
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Medio |
+| **Dependencias** | Ninguna (puede ir en paralelo a T38) |
+| **Paralelizable** | Solapa `report.js`, `promptHub.js`, `whatsappScripts.js` patterns |
+
+**Archivos**
+
+- Nuevo: `src/research/vslAudisio.js` o extensión `reportSchema` prompts
+- `src/ui/report.js` / `promptHub.js` — sección checklist
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Criterio de aceptación**
+
+- Checklist marcable offline; guión VSL exportable en kit MD.
+- Copy no inventa rendimiento de ads.
+
+---
+
+### T42 — Presupuesto de testeo $300 USD + autofinanciamiento en ops
+
+> **Estado (2026-08-05):** ✅ Hecho — Montecarlo anclado a pool $300 / presets $10–$20 (merge #12).
+
+**Objetivo:** Conectar §20 Montecarlo / calculadora con plan de test: $300 USD primer mes–mes y medio; proyección días a $10–20/día; aviso cuando CPA proyectado agota budget sin aprendizaje.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P2 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | T38, Montecarlo ya en `montecarlo.js` |
+| **Paralelizable** | Solapa `report.js`, `montecarlo.js` |
+
+**Criterio:** Defaults Audisio en inputs Montecarlo; texto “presupuesto de testeo del método”.
+
+---
+
+### T43 — Documentar metodología en MANUAL + disclaimers CLP/Chile
+
+> **Estado (2026-08-05):** ✅ Hecho — MANUAL §12 + Ayuda deep-link (merge #12).
+
+**Objetivo:** `docs/MANUAL.md` explica método Audisio & Domingo, cuándo usar auditor ads, FX editable, y que no hay sync Meta. Glosario: CPA máx, ATC, Winner gates.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | Ideal tras T38–T40 (o docs stub primero) |
+| **Paralelizable** | Sí |
+
+**Criterio:** Sección manual enlazada desde Ayuda; CHANGELOG entrada “Metodología Audisio”.
+
+---
+
+### T44 — Tests unitarios fórmulas Audisio
+
+> **Estado (2026-08-05):** ✅ Hecho — tests pricing/meta/gates/montecarlo/vsl (≥12 asserts Audisio; merge #12).
+
+**Objetivo:** Vitest para `audisioRules`, `pricingAudisio`, `metaAdsAudit`, gates Winner — sin red.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Alto / Bajo |
+| **Dependencias** | T38, T39, T40, T25 |
+| **Paralelizable** | Sí (archivos `tests/`) |
+
+**Criterio:** ≥12 asserts (multiplicador 2.5, piso 20k CLP, CPA máx, CTR bands, gate 0/3 criterios).
+
+---
+
+## 6. Orden sugerido de ejecución
+
+### Fase metodología Audisio (nueva — 2026-08-05)
 
 ```
-T33 → T09 → T05 → T25 → T36 → T16 (completar badge)
-  │      │      │       │
-  │      │      │       └── red de seguridad mientras iteras
-  │      │      └── no perder pegados a medias
-  │      └── cerrar loop decisión en reporte
-  └── BYOK usable con sesión (bloqueo real del founder)
+T38 → T39 → T40 → T44
+  │      │      └── auditor Meta Ads Chile (offline)
+  │      └── rúbrica Winner + gates
+  └── constantes precio/margen CLP
+
+Paralelo: T41 (VSL/checklist) || T43 (docs) || T42 (Montecarlo $300)
 ```
 
-**Top 5 para empezar ya**
+### Fase dogfooding — founder solo (actualizado 2026-08-05)
+
+Ya hechos en el camino crítico: **T33, T09, T05, T16, T10, T34**.
+
+**Siguiente oleada recomendada (cerrar cortes + metodología + red de seguridad):**
+
+```
+Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
+  cortes     │      metodología pricing/Winner    │      ads + creativos
+             └── shim                          tests
+```
+
+**Top prioridades ahora**
 
 | Orden | ID | Por qué primero |
 |-------|-----|-----------------|
-| 1 | **T33** | Founder con BYOK no debe gastar cuota proxy ni quedar atrapado en 429 |
-| 2 | **T09** | Reporte debe responder “¿lanzo, valido o descarto?” — núcleo del producto |
-| 3 | **T05** | Copiloto multi-paso frágil; dogfooding diario pierde trabajo |
-| 4 | **T25 + T36** | Tests + CI antes de más cambios en parse/rubric |
-| 5 | **T16** (completar) | Visibilidad cuota proxy restante antes de invertir en investigación |
+| 0 | **Bundles** | Cierre corte Antigravity (rápido) |
+| 1 | **T30** | Shim roto |
+| 2 | **T38 + T39** | Encarnar método Audisio en pricing + Winner (norte de producto) |
+| 3 | **T25 + T44 + T36** | Tests de parse/rubric **y** fórmulas Audisio + CI |
+| 4 | **T40** | Auditor ads Chile — valor dogfooding post-lanzamiento |
+| 5 | **T41 + T43** | Creativos VSL + manual |
 
-**Siguiente oleada (P1, paralelo moderado)**
+**Oleada P1 restante (infra)**
 
-- T10, T34, T35, T08 (E2E paste-back), T06, T07, T11-A, T19, T20
+- T06/T07 (cerrar copiloto), T19, T20, T08, T13/T14, T18, T35, T11-A
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1416,48 +1730,46 @@ T33 → T09 → T05 → T25 → T36 → T16 (completar badge)
 T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase jul 2026)
 ```
 
-### Fase 1 — Calidad camino gratis + tests (P1)
+### Fase 1 — Calidad camino gratis + tests (P1) — en curso
 
-Paralelo posible en **equipos separados**:
-
-| Stream A (copiloto + decisión) | Stream B (infra + tests) | Stream C (honestidad UI) |
-|-------------------------------|--------------------------|--------------------------|
-| T05, T06, T07, T09 | T25, T36, T08 | T11-A, T34 |
-| T33 (BYOK) | T16 (badge completo) | T35 (feedback) |
-
-**Solapamiento crítico:** no paralelizar T33 con T16 en `userMenu.js` sin coordinar.
+| Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
+|---------------------|--------------------------|--------------------------|--------------------|
+| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜, T44⬜ | T11⬜, T35⬜ | T38⬜, T39⬜ |
+| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
-T19, T20 (sync/abuso)  ||  T13, T14, T15 (onboarding/wizard/vacíos)
-T10 (comparador + eval manual)  ||  T18 (límites portafolio)
+T19 (cerrar delete), T20  ||  T13/T14 (cerrar), T15✅
+T18 (modal límite)  ||  T21🟡
 ```
 
 ### Fase 3 — Polish (P2)
 
 ```
-T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
+T22⬜, T23⬜, T24🟡  ||  T28⬜, T29🟡, T30🟡, T31🟡, T17⬜
+T37✅ (re-verificar pins al crear ci.yml)
 ```
 
 ### Matriz de solapamiento de archivos (evitar paralelo)
 
 | Archivo | Tareas que lo tocan |
 |---------|---------------------|
-| `src/research/flow.js` | T33 |
-| `src/research/gemini.js` | T33 |
-| `src/ui/spy.js` | T11, T33 |
-| `src/research/copilotFlow.js` | T04✅, T05, T07 |
-| `src/ui/copilotPanel.js` | T04✅, T05, T06, T07 |
-| `src/ui/report.js` | T02✅, T09, T12✅, T29, T34, T35 |
-| `src/ui/charts.js` | T34 |
-| `supabase/functions/gemini-proxy` | T03✅, T16, T20 |
-| `index.html` | T04✅, T23, T24, T32✅, T33 |
-| `.github/workflows/*` | T08, T26, T36, T37 |
+| `src/ui/spy.js` | T11, T31, T40 (si auditor vive en Spy) |
+| `src/research/copilotFlow.js` | T07 |
+| `src/ui/copilotPanel.js` | T06, T07, T17 |
+| `src/ui/report.js` | T29, T35, Bundles, T38, T41, T42 |
+| `src/research/manualRubric.js` | T39, T44 |
+| `src/research/bundles.js` | Bundles residual |
+| `src/config/audisioRules.js` | T38, T39, T40, T44 (nuevo) |
+| `supabase/functions/gemini-proxy` | T20 |
+| `index.html` | T14, T18, T23, T24, T40, T41 |
+| `.github/workflows/*` | T08, T26/T36 |
+| `src/data.js` | T30 |
 
 ---
 
-## 6. Backlog diferido
+## 7. Backlog diferido
 
 | Item | Razón de postponer |
 |------|-------------------|
@@ -1467,54 +1779,135 @@ T22, T23, T24  ||  T28, T29, T30, T31, T21, T17, T37
 | **Comparar >3 productos** | Mensaje "Pro próximamente" en UI — sin producto Pro definido. |
 | **Sincronización offline-first completa** | Supabase sync es best-effort; CRDT/queue es over-engineering hasta validar uso. |
 | **i18n inglés** | Producto es UI español; `outputLanguage` en Gemini no implica UI bilingüe. |
-| **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental (T09, T12). |
-| **Integración Meta Ads API** | Coste, OAuth, fuera de alcance tier gratis. |
+| **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental. |
+| **Integración Meta Ads API / Marketing API** | Coste, OAuth, fuera de alcance. El **auditor T40** cubre el método con inputs manuales (Audisio). |
+| **Tipo de cambio CLP/USD en vivo** | FX editable por usuario (T38); feed FX sería dependencia y fuente de desconfianza. |
+| **Pago contraentrega / Dropi como flujo** | Explicitamente fuera del método Audisio — no modelar como recomendado. |
 | **Imagen/mockup generation in-app** | Sección prompts IA en reporte es copy-paste externo; gateway Netlify no configurado. |
+| **ElevenLabs / CapCut automatizados** | T41 documenta specs; automatizar edición/voz está fuera de MVP. |
 
 ---
 
-## 7. Índice rápido de tareas
+## 8. Índice rápido de tareas
 
-| ID | Título | P | Estado |
-|----|--------|---|--------|
-| T01 | Refactor API → `reportParse.js` | P0 | ✅ `e3b43d1` |
-| T02 | Fallbacks API honestos | P0 | ✅ `e3b43d1` |
-| T03 | Cuota proxy por investigación | P0 | ✅ `e3b43d1` + prod |
-| T04 | Copiloto 1 pegado (express) | P0 | ✅ `e3b43d1` |
-| T05 | Persistir sesión copiloto | P1 | ✅ jul 2026 |
-| T06 | Validación JSON accionable | P1 | pendiente |
-| T07 | Recuperación errores copiloto | P1 | pendiente |
-| T08 | E2E Playwright paste-back | P1 | pendiente |
-| T09 | Bloque "Próxima decisión" en reporte | P1 | ✅ jul 2026 |
-| T10 | Comparador + eval manual | P1 | ✅ jul 2026 |
-| T11 | Spy honesto / fuente real | P1 | pendiente |
-| T12 | A/B heurístico (no CTR falso) | P1 | ✅ `e3b43d1` |
-| T13 | Onboarding alineado copiloto | P2 | pendiente |
-| T14 | Wizard sin dead-ends | P2 | pendiente |
-| T15 | Estados vacíos CTAs | P2 | pendiente |
-| T16 | UI cuota proxy restante | P1 | ✅ jul 2026 |
-| T17 | Errores unificados copiloto | P2 | pendiente |
-| T18 | UX límite portafolio 10 | P2 | pendiente |
-| T19 | Sync remoto borrado/conflictos | P1 | pendiente |
-| T20 | Rate limit abuso proxy | P1 | pendiente |
-| T21 | Privacidad BYOK | P2 | pendiente |
-| T22 | Bundle Chart/Lucide | P2 | pendiente |
-| T23 | Accesibilidad modales | P2 | pendiente |
-| T24 | Móvil copiloto/reporte | P2 | pendiente |
-| T25 | Tests unitarios parse/rubric | P1 | pendiente |
-| T26 | CI build + test (legacy) | P1 | pendiente → ver T36 |
-| T27 | Unificar prompts API/schema | P1 | ✅ `e3b43d1` |
-| T28 | Caché por fuente/modo | P2 | pendiente |
-| T29 | Documentar Product Score | P2 | pendiente |
-| T30 | Limpiar código muerto | P2 | ✅ 2026-08-05 |
-| T31 | Disclaimer Meta interests | P2 | pendiente |
-| T32 | Enlace ayuda → manual | P2 | ✅ `7aafdea` |
-| T33 | BYOK gana sobre proxy | P0 | ✅ jul 2026 |
-| T34 | Gráfico tendencia honesto | P1 | ✅ jul 2026 |
-| T35 | Feedback dogfooding local | P1 | **nuevo** |
-| T36 | CI build + unit tests | P1 | **nuevo** |
-| T37 | Pin acciones GitHub / Node | P2 | **nuevo** |
+Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciado
+
+| ID | Título | P | Estado | Nota auditoría 2026-08-05 |
+|----|--------|---|--------|---------------------------|
+| T01 | Refactor API → `reportParse.js` | P0 | ✅ | Verificado |
+| T02 | Fallbacks API honestos | P0 | ✅ | Verificado |
+| T03 | Cuota proxy por investigación | P0 | ✅ | Verificado + prod |
+| T04 | Copiloto 1 pegado (express) | P0 | ✅ | Verificado |
+| T05 | Persistir sesión copiloto | P1 | ✅ | Verificado |
+| T06 | Validación JSON accionable | P1 | 🟡 | Campos OK; falta UX SyntaxError + ejemplo |
+| T07 | Recuperación errores copiloto | P1 | 🟡 | Reintentar OK; falta UI pasos completados |
+| T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
+| T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |
+| T10 | Comparador + eval manual | P1 | ✅ | Verificado |
+| T11 | Spy honesto / fuente real | P1 | ⬜ | Sin badge Inferido; Opción B diferida |
+| T12 | A/B heurístico (no CTR falso) | P1 | ✅ | Verificado |
+| T13 | Onboarding alineado copiloto | P2 | 🟡 | CTA no setea ruta copiloto |
+| T14 | Wizard sin dead-ends | P2 | 🟡 | Draft en feed; falta portafolio + CTAs |
+| T15 | Estados vacíos CTAs | P2 | ✅ | Verificado |
+| T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
+| T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
+| T18 | UX límite portafolio 10 | P2 | 🟡 | Toast+export; sin modal |
+| T19 | Sync remoto borrado/conflictos | P1 | 🟡 | Upsert sí; delete remoto no |
+| T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
+| T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
+| T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
+| T23 | Accesibilidad modales | P2 | ⬜ | Sin aria/focus trap |
+| T24 | Móvil copiloto/reporte | P2 | 🟡 | Reporte OK parcial; copiloto no |
+| T25 | Tests unitarios parse/rubric | P1 | ✅ | Vitest en `main` |
+| T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |
+| T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |
+| T28 | Caché por fuente/modo | P2 | ⬜ | Clave solo query+lang |
+| T29 | Documentar Product Score | P2 | 🟡 | Docs sí; tooltip UI no |
+| T30 | Limpiar código muerto | P2 | ✅ | Shim eliminado (#4) |
+| T31 | Disclaimer Meta interests | P2 | 🟡 | Hidden hasta búsqueda |
+| T32 | Enlace ayuda → manual | P2 | ✅ | Verificado |
+| T33 | BYOK gana sobre proxy | P0 | ✅ | Verificado |
+| T34 | Gráfico tendencia honesto | P1 | ✅ | Verificado |
+| T35 | Feedback dogfooding local | P1 | ⬜ | Sin storage/panel |
+| T36 | CI build + unit tests | P1 | ✅ | `ci.yml` en `main` |
+| T37 | Pin acciones GitHub / Node | P2 | ✅ | checkout/setup-node v5 + Node 22 |
+| T38 | Reglas financieras Audisio (CLP/margen) | P0 | ✅ | Merge #12 |
+| T39 | Rúbrica Winner + gates Audisio | P0 | ✅ | Merge #12 |
+| T40 | Auditor Meta Ads Chile offline | P1 | ✅ | Merge #12 |
+| T41 | Kit VSL + checklist lanzamiento | P1 | ✅ | Merge #12 |
+| T42 | Presupuesto test $300 en Montecarlo | P2 | ✅ | Merge #12 |
+| T43 | MANUAL metodología Audisio | P1 | ✅ | Merge #12 |
+| T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
+| — | Bundles ops §21 wire-up | — | 🟡 | `generateBundleStructure` importado, no llamado |
 
 ---
 
-*Actualizado 2026-07-29 tras evaluación end-to-end y sprint `e3b43d1` + prod Supabase. Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado docs en paralelo.*
+## 9. Metodología Audisio & Domingo
+
+> Fuente: instrucciones de sistema del consultor e-commerce (Audisio & Domingo), adoptadas como **norte de producto** el 2026-08-05. Codificar en T38–T44. **No inventar métricas** — las calculadoras usan inputs del usuario + umbrales fijos del método.
+
+### 9.1 Políticas financieras y precios
+
+| Regla | Valor |
+|-------|-------|
+| Margen neto objetivo | ~35% (facilitar con oferta/regalo de alto valor percibido) |
+| Multiplicador costo → PVP | ≈ ×2.5 (ej. costo 10 → venta ~25) |
+| Rango PVP recomendado | 40.000 – 100.000 CLP |
+| Piso absoluto PVP | No vender bajo 20.000 CLP |
+| Presupuesto ads de testeo | 300 USD primer mes / mes y medio → luego autofinanciar |
+| Logística | AliExpress al inicio → proveedor privado con volumen |
+| Fuera de método | Pago contraentrega; Dropi |
+
+### 9.2 Calificación producto Winner (para testear en campaña)
+
+1. **Indispensable — cumplir mínimo 1, ideal 3:** solución de problema · conexión emocional · efecto WOW.
+2. **Dimensiones/peso:** empaque ligero, volumen ≤ caja de zapatos.
+3. **Margen bruto:** más de 15 USD por unidad.
+4. **CPA proyectado:** test inicial 5–7 USD; máx aceptable 12–15 USD; estirar a 20 USD solo si producto ~100 USD.
+5. **Calidad + atemporalidad:** excelente funcionamiento; preferir no estacional.
+
+### 9.3 Auditoría Meta Ads (Chile) — inputs del anunciante
+
+**CPA máximo** = margen final tras: venta − costo AliExpress con IVA 19% − comisión pasarela (ej. Mercado Pago) − comisión Shopify − IVA de la venta (10–19%).  
+Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
+
+| Métrica | Umbral método |
+|---------|----------------|
+| CTR | Mín. 2%; bueno 3–4%; excelente 6–8% |
+| CPC | Ideal 100–200 CLP; aceptable bajo 300 CLP |
+| ATC (costo add-to-cart) | Normal 1.000–3.000 CLP; tolerar si = 1/3–1/5 del CPA máx |
+| CPM Chile | Típico 3.000–6.000 CLP; nichos competitivos 10.000–15.000 CLP OK si tráfico calidad |
+
+### 9.4 Creativos y lanzamiento
+
+- Video 20–60 s; guión **Hook (3–7 s) → Body → CTA** (urgencia / envío gratis).
+- CapCut: Montserrat 13; Canva: Poppins; hook visual: MAYÚSCULAS negras sobre fondo blanco.
+- Locución AI (ElevenLabs) ~1.15×; recortar silencios en CapCut.
+- Lanzamiento: mín. 5 videos + 5–10 imágenes; cuentas nuevas: warm-up Interacción 5 USD/día × 1–2 días antes de Ventas; budget inicial 10 USD/día × ≥4 días (principiantes) o 20 USD/día (experimentados); **sin** segmentación manual (Advantage+ / inteligencia Meta).
+
+### 9.5 Gap vs código actual (2026-08-05)
+
+| Capacidad método | En DropDeep hoy | Tarea |
+|------------------|-----------------|-------|
+| Multiplicador 2.5 + bandas CLP | Snapshot USD genérico; sin piso 20k CLP | **T38** |
+| Margen neto 35% / bruto $15 | Rubrica `margin` es slider % subjetivo | **T38 + T39** |
+| Gates Winner (1 de 3) | `problemWow` unificado; sin hard gates | **T39** |
+| CPA proyectado bandas 5–15 | CPA estimado simple CPC/conv en `report.js` | **T39 + T40** |
+| CPA máximo con IVA/comisiones CL | No modelado | **T40** |
+| Semáforo CTR/CPC/ATC/CPM Chile | No existe (T12 es heurística de titulares, no Ads) | **T40** |
+| VSL Hook/Body/CTA + checklist 5 creativos | UGC/scripts genéricos; WhatsApp §23 | **T41** |
+| Budget test 300 USD | Montecarlo sin ancla Audisio | **T42** |
+| Docs método | MANUAL sin Audisio | **T43** |
+| Tests fórmulas | Sin Vitest | **T44** (+ T25) |
+
+### 9.6 Principios de implementación
+
+1. **Offline-first:** todas las calculadoras Audisio funcionan sin Gemini ni Meta API.
+2. **Etiquetar origen:** “Según método Audisio & Domingo” — nunca como “datos de Meta en vivo”.
+3. **FX editable:** no hardcodear un dólar eterno sin permitir override.
+4. **No contradecir honestidad:** T12 (sin CTR falso en titulares) sigue; T40 usa CTR **declarado por el usuario**.
+5. **Compatibilidad:** mantener eval manual actual; Winner gates **añaden** restricciones al veredicto Lanzar, no borran el score 0–100.
+
+---
+
+*Actualizado 2026-08-05: auditoría mid-task + adopción metodología Audisio & Domingo (T38–T44). Verificar archivos antes de ejecutar cada tarea.*
