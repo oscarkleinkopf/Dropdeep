@@ -481,7 +481,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T06 — Validación JSON pegado: feedback accionable
 
-> **Estado (2026-08-05):** 🟡 Parcial — `validateStepPayload` ya cita campos; faltan tips de `SyntaxError` en `json.js` y UI “Ver ejemplo de JSON”.
+> **Estado (2026-08-05):** ✅ Hecho — tips SyntaxError/truncado en `json.js`; UI «Ver ejemplo de JSON» por paso; validateStepPayload cita campos.
 
 **Objetivo:** Errores de pegado en copiloto explican qué campo falta y cómo arreglarlo (markdown, comillas, truncado).
 
@@ -1799,7 +1799,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T03 | Cuota proxy por investigación | P0 | ✅ | Verificado + prod |
 | T04 | Copiloto 1 pegado (express) | P0 | ✅ | Verificado |
 | T05 | Persistir sesión copiloto | P1 | ✅ | Verificado |
-| T06 | Validación JSON accionable | P1 | 🟡 | Campos OK; falta UX SyntaxError + ejemplo |
+| T06 | Validación JSON accionable | P1 | ✅ | Tips parse + ejemplo JSON en modal |
 | T07 | Recuperación errores copiloto | P1 | 🟡 | Reintentar OK; falta UI pasos completados |
 | T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
 | T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |

@@ -133,7 +133,54 @@ export function repairTruncatedJSON(jsonString) {
   return clean;
 }
 
+/**
+ * Mensaje accionable para fallos de JSON.parse / reparación (T06).
+ */
+export function formatJsonParseError(err, rawText = '') {
+  const raw = String(rawText || '');
+  const tips = [];
+
+  if (/```/.test(raw)) {
+    tips.push(
+      '¿Incluiste un bloque ```json? Quita el markdown y deja solo el objeto { … }.',
+    );
+  }
+  if (looksLikeTruncatedJson(raw) || /Unexpected end of JSON/i.test(err?.message || '')) {
+    tips.push(
+      'Parece JSON truncado (faltan }). Espera a que el chatbot termine o copia la respuesta completa.',
+    );
+  }
+  if (/[“”‘’]/.test(raw)) {
+    tips.push('Hay comillas tipográficas (“ ”); usa solo comillas dobles rectas (").');
+  }
+  if (tips.length === 0) {
+    tips.push(
+      'Pega únicamente un objeto JSON válido, sin texto antes ni después. Revisa comas y comillas.',
+    );
+  }
+
+  return `JSON inválido o truncado. ${tips.join(' ')} Usa «Reintentar» para pegar de nuevo.`;
+}
+
+function looksLikeTruncatedJson(raw) {
+  const s = String(raw || '').trim();
+  if (s === '{' || s === '[') return true;
+  const opens = (s.match(/\{/g) || []).length;
+  const closes = (s.match(/\}/g) || []).length;
+  return opens > closes;
+}
+
+function isEmptyObject(value) {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === 0
+  );
+}
+
 export function cleanAndParseJSON(rawText) {
+  const original = String(rawText);
   let text = cleanMarkdownJSON(rawText);
   try {
     return JSON.parse(text);
@@ -141,19 +188,31 @@ export function cleanAndParseJSON(rawText) {
     console.warn("Fallo al parsear JSON directamente, intentando reparar...");
     let repaired = repairTruncatedJSON(text);
     try {
-      return JSON.parse(repaired);
+      const repairedParsed = JSON.parse(repaired);
+      // `{` alone repairs to `{}` — treat as truncation, not a valid paste
+      if (looksLikeTruncatedJson(original) && isEmptyObject(repairedParsed)) {
+        throw new Error(formatJsonParseError(e, original));
+      }
+      return repairedParsed;
     } catch (err) {
+      if (err?.message && /JSON inválido|truncado/i.test(err.message)) {
+        throw err;
+      }
       console.warn("La reparación básica falló, intentando reparación por recorte progresivo...");
       while (repaired.length > 2) {
         repaired = repaired.slice(0, -1).trim();
         let tempRepaired = repairTruncatedJSON(repaired);
         try {
-          return JSON.parse(tempRepaired);
+          const sliced = JSON.parse(tempRepaired);
+          if (looksLikeTruncatedJson(original) && isEmptyObject(sliced)) {
+            continue;
+          }
+          return sliced;
         } catch (e3) {
           // Continuar recortando
         }
       }
-      throw err; // Si todo falla, lanzar el error original
+      throw new Error(formatJsonParseError(err, original));
     }
   }
 }

@@ -1057,6 +1057,11 @@
           </button>
           <label class="copilot-label" for="copilot-paste-input">Respuesta del chatbot (JSON):</label>
           <textarea id="copilot-paste-input" class="copilot-textarea" rows="8" placeholder="Pega aquí la respuesta completa del chatbot…"></textarea>
+          <details class="copilot-json-example" id="copilot-json-example">
+            <summary>Ver ejemplo de JSON (forma mínima de este paso)</summary>
+            <pre id="copilot-json-example-pre" class="copilot-json-example-pre"></pre>
+            <p class="copilot-json-example-hint">El chatbot debe devolver un objeto más completo; este snippet solo muestra los campos mínimos para validar el pegado.</p>
+          </details>
           <div id="copilot-error-msg" class="copilot-error hidden" role="alert"></div>
           <div class="copilot-actions">
             <button type="button" class="btn btn-secondary" id="copilot-retry-btn">Reintentar</button>

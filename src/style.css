@@ -3741,10 +3741,42 @@ button {
   border-radius: var(--border-radius-sm);
   color: var(--accent-red);
   font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 .copilot-error.hidden {
   display: none;
+}
+
+.copilot-json-example {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.copilot-json-example summary {
+  cursor: pointer;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+.copilot-json-example-pre {
+  margin: 0.55rem 0 0.35rem;
+  padding: 0.75rem 0.85rem;
+  max-height: 220px;
+  overflow: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary);
+}
+.copilot-json-example-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .copilot-actions {
