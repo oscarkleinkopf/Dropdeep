@@ -1723,7 +1723,7 @@ Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
 
 **Oleada P1 restante (infra)**
 
-- T19, T20, T08, T13/T14, T18, T35 (T06/T07/T11-A ✅)
+- T20, T08, T13/T14, T18, T35 (T06/T07/T11-A/T19 ✅)
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1736,12 +1736,12 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 | Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
 |---------------------|--------------------------|--------------------------|--------------------|
 | T06✅, T07✅ | T25✅, T36✅, T08⬜, T44✅ | T11✅, T35⬜ | T38✅, T39✅ |
-| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
+| T13🟡, T14🟡 | T19✅, T20⬜ | Bundles✅ | T40✅, T41✅, T42✅, T43✅ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
 ```
-T19 (cerrar delete), T20  ||  T13/T14 (cerrar), T15✅
+T19 ✅  ||  T13/T14 (cerrar), T15✅
 T18 (modal límite)  ||  T21🟡
 ```
 
@@ -1813,7 +1813,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T16 | UI cuota proxy restante | P1 | ✅ | Verificado (menú usuario) |
 | T17 | Errores unificados copiloto | P2 | ⬜ | Sin `classifyGeminiError` en copiloto |
 | T18 | UX límite portafolio 10 | P2 | 🟡 | Toast+export; sin modal |
-| T19 | Sync remoto borrado/conflictos | P1 | 🟡 | Upsert sí; delete remoto no |
+| T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
 | T20 | Rate limit abuso proxy | P1 | ⬜ | Sin migración 005 |
 | T21 | Privacidad BYOK | P2 | 🟡 | Falta copy explícito destino clave |
 | T22 | Bundle Chart/Lucide | P2 | ⬜ | Sigue CDN |
