@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Privacidad BYOK + Product Score + Meta disclaimer (T21/T29/T31):** copy explícito en Ajustes (*clave no se envía a DropDeep*); tooltip de pesos en badge Product Score + enlace a evaluación manual; disclaimer de intereses Meta visible al abrir el tab (lista offline).
 - **Feedback dogfooding por informe (T35):** panel **¿Te ayudó a decidir?** (Sí / No / Aún no sé + nota 280) guardado solo en `localStorage`; badge **FB** en portafolio; no se exporta ni sube a Supabase.
 - **Límite portafolio (T18):** al guardar con 10 productos se abre modal con listado (antiguo→reciente), checkboxes para eliminar, **Exportar JSON** y reintento de guardado al liberar cupo (también desde wizard y evaluación manual).
 - **Onboarding + wizard (T13/T14):** CTA **Iniciar Copiloto** fuerza ruta gratis y enfoca el buscador; wizard con **Copiar pack** como acción primaria; Copiloto/API deshabilitados sin nombre de producto; badge **Borrador** en lista y detalle del portafolio.

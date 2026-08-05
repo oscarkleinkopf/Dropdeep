@@ -205,12 +205,33 @@ export function getNextDecision(report) {
   };
 }
 
+/**
+ * Product Score weights (must stay in sync with MANUAL § Product Score).
+ * Margin 25% · Saturation 20% · Trend 20% · Shipping 15% · ROI 20%.
+ */
+export const PRODUCT_SCORE_WEIGHTS = Object.freeze({
+  margin: 0.25,
+  saturation: 0.2,
+  trend: 0.2,
+  shipping: 0.15,
+  roi: 0.2,
+});
+
+/** Spanish tooltip for the report header badge (T29). */
+export function getProductScoreTooltip() {
+  return [
+    'Product Score (0–100) — heurística del informe, no es evaluación manual.',
+    `Pesos: margen ${Math.round(PRODUCT_SCORE_WEIGHTS.margin * 100)}%, saturación ${Math.round(PRODUCT_SCORE_WEIGHTS.saturation * 100)}%, tendencia ${Math.round(PRODUCT_SCORE_WEIGHTS.trend * 100)}%, envío ${Math.round(PRODUCT_SCORE_WEIGHTS.shipping * 100)}%, ROI ${Math.round(PRODUCT_SCORE_WEIGHTS.roi * 100)}%.`,
+    'Completa la Evaluación manual para un veredicto con tus criterios reales.',
+  ].join(' ');
+}
+
 export function calculateProductScore(report) {
-  const wMargin = 0.25;
-  const wSaturation = 0.20;
-  const wTrend = 0.20;
-  const wShipping = 0.15;
-  const wROI = 0.20;
+  const wMargin = PRODUCT_SCORE_WEIGHTS.margin;
+  const wSaturation = PRODUCT_SCORE_WEIGHTS.saturation;
+  const wTrend = PRODUCT_SCORE_WEIGHTS.trend;
+  const wShipping = PRODUCT_SCORE_WEIGHTS.shipping;
+  const wROI = PRODUCT_SCORE_WEIGHTS.roi;
 
   const sMargin = scoreMargin(report.cost && report.retail ? (report.retail - report.cost) : (report.margin || 0));
   const sSaturation = 100 - (parseFloat(report.saturation) || 0);

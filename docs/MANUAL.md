@@ -318,6 +318,8 @@ La clave se guarda **solo en tu navegador** (`localStorage`):
 - Sin sesión: clave anónima en este dispositivo.
 - Con sesión: clave asociada a tu usuario (`dropdeep_gemini_key_<uuid>`).
 
+**Privacidad BYOK:** la clave **no se envía a DropDeep**. En modo BYOK solo viaja a Google (`generativelanguage.googleapis.com`) desde tu navegador. Si usas el **proxy** (sesión sin clave guardada), las llamadas van a tu función Supabase y la clave Gemini vive en el servidor — tu BYOK no se reenvía al proxy cuando está guardada (prioridad BYOK).
+
 **Nunca** pegues la clave en variables `VITE_*` ni la subas al repositorio.
 
 #### Prioridad BYOK vs proxy (importante)
@@ -455,6 +457,8 @@ Puntuación 0–100 calculada automáticamente con estos pesos:
 | 50–74 | **Viable** |
 | < 50 | **Riesgoso** |
 
+En el informe, pasa el cursor sobre el badge **Product Score** para ver la fórmula en español. Junto al badge hay el enlace **Completar evaluación manual** (criterios tuyos, distintos del score automático).
+
 > **Importante:** El **Product Score** del informe y el score de **Evaluación manual** usan criterios distintos. En el **comparador**, si **todos** los productos seleccionados tienen evaluación manual, la fila **Cuál lanzar primero** usa la evaluación manual; si no, usa Product Score (sin mezclar criterios ni inventar scores).
 
 ### Próxima decisión (panel en el informe)
@@ -532,7 +536,9 @@ En **Spy → Análisis de URL (Gemini)** pegas la URL de una tienda o producto. 
 | Pixel / TikTok Pixel / GA4 = **No verificado** | No leemos el HTML de la tienda; se ignora cualquier Sí/No inventado por el modelo |
 | Checklist manual | Sin API: copia URL → visita la tienda → anota PVP/gancho → Copiloto o Evaluación manual |
 
-Los **Intereses Ocultos Meta** siguen siendo una base estática curada (`#meta-interests-disclaimer`); no son datos en vivo de Ads Manager.
+### Spy — Intereses Meta (referencia)
+
+En **Spy → Meta Hidden Interests** el disclaimer está **visible de entrada**: lista **curada offline** para inspiración — **no** son audiencias Meta en vivo. Verifica siempre en Meta Ads Manager antes de gastar presupuesto.
 
 ### Auditoría Meta Ads Chile (pestaña Spy)
 

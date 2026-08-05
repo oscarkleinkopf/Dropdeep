@@ -2,7 +2,7 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
 import { setCacheEntry } from '../research/cache.js';
-import { calculateProductScore, getNextDecision } from '../research/scoring.js';
+import { calculateProductScore, getNextDecision, getProductScoreTooltip } from '../research/scoring.js';
 import { verdictColor } from '../research/manualRubric.js';
 import { sanitizeReport } from '../research/gemini.js';
 import { generateMasterPromptSequence } from './promptHub.js';
@@ -97,8 +97,23 @@ export function openDeepResearchReport(productOrReport) {
   const scoreBadge = document.createElement('span');
   scoreBadge.id = 'report-score-badge';
   scoreBadge.className = `report-badge-status ${badgeClass}`;
+  scoreBadge.title = getProductScoreTooltip();
+  scoreBadge.setAttribute('aria-label', getProductScoreTooltip());
   scoreBadge.innerHTML = `Product Score: <strong>${score}/100</strong> (${badgeLabel})`;
   titleContainer.appendChild(scoreBadge);
+
+  const oldScoreHelp = document.getElementById('report-score-manual-link');
+  if (oldScoreHelp) oldScoreHelp.remove();
+  const scoreHelp = document.createElement('button');
+  scoreHelp.type = 'button';
+  scoreHelp.id = 'report-score-manual-link';
+  scoreHelp.className = 'report-score-manual-link';
+  scoreHelp.textContent = 'Completar evaluación manual';
+  scoreHelp.title = 'La evaluación manual usa tus criterios (no el Product Score automático)';
+  scoreHelp.addEventListener('click', () => {
+    openManualEvaluation(report.name, report);
+  });
+  titleContainer.appendChild(scoreHelp);
 
   if (report._researchMode === 'fast') {
     const modeBadge = document.createElement('span');
@@ -402,6 +417,8 @@ export function openDeepResearchReport(productOrReport) {
     const headerBadge = document.getElementById('report-score-badge');
     if (headerBadge) {
       headerBadge.className = `report-badge-status ${badgeClass}`;
+      headerBadge.title = getProductScoreTooltip();
+      headerBadge.setAttribute('aria-label', getProductScoreTooltip());
       headerBadge.innerHTML = `Product Score: <strong>${score}/100</strong> (${badgeLabel})`;
     }
 

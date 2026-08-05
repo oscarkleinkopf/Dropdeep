@@ -976,7 +976,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T21 — Privacidad BYOK: aclaraciones y no loguear claves
 
-> **Estado (2026-08-05):** 🟡 Parcial — input password + nota de seguridad; falta copy explícito “no se envía a DropDeep…”.
+> **Estado (2026-08-05):** ✅ Hecho — copy explícito en Ajustes/hint (*no se envía a DropDeep; solo a Google o proxy*); input password + `autocomplete=off`; sin `console.log` de claves; MANUAL §5.1.
 
 **Objetivo:** Usuario entiende dónde vive la clave; auditoría de fugas.
 
@@ -989,9 +989,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/geminiKeyBanner.js`, `index.html` (settings modal)
-- `src/utils/geminiStorage.js`
-- Grep repo: `console.log.*key`, `VITE_.*GEMINI`
+- `index.html` (settings modal)
+- `docs/MANUAL.md`
 
 **Pasos**
 
@@ -1206,7 +1205,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T29 — Product Score: documentar y alinear con eval manual
 
-> **Estado (2026-08-05):** 🟡 Parcial — pesos en MANUAL + comentarios `scoring.js`; badge del informe sin tooltip.
+> **Estado (2026-08-05):** ✅ Hecho — `PRODUCT_SCORE_WEIGHTS` + tooltip en badge; enlace **Completar evaluación manual**; pesos ya en MANUAL.
 
 **Objetivo:** Principiante entiende diferencia Product Score (datos reporte) vs eval manual (criterios propios).
 
@@ -1219,8 +1218,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/report.js` — tooltip Product Score
-- `src/research/scoring.js` — comentario exportable
+- `src/ui/report.js` — tooltip Product Score + enlace eval manual
+- `src/research/scoring.js` — `PRODUCT_SCORE_WEIGHTS` / `getProductScoreTooltip`
 - `docs/MANUAL.md`
 
 **Pasos**
@@ -1263,7 +1262,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T31 — Meta Hidden Interests: disclaimer visible por defecto
 
-> **Estado (2026-08-05):** 🟡 Parcial — disclaimer en HTML pero `.hidden` hasta que hay resultados de búsqueda.
+> **Estado (2026-08-05):** ✅ Hecho — `#meta-interests-disclaimer` visible al abrir el tab (sin `.hidden`); copy “lista curada offline… verifica en Meta Ads Manager”.
 
 **Objetivo:** Datos curados estáticos (`metaInterests.js`) no parecen audiencias Meta en vivo.
 
@@ -1276,8 +1275,8 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Archivos**
 
-- `src/ui/spy.js` — `#meta-interests-disclaimer`
 - `index.html`
+- `docs/MANUAL.md`
 
 **Pasos**
 
