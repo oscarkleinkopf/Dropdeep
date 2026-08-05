@@ -2,7 +2,7 @@
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
 >
-> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). No hay tareas numeradas abiertas. Siguiente ciclo = **ops** (migración proxy `005` en prod) + **dogfooding founder** → abrir **T45+** solo con fricción real.
+> **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅ (migración `005` + `gemini-proxy`, [run Actions](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319)). Siguiente ciclo = **dogfooding founder** → abrir **T45+** solo con fricción real.
 >
 > **Última higiene plan ↔ repo:** 2026-08-05 — cierre de auditoría Antigravity; polish P2 (T17/T22–T24/T28) y E2E/proxy (T08/T20) en `main`.
 >
@@ -63,7 +63,7 @@ Commits recientes en `main` (ago 2026 — oleada cierre plan):
 | `#23` T08 | E2E Playwright copiloto |
 | `#22` T20 | Rate limit / abuse proxy |
 
-**Producción Supabase:** migraciones **001–004** aplicadas históricamente. **Ops T20:** script `scripts/deploy-t20-proxy.sh` + workflow `deploy-supabase-proxy.yml` listos; **pendiente** `SUPABASE_ACCESS_TOKEN` para aplicar `005` + redeploy `gemini-proxy` en `texzlizelxavrybkdjdj`. Secretos `GEMINI_API_KEY` + `GEMINI_PROXY_DAILY_LIMIT`; `VITE_GEMINI_PROXY=true` en GitHub Pages.
+**Producción Supabase:** migraciones **001–005** aplicadas; `gemini-proxy` redesplegado con rate/cooldown T20 ([Actions run](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319), 2026-08-05). Secretos `GEMINI_API_KEY` + `GEMINI_PROXY_DAILY_LIMIT`; `VITE_GEMINI_PROXY=true` en GitHub Pages.
 
 ---
 
@@ -128,7 +128,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 - **Duplicación CTAs:** Inicio tiene copiloto + eval manual + wizard — coherente pero denso para primer visita (candidato T45 si dogfooding lo confirma).
 - **Express vs API:** Con ruta API + profundidad Express, API ejecuta Completo (documentado en MANUAL) — puede sorprender.
-- **Ops proxy:** rate limit T20 en código; confirmar migración `005` + redeploy en el proyecto Supabase de producción.
+- ~~**Ops proxy T20**~~ — ✅ migración `005` + redeploy `gemini-proxy` en prod (Actions 2026-08-05).
 
 ---
 
@@ -239,7 +239,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 | T14 / T18 / T19 | Wizard, límite 10, sync delete |
 | T30 / T31 | Shim eliminado; disclaimer Meta visible |
 | T17 / T22–T24 / T28 | Errores, CDN→npm, a11y, móvil, caché |
-| T08 / T20 | E2E CI; rate limit proxy (ops prod pendiente) |
+| T08 / T20 | E2E CI; rate limit proxy **+ ops prod ✅** |
 
 ### Evidencia clave (muestra)
 
@@ -975,7 +975,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 **Criterio:** Spam 10 req/10s → 429 con mensaje español en cliente.
 
-**Deploy:** `supabase db push` (o aplicar `005`) + `supabase functions deploy gemini-proxy`.
+**Deploy:** ✅ Aplicado en prod vía `scripts/deploy-t20-proxy.sh` / workflow `Deploy Supabase proxy (T20)` (2026-08-05).
 
 ---
 
@@ -1713,10 +1713,10 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 | Prioridad | Acción | Por qué |
 |-----------|--------|---------|
-| 1 | **Ops T20 en prod** | `bash scripts/deploy-t20-proxy.sh` (requiere `SUPABASE_ACCESS_TOKEN`) o workflow `Deploy Supabase proxy (T20)` |
-| 2 | **Dogfooding founder** | 3–5 productos reales: Express → eval → auditor → VSL → feedback T35 |
-| 3 | **Abrir T45+** | Solo si el dogfooding confirma fricción (CTAs densos, Express vs API, etc.) |
+| 1 | **Dogfooding founder** | 3–5 productos reales: Express → eval → auditor → VSL → feedback T35 |
+| 2 | **Abrir T45+** | Solo si el dogfooding confirma fricción (CTAs densos, Express vs API, etc.) |
 | — | Backlog diferido §7 | Spy B, sync CRDT, imagen in-app — no priorizar aún |
+| ✅ | ~~Ops T20 en prod~~ | `005` + `gemini-proxy` — [run](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319) |
 
 ### Matriz de solapamiento (histórico — útil si se reabre trabajo)
 
@@ -1775,7 +1775,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **todos los IDs abajo 
 | T17 | Errores unificados copiloto | P2 | ✅ | `classifyCopilotPasteError` + UI título |
 | T18 | UX límite portafolio 10 | P2 | ✅ | Modal listado + export + eliminar |
 | T19 | Sync remoto borrado/conflictos | P1 | ✅ | Delete remoto + tombstones + badge |
-| T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES |
+| T20 | Rate limit abuso proxy | P1 | ✅ | Migración 005 + proxy + UX ES + **prod ops** |
 | T21 | Privacidad BYOK | P2 | ✅ | Copy explícito no-DropDeep + MANUAL |
 | T22 | Bundle Chart/Lucide | P2 | ✅ | npm + lazy Chart; sin CDN |
 | T23 | Accesibilidad modales | P2 | ✅ | Trap + Escape + aria; focus-visible |
@@ -1872,4 +1872,4 @@ Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
 
 ---
 
-*Higiene 2026-08-05: T01–T44 ✅; siguiente ciclo = ops proxy `005` + dogfooding → T45+ solo con fricción real. Las fichas T01–T44 en §5 permanecen como historial ejecutable.*
+*Higiene 2026-08-05: T01–T44 ✅; ops T20 prod ✅; siguiente ciclo = dogfooding → T45+ solo con fricción real. Las fichas T01–T44 en §5 permanecen como historial ejecutable.*
