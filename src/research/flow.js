@@ -1,6 +1,6 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
-import { getCacheEntry } from './cache.js';
+import { formatCacheOriginLabel, getCacheEntry } from './cache.js';
 import { openDeepResearchReport } from '../ui/report.js';
 import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey, hasGeminiKey } from '../ui/geminiKeyBanner.js';
@@ -14,6 +14,7 @@ import {
   RESEARCH_PATH_COPILOT,
   RESEARCH_PATH_API,
 } from '../config/researchPath.js';
+import { getResearchMode } from '../config/researchMode.js';
 
 export function canUseApiResearch() {
   const route = getGeminiRoute();
@@ -28,6 +29,17 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
   const modal = document.getElementById('cache-modal');
   modal.classList.remove('hidden');
 
+  const origin = formatCacheOriginLabel(
+    cachedData?._source,
+    cachedData?._researchMode
+  );
+  const body = modal.querySelector('.terminal-body p');
+  if (body) {
+    body.textContent =
+      `Ya existe un reporte «${origin}» para este producto guardado hace menos de 24 horas. ` +
+      'Puedes cargarlo al instante o forzar una nueva búsqueda (no se reutiliza caché de otra ruta o modo).';
+  }
+
   const cancelBtn = document.getElementById('cache-cancel-btn');
   const closeDot = document.getElementById('close-cache-dot');
   const handleClose = () => modal.classList.add('hidden');
@@ -40,13 +52,13 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
     modal.classList.add('hidden');
     cachedData._loadedFromCache = true;
     openDeepResearchReport(cachedData);
-    showToast('Reporte cargado desde la caché local.', 'success');
+    showToast(`Reporte «${origin}» cargado desde la caché local.`, 'success');
   };
 
   const refreshBtn = document.getElementById('cache-refresh-btn');
   refreshBtn.onclick = () => {
     modal.classList.add('hidden');
-    runResearchDirect(productName, competitorUrl);
+    runResearchDirect(productName, competitorUrl, { skipCache: true });
   };
 }
 
@@ -84,18 +96,25 @@ export function runManualEvaluationFlow(productName = '') {
   openManualEvaluation(productName);
 }
 
-/** Route search submit to copilot or API based on user path + key availability. */
-export function runResearchDirect(productName, competitorUrl = '') {
+/**
+ * Route search submit to copilot or API based on user path + key availability.
+ * @param {{ skipCache?: boolean }} [opts]
+ */
+export function runResearchDirect(productName, competitorUrl = '', opts = {}) {
   const language = getGeminiLanguage();
   state.outputLanguage = language;
 
-  const cachedData = getCacheEntry(productName, language);
-  if (cachedData) {
-    openCacheModal(productName, competitorUrl, cachedData);
-    return;
-  }
-
   const path = getResearchPath();
+  const mode = getResearchMode();
+  const cacheSource = path === RESEARCH_PATH_API ? 'api' : 'copilot';
+
+  if (!opts.skipCache) {
+    const cachedData = getCacheEntry(productName, language, cacheSource, mode);
+    if (cachedData) {
+      openCacheModal(productName, competitorUrl, cachedData);
+      return;
+    }
+  }
 
   if (path === RESEARCH_PATH_COPILOT) {
     runCopilotResearch(productName, competitorUrl);

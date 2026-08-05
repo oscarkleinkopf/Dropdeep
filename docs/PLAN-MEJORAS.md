@@ -202,7 +202,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 5. ~~**Spy sin verificación**~~ — ✅ T11-A (Opción A).
 6. ~~**`src/data.js` shim roto**~~ — ✅ T30 eliminado.
 7. ~~**Sin E2E Playwright**~~ — ✅ T08.
-8. **Caché no distingue fuente/modo** — ⬜ T28.
+8. ~~**Caché no distingue fuente/modo**~~ — ✅ T28.
 9. ~~**Bundles half-wired**~~ — ✅ §21 usa `generateBundleStructure`.
 10. ~~**Sync delete solo local**~~ — ✅ T19.
 11. **Validación JSON copiloto incompleta** — ✅ T06/T07 (tips + ejemplo JSON + UI pasos completados).
@@ -1182,7 +1182,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T28 — Caché: invalidar al cambiar modo o fuente
 
-> **Estado (2026-08-05):** ⬜ No iniciado — `getCacheKey(query, language)` sin source/mode.
+> **Estado (2026-08-05):** ✅ Hecho — `getCacheKey(query, lang, source, mode)`; modal muestra origen (API/Copiloto + modo); tests `cacheKey.test.js`.
 
 **Objetivo:** No servir reporte API cacheado cuando usuario elige copiloto (o viceversa).
 
@@ -1755,7 +1755,7 @@ T18 ✅  ||  T21 ✅
 ### Fase 3 — Polish (P2)
 
 ```
-T22⬜, T23⬜, T24🟡  ||  T28⬜, T29✅, T30✅, T31✅, T17⬜
+T22⬜, T23⬜, T24🟡  ||  T28✅, T29✅, T30✅, T31✅, T17⬜
 T37✅ (re-verificar pins al crear ci.yml)
 ```
 
@@ -1829,7 +1829,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T25 | Tests unitarios parse/rubric | P1 | ✅ | Vitest en `main` |
 | T26 | CI build + test (legacy) | P1 | ✅ | Cubierto por T36 |
 | T27 | Unificar prompts API/schema | P1 | ✅ | Verificado |
-| T28 | Caché por fuente/modo | P2 | ⬜ | Clave solo query+lang |
+| T28 | Caché por fuente/modo | P2 | ✅ | Clave + modal origen; sin reuso cruzado |
 | T29 | Documentar Product Score | P2 | ✅ | Tooltip + enlace eval manual |
 | T30 | Limpiar código muerto | P2 | ✅ | Shim eliminado (#4) |
 | T31 | Disclaimer Meta interests | P2 | ✅ | Visible al abrir tab |

@@ -62,7 +62,9 @@ export function openDeepResearchReport(productOrReport) {
 
   if (!loadedFromCache) {
     const language = state.outputLanguage || 'es';
-    setCacheEntry(report.name, report, language);
+    const source = report._source || 'api';
+    const mode = report._researchMode || 'complete';
+    setCacheEntry(report.name, report, language, source, mode);
   }
 
   state.currentReport = report;
