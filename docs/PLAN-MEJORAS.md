@@ -2,7 +2,11 @@
 
 > Documento ejecutable para agentes/bots sin contexto previo. **Solo planificación** — no implementar desde este archivo salvo que una tarea concreta lo indique explícitamente.
 >
-> **Última auditoría de código:** 2026-08-05 — contraste plan ↔ repo tras import desde Antigravity (`silly-meitner`). Varias tareas quedaron **a medias** (posible corte por límite de tokens). Leyenda de estado: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado.
+> **Última auditoría de código:** 2026-08-05 — contraste plan ↔ repo tras import desde Antigravity (`silly-meitner`). Varias tareas quedaron **a medias** (posible corte por límite de tokens).
+>
+> **Metodología de negocio (2026-08-05):** DropDeep se alinea al **método Audisio & Domingo** (precios CLP Chile, calificación Winner, auditoría Meta Ads offline, creativos VSL). Ver [§9](#9-metodología-audisio--domingo) y tareas **T38–T44**.
+>
+> Leyenda de estado: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado.
 
 ---
 
@@ -12,10 +16,11 @@
 2. [Evaluación end-to-end (2026-07-29)](#2-evaluación-end-to-end-2026-07-29)
 3. [Estado actual (qué ya existe)](#3-estado-actual-qué-ya-existe)
 4. [Auditoría 2026-08-05 — ¿qué quedó a medias?](#4-auditoría-2026-08-05--qué-quedó-a-medias)
-5. [Tareas numeradas (T01–T37)](#5-tareas-numeradas-t01t37)
+5. [Tareas numeradas (T01–T44)](#5-tareas-numeradas-t01t44)
 6. [Orden sugerido de ejecución](#6-orden-sugerido-de-ejecución)
 7. [Backlog diferido](#7-backlog-diferido)
 8. [Índice rápido de tareas](#8-índice-rápido-de-tareas)
+9. [Metodología Audisio & Domingo](#9-metodología-audisio--domingo)
 
 ---
 
@@ -23,15 +28,19 @@
 
 ### Contexto (breve)
 
-**DropDeep** analiza productos para dropshipping, orientado a emprendedores principiantes. Ofrece investigación de mercado, copywriting, activos de campaña y validación de productos.
+**DropDeep** analiza productos para dropshipping, orientado a emprendedores principiantes (mercado Chile / CLP como referencia primaria). Ofrece investigación de mercado, copywriting, activos de campaña y validación de productos.
+
+**Norte de negocio:** metodología **Alejo Audisio & Domingo** — precios/márgenes, calificación de productos *Winner*, diagnóstico de métricas Meta Ads (inputs del usuario, sin API Meta) y directrices de creativos VSL. Detalle normativo en [§9](#9-metodología-audisio--domingo).
 
 ### Reglas fijas (no negociables)
 
 | Regla | Detalle |
 |-------|---------|
-| **Ruta gratis sin API pagada** | Debe ser realmente útil y **nunca bloquearse**: packs por vertical (`src/data/verticalPacks.js`), **Modo Copiloto** con paste-back (`src/research/copilotFlow.js`), **Evaluación manual** determinista (`src/research/manualRubric.js`). |
+| **Ruta gratis sin API pagada** | Debe ser realmente útil y **nunca bloquearse**: packs por vertical (`src/data/verticalPacks.js`), **Modo Copiloto** con paste-back (`src/research/copilotFlow.js`), **Evaluación manual** determinista (`src/research/manualRubric.js`). Calculadoras Audisio (T38–T40) son **100% offline**. |
 | **API opcional** | Gemini BYOK (`src/utils/geminiStorage.js`) o proxy Supabase con cuota diaria (`supabase/functions/gemini-proxy/`) es un **acelerador**, no requisito. |
-| **Prohibido** | Datos mock/simulados presentados como reales; Stripe/billing; secretos en git. |
+| **Prohibido** | Datos mock/simulados presentados como reales; Stripe/billing; secretos en git; **integración Meta Ads API** (el auditor usa métricas pegadas/manuales). |
+| **Metodología honesta** | Umbrales Audisio son **reglas de negocio del producto**, no datos de mercado en vivo. UI debe etiquetar “según método Audisio & Domingo” / “umbrales Chile de referencia”. |
+| **Logística del método** | AliExpress al inicio → proveedor privado con volumen. **No** modelar pago contraentrega ni Dropi como camino recomendado. |
 | **Auth modal** | `#auth-modal` debe permanecer **fuera** de `#app-shell` (`index.html` líneas 66–105 vs 108+). |
 | **Build y deploy** | `npm run build` debe pasar; GitHub Pages con base `/Dropdeep/` (`vite.config.js`). |
 | **UI** | Español; código modular en `src/`. |
@@ -250,7 +259,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ---
 
-## 5. Tareas numeradas (T01–T37)
+## 5. Tareas numeradas (T01–T44)
 
 ---
 
@@ -1486,38 +1495,234 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ---
 
+### T38 — Motor de reglas financieras Audisio (constantes + precio/margen)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — hoy el informe usa USD genérico y CPA/ROAS simples en `report.js` sin umbrales Audisio ni CLP.
+
+**Objetivo:** Codificar políticas §9.1 como módulo puro reutilizable (offline): multiplicador costo→PVP ≈2.5, margen neto objetivo 35%, rango PVP 40k–100k CLP, piso 20k CLP, margen bruto mínimo $15 USD, presupuesto test $300 USD.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P0 (metodología) |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | Ninguna |
+| **Paralelizable** | Sí (archivos nuevos) |
+
+**Archivos**
+
+- Nuevo: `src/config/audisioRules.js` — constantes + helpers (`suggestRetailFromCost`, `checkPriceBandClp`, `netMarginTarget`, `grossMarginUsd`)
+- Nuevo: `src/research/pricingAudisio.js` — cálculo con inputs usuario (costo AliExpress, FX CLP/USD editable, comisiones)
+- `src/ui/report.js` — panel “Precios Audisio” en snapshot o sección ops
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos**
+
+1. Constantes con comentarios citando §9; FX **no** live — default documentado + input usuario.
+2. Dado costo origen: sugerir PVP ≈ costo×2.5; flags si bajo 20k CLP o fuera de 40k–100k.
+3. Mostrar margen bruto USD y si cumple mínimo $15; hint oferta/regalo para acercarse a 35% neto.
+4. Disclaimer UI: “Reglas del método Audisio & Domingo — no cotización en vivo”.
+
+**Criterio de aceptación**
+
+- Sin API: usuario ingresa costo 10 USD → ve PVP sugerido ~25 USD / equivalente CLP con FX editable.
+- PVP bajo 20k CLP → alerta bloqueante “no vender bajo este piso”.
+- `npm run build` pasa.
+
+**NO romper:** Calculadora ROAS/CPA actual; añadir, no reemplazar a ciegas.
+
+---
+
+### T39 — Rúbrica Winner Audisio (gates + alineación eval manual)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — `manualRubric.js` ya tiene `problemWow`, `shippingSize`, `margin`, `seasonality` pero **no** gates “mín. 1 de 3” ni CPA proyectado $5–$7 ni margen absoluto $15.
+
+**Objetivo:** Evaluación manual (y opcionalmente Product Score) emite veredicto Winner alineado al método: Solución / Emoción / WOW (mín. 1, ideal 3), caja no mayor que zapatos, margen bruto sobre $15 USD, CPA test $5–$7 (máx $12–$15; $20 solo ticket ~$100), calidad + atemporalidad.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P0 (metodología) |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | T38 (margen absoluto / precio) |
+| **Paralelizable** | Solapa `manualRubric.js`, `manualEvaluation.js`, `scoring.js` |
+
+**Archivos**
+
+- `src/research/manualRubric.js` — separar `problemWow` en 3 criterios o checkboxes; gates duros
+- `src/ui/manualEvaluation.js`, `index.html` — UI de gates
+- `src/research/scoring.js` — `getNextDecision` menciona gates Winner
+- Tests: extender T25 con casos Winner
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Pasos**
+
+1. Criterios booleanos/slider: `solvesPain`, `emotionalHook`, `wowFactor` — fail si los 3 son falsos/bajos.
+2. Gate tamaño/peso (reusar `shippingSize` con umbral).
+3. Gate margen bruto USD (desde T38 o inputs rubrica).
+4. Campo CPA proyectado (usuario) vs bandas Audisio → contribución + alerta.
+5. Veredicto: si falla gate indispensable → no puede ser “Lanzar” aunque score ≥70.
+
+**Criterio de aceptación**
+
+- Producto sin solución/emoción/WOW → Descartar o Validar con explicación explícita del gate.
+- Margen $10 USD → no “Lanzar”.
+- Offline, sin Gemini.
+
+---
+
+### T40 — Auditor Meta Ads Chile (umbrales offline)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — distinto de T12 (heurística de titulares). Aquí el usuario **pega métricas reales** de su Ads Manager.
+
+**Objetivo:** Herramienta offline: inputs CTR, CPC, ATC, CPM, venta, costos → CPA Máximo Audisio + semáforo de umbrales Chile.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Alto / Medio |
+| **Dependencias** | T38 (componentes de margen para CPA máx) |
+| **Paralelizable** | Parcial — UI nueva; no tocar Spy API |
+
+**Archivos**
+
+- Nuevo: `src/research/metaAdsAudit.js` — fórmulas puras
+- Nuevo UI: sección en Spy o vista “Auditoría ads” / panel en reporte
+- `index.html`, `src/events.js`, `src/style.css`
+- `docs/MANUAL.md`, `CHANGELOG.md`
+- Tests unitarios fórmulas (con T25/T44)
+
+**Fórmulas / umbrales (codificar exactamente)**
+
+- CPA Máx = margen final tras: costo AliExpress+IVA 19%, comisión pasarela (MP), comisión Shopify, IVA venta 10–19% (input).
+- CTR: bajo 2% malo; 3–4% bueno; 6–8% excelente.
+- CPC: ideal 100–200 CLP; techo aceptable bajo 300 CLP.
+- ATC: normal 1k–3k CLP; tolerar si = 1/3–1/5 del CPA máx.
+- CPM Chile: 3k–6k tipico; 10k–15k OK en nichos competitivos si tráfico calidad.
+
+**Criterio de aceptación**
+
+- Usuario ingresa métricas → diagnóstico en español con semáforo; si CPA campaña &gt; CPA máx → “estás perdiendo plata”.
+- Cero llamadas a Meta API; disclaimer “umbrales de referencia del método, no benchmark en vivo”.
+
+**NO romper:** T12 comparador de titulares; Spy inferido (T11).
+
+---
+
+### T41 — Kit creativos VSL + checklist de lanzamiento (Audisio)
+
+> **Estado (2026-08-05):** ⬜ No iniciado — hay UGC/scripts genéricos; faltan estructura Hook 3–7s / Body / CTA, specs CapCut/Canva y checklist 5 videos + warm-up cuenta.
+
+**Objetivo:** En informe o Prompt Hub: plantillas de guión VSL (20–60s), tipografías (Montserrat 13 CapCut; Poppins Canva; hook MAYÚSCULAS negro/blanco), locución ElevenLabs 1.15x, checklist lanzamiento (mín. 5 videos + 5–10 imágenes; warm-up Interacción $5/día 1–2 días; budget inicial $10/día × 4 días principiantes / $20 experimentados; sin segmentación manual).
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Medio |
+| **Dependencias** | Ninguna (puede ir en paralelo a T38) |
+| **Paralelizable** | Solapa `report.js`, `promptHub.js`, `whatsappScripts.js` patterns |
+
+**Archivos**
+
+- Nuevo: `src/research/vslAudisio.js` o extensión `reportSchema` prompts
+- `src/ui/report.js` / `promptHub.js` — sección checklist
+- `docs/MANUAL.md`, `CHANGELOG.md`
+
+**Criterio de aceptación**
+
+- Checklist marcable offline; guión VSL exportable en kit MD.
+- Copy no inventa rendimiento de ads.
+
+---
+
+### T42 — Presupuesto de testeo $300 USD + autofinanciamiento en ops
+
+> **Estado (2026-08-05):** ⬜ No iniciado — Montecarlo existe pero no ancla presupuesto primer mes $300 USD ni “después autofinanciar”.
+
+**Objetivo:** Conectar §20 Montecarlo / calculadora con plan de test: $300 USD primer mes–mes y medio; proyección días a $10–20/día; aviso cuando CPA proyectado agota budget sin aprendizaje.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P2 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | T38, Montecarlo ya en `montecarlo.js` |
+| **Paralelizable** | Solapa `report.js`, `montecarlo.js` |
+
+**Criterio:** Defaults Audisio en inputs Montecarlo; texto “presupuesto de testeo del método”.
+
+---
+
+### T43 — Documentar metodología en MANUAL + disclaimers CLP/Chile
+
+> **Estado (2026-08-05):** ⬜ No iniciado.
+
+**Objetivo:** `docs/MANUAL.md` explica método Audisio & Domingo, cuándo usar auditor ads, FX editable, y que no hay sync Meta. Glosario: CPA máx, ATC, Winner gates.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Medio / Bajo |
+| **Dependencias** | Ideal tras T38–T40 (o docs stub primero) |
+| **Paralelizable** | Sí |
+
+**Criterio:** Sección manual enlazada desde Ayuda; CHANGELOG entrada “Metodología Audisio”.
+
+---
+
+### T44 — Tests unitarios fórmulas Audisio
+
+> **Estado (2026-08-05):** ⬜ No iniciado — acoplar a T25.
+
+**Objetivo:** Vitest para `audisioRules`, `pricingAudisio`, `metaAdsAudit`, gates Winner — sin red.
+
+| Campo | Valor |
+|-------|-------|
+| **Prioridad** | P1 |
+| **Impacto / Esfuerzo** | Alto / Bajo |
+| **Dependencias** | T38, T39, T40, T25 |
+| **Paralelizable** | Sí (archivos `tests/`) |
+
+**Criterio:** ≥12 asserts (multiplicador 2.5, piso 20k CLP, CPA máx, CTR bands, gate 0/3 criterios).
+
+---
+
 ## 6. Orden sugerido de ejecución
+
+### Fase metodología Audisio (nueva — 2026-08-05)
+
+```
+T38 → T39 → T40 → T44
+  │      │      └── auditor Meta Ads Chile (offline)
+  │      └── rúbrica Winner + gates
+  └── constantes precio/margen CLP
+
+Paralelo: T41 (VSL/checklist) || T43 (docs) || T42 (Montecarlo $300)
+```
 
 ### Fase dogfooding — founder solo (actualizado 2026-08-05)
 
 Ya hechos en el camino crítico: **T33, T09, T05, T16, T10, T34**.
 
-**Siguiente oleada recomendada (cerrar cortes + red de seguridad):**
+**Siguiente oleada recomendada (cerrar cortes + metodología + red de seguridad):**
 
 ```
-Bundles wire-up → T30 → T06 → T07 → T25 → T36 → T35 → T11-A
-     │              │      │      │       │
-     │              │      │      │       └── feedback dogfooding
-     │              │      │      └── tests + CI
-     │              │      └── completar copiloto (parcial)
-     │              └── shim roto (rápido, bajo riesgo)
-     └── residuo mid-task ops §21 (1 archivo, alto ROI claridad)
+Bundles → T30 → T38 → T39 → T25/T44 → T36 → T40 → T41
+  cortes     │      metodología pricing/Winner    │      ads + creativos
+             └── shim                          tests
 ```
 
-**Top 5 para empezar ya**
+**Top prioridades ahora**
 
 | Orden | ID | Por qué primero |
 |-------|-----|-----------------|
-| 0 | **Bundles** | Import muerto + UI hardcodeada — cierre de corte Antigravity |
-| 1 | **T30** | Shim roto confunde agentes; esfuerzo bajo |
-| 2 | **T06 + T07** | Completar parciales del camino gratis (validación/recuperación) |
-| 3 | **T25 + T36** | Tests + CI antes de más cambios en parse/rubric |
-| 4 | **T35** | Señal de dogfooding local |
-| 5 | **T11-A** | Honestidad Spy (badge + “No verificado”) |
+| 0 | **Bundles** | Cierre corte Antigravity (rápido) |
+| 1 | **T30** | Shim roto |
+| 2 | **T38 + T39** | Encarnar método Audisio en pricing + Winner (norte de producto) |
+| 3 | **T25 + T44 + T36** | Tests de parse/rubric **y** fórmulas Audisio + CI |
+| 4 | **T40** | Auditor ads Chile — valor dogfooding post-lanzamiento |
+| 5 | **T41 + T43** | Creativos VSL + manual |
 
-**Oleada P1 restante**
+**Oleada P1 restante (infra)**
 
-- T19 (delete remoto), T20 (abuso proxy), T08 (E2E), T13/T14 (cerrar parciales onboarding/wizard), T18 (modal límite)
+- T06/T07 (cerrar copiloto), T19, T20, T08, T13/T14, T18, T35, T11-A
 
 ### Fase 0 — Integridad y confianza (P0) — ✅ COMPLETADA
 
@@ -1527,10 +1732,10 @@ T03 → T01 → T02 → T27 → T04 → T12   (commits e3b43d1, prod Supabase ju
 
 ### Fase 1 — Calidad camino gratis + tests (P1) — en curso
 
-| Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) |
-|---------------------|--------------------------|--------------------------|
-| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜ | T11⬜, T35⬜ |
-| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 |
+| Stream A (copiloto) | Stream B (infra + tests) | Stream C (honestidad UI) | Stream D (Audisio) |
+|---------------------|--------------------------|--------------------------|--------------------|
+| T06🟡, T07🟡 | T25⬜, T36⬜, T08⬜, T44⬜ | T11⬜, T35⬜ | T38⬜, T39⬜ |
+| T13🟡, T14🟡 | T19🟡, T20⬜ | Bundles🟡 | T40⬜, T41⬜, T42⬜, T43⬜ |
 
 ### Fase 2 — Retención y robustez (P1–P2)
 
@@ -1550,13 +1755,15 @@ T37✅ (re-verificar pins al crear ci.yml)
 
 | Archivo | Tareas que lo tocan |
 |---------|---------------------|
-| `src/ui/spy.js` | T11, T31 |
+| `src/ui/spy.js` | T11, T31, T40 (si auditor vive en Spy) |
 | `src/research/copilotFlow.js` | T07 |
 | `src/ui/copilotPanel.js` | T06, T07, T17 |
-| `src/ui/report.js` | T29, T35, Bundles |
+| `src/ui/report.js` | T29, T35, Bundles, T38, T41, T42 |
+| `src/research/manualRubric.js` | T39, T44 |
 | `src/research/bundles.js` | Bundles residual |
+| `src/config/audisioRules.js` | T38, T39, T40, T44 (nuevo) |
 | `supabase/functions/gemini-proxy` | T20 |
-| `index.html` | T14, T18, T23, T24 |
+| `index.html` | T14, T18, T23, T24, T40, T41 |
 | `.github/workflows/*` | T08, T26/T36 |
 | `src/data.js` | T30 |
 
@@ -1573,8 +1780,11 @@ T37✅ (re-verificar pins al crear ci.yml)
 | **Sincronización offline-first completa** | Supabase sync es best-effort; CRDT/queue es over-engineering hasta validar uso. |
 | **i18n inglés** | Producto es UI español; `outputLanguage` en Gemini no implica UI bilingüe. |
 | **Reescritura total `report.js`** | Archivo grande pero funcional; preferir extracción incremental. |
-| **Integración Meta Ads API** | Coste, OAuth, fuera de alcance tier gratis. |
+| **Integración Meta Ads API / Marketing API** | Coste, OAuth, fuera de alcance. El **auditor T40** cubre el método con inputs manuales (Audisio). |
+| **Tipo de cambio CLP/USD en vivo** | FX editable por usuario (T38); feed FX sería dependencia y fuente de desconfianza. |
+| **Pago contraentrega / Dropi como flujo** | Explicitamente fuera del método Audisio — no modelar como recomendado. |
 | **Imagen/mockup generation in-app** | Sección prompts IA en reporte es copy-paste externo; gateway Netlify no configurado. |
+| **ElevenLabs / CapCut automatizados** | T41 documenta specs; automatizar edición/voz está fuera de MVP. |
 
 ---
 
@@ -1621,8 +1831,83 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T35 | Feedback dogfooding local | P1 | ⬜ | Sin storage/panel |
 | T36 | CI build + unit tests | P1 | ⬜ | Sin `ci.yml` |
 | T37 | Pin acciones GitHub / Node | P2 | ✅ | checkout/setup-node v5 + Node 22 |
+| T38 | Reglas financieras Audisio (CLP/margen) | P0 | ⬜ | Nuevo — metodología |
+| T39 | Rúbrica Winner + gates Audisio | P0 | ⬜ | Nuevo — alinea `manualRubric` |
+| T40 | Auditor Meta Ads Chile offline | P1 | ⬜ | Nuevo — inputs usuario, no API Meta |
+| T41 | Kit VSL + checklist lanzamiento | P1 | ⬜ | Nuevo — creativos Audisio |
+| T42 | Presupuesto test $300 en Montecarlo | P2 | ⬜ | Nuevo |
+| T43 | MANUAL metodología Audisio | P1 | ⬜ | Nuevo |
+| T44 | Tests fórmulas Audisio | P1 | ⬜ | Nuevo — con T25 |
 | — | Bundles ops §21 wire-up | — | 🟡 | `generateBundleStructure` importado, no llamado |
 
 ---
 
-*Actualizado 2026-08-05 tras auditoría código ↔ plan (post-import Antigravity). Verificar archivos antes de ejecutar cada tarea — otro agente puede haber modificado el repo en paralelo.*
+## 9. Metodología Audisio & Domingo
+
+> Fuente: instrucciones de sistema del consultor e-commerce (Audisio & Domingo), adoptadas como **norte de producto** el 2026-08-05. Codificar en T38–T44. **No inventar métricas** — las calculadoras usan inputs del usuario + umbrales fijos del método.
+
+### 9.1 Políticas financieras y precios
+
+| Regla | Valor |
+|-------|-------|
+| Margen neto objetivo | ~35% (facilitar con oferta/regalo de alto valor percibido) |
+| Multiplicador costo → PVP | ≈ ×2.5 (ej. costo 10 → venta ~25) |
+| Rango PVP recomendado | 40.000 – 100.000 CLP |
+| Piso absoluto PVP | No vender bajo 20.000 CLP |
+| Presupuesto ads de testeo | 300 USD primer mes / mes y medio → luego autofinanciar |
+| Logística | AliExpress al inicio → proveedor privado con volumen |
+| Fuera de método | Pago contraentrega; Dropi |
+
+### 9.2 Calificación producto Winner (para testear en campaña)
+
+1. **Indispensable — cumplir mínimo 1, ideal 3:** solución de problema · conexión emocional · efecto WOW.
+2. **Dimensiones/peso:** empaque ligero, volumen ≤ caja de zapatos.
+3. **Margen bruto:** más de 15 USD por unidad.
+4. **CPA proyectado:** test inicial 5–7 USD; máx aceptable 12–15 USD; estirar a 20 USD solo si producto ~100 USD.
+5. **Calidad + atemporalidad:** excelente funcionamiento; preferir no estacional.
+
+### 9.3 Auditoría Meta Ads (Chile) — inputs del anunciante
+
+**CPA máximo** = margen final tras: venta − costo AliExpress con IVA 19% − comisión pasarela (ej. Mercado Pago) − comisión Shopify − IVA de la venta (10–19%).  
+Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
+
+| Métrica | Umbral método |
+|---------|----------------|
+| CTR | Mín. 2%; bueno 3–4%; excelente 6–8% |
+| CPC | Ideal 100–200 CLP; aceptable &lt; 300 CLP |
+| ATC (costo add-to-cart) | Normal 1.000–3.000 CLP; tolerar si = 1/3–1/5 del CPA máx |
+| CPM Chile | Típico 3.000–6.000 CLP; nichos competitivos 10.000–15.000 CLP OK si tráfico calidad |
+
+### 9.4 Creativos y lanzamiento
+
+- Video 20–60 s; guión **Hook (3–7 s) → Body → CTA** (urgencia / envío gratis).
+- CapCut: Montserrat 13; Canva: Poppins; hook visual: MAYÚSCULAS negras sobre fondo blanco.
+- Locución AI (ElevenLabs) ~1.15×; recortar silencios en CapCut.
+- Lanzamiento: mín. 5 videos + 5–10 imágenes; cuentas nuevas: warm-up Interacción 5 USD/día × 1–2 días antes de Ventas; budget inicial 10 USD/día × ≥4 días (principiantes) o 20 USD/día (experimentados); **sin** segmentación manual (Advantage+ / inteligencia Meta).
+
+### 9.5 Gap vs código actual (2026-08-05)
+
+| Capacidad método | En DropDeep hoy | Tarea |
+|------------------|-----------------|-------|
+| Multiplicador 2.5 + bandas CLP | Snapshot USD genérico; sin piso 20k CLP | **T38** |
+| Margen neto 35% / bruto $15 | Rubrica `margin` es slider % subjetivo | **T38 + T39** |
+| Gates Winner (1 de 3) | `problemWow` unificado; sin hard gates | **T39** |
+| CPA proyectado bandas 5–15 | CPA estimado simple CPC/conv en `report.js` | **T39 + T40** |
+| CPA máximo con IVA/comisiones CL | No modelado | **T40** |
+| Semáforo CTR/CPC/ATC/CPM Chile | No existe (T12 es heurística de titulares, no Ads) | **T40** |
+| VSL Hook/Body/CTA + checklist 5 creativos | UGC/scripts genéricos; WhatsApp §23 | **T41** |
+| Budget test 300 USD | Montecarlo sin ancla Audisio | **T42** |
+| Docs método | MANUAL sin Audisio | **T43** |
+| Tests fórmulas | Sin Vitest | **T44** (+ T25) |
+
+### 9.6 Principios de implementación
+
+1. **Offline-first:** todas las calculadoras Audisio funcionan sin Gemini ni Meta API.
+2. **Etiquetar origen:** “Según método Audisio & Domingo” — nunca como “datos de Meta en vivo”.
+3. **FX editable:** no hardcodear un dólar eterno sin permitir override.
+4. **No contradecir honestidad:** T12 (sin CTR falso en titulares) sigue; T40 usa CTR **declarado por el usuario**.
+5. **Compatibilidad:** mantener eval manual actual; Winner gates **añaden** restricciones al veredicto Lanzar, no borran el score 0–100.
+
+---
+
+*Actualizado 2026-08-05: auditoría mid-task + adopción metodología Audisio & Domingo (T38–T44). Verificar archivos antes de ejecutar cada tarea.*
