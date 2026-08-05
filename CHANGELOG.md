@@ -6,6 +6,10 @@ Las entradas más recientes van primero.
 
 ## [Unreleased]
 
+### Cambiado
+
+- **Bundles (sección 21):** la UI usa el motor `generateBundleStructure` (packs, upsell y % AOV desde el retail del informe). Se eliminó el “+45% AOV” fijo hardcodeado; el boost mostrado es heurístico (mix 35/50/15), no predicción de ventas.
+
 ### Añadido
 
 - **Metodología Audisio (T43):** nueva §12 en el manual (disclaimers CLP/Chile, FX editable, sin sync Meta, mapa de paneles, cuándo usar el auditor, gates Winner, orden práctico). Ayuda in-app enlaza a esa sección; glosario ampliado (gates Winner, CPA proyectado) y troubleshooting FX/auditoría.

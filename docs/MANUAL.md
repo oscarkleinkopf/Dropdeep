@@ -485,7 +485,7 @@ En informes **Modo Rápido** o **Express**, el panel recuerda que faltan seccion
 | 18 | Prompts para Mockups | Imágenes de producto | Creativos visuales |
 | 19 | Prompts para Chatbot | Secuencia enriquecida | Iterar con IA externa |
 | 20 | Simulador Montecarlo | Escenarios P10/P50/P90 + plan de test Audisio ($300, ritmo $10–20/día, aviso CPA/aprendizaje) | ¿Cuánto riesgo asumes antes de gastar en ads? |
-| 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell | Subir AOV en checkout |
+| 21 | Bundles & Upsells Engine | Packs 1x/2x/3x + guion one-click upsell generados desde el **retail del informe** (mix heurístico 35/50/15); el % AOV estimado no es predicción de ventas reales | Subir AOV en checkout |
 | 22 | Bloques HTML de Conversión | Tabla comparativa, grilla de beneficios y FAQ listos para copiar | Acelerar la página de producto |
 | 23 | Guiones WhatsApp & Soporte | Mensajes de cierre y objeciones | Venta manual por chat |
 | 24 | VSL & Lanzamiento Audisio | 3 guiones Hook→Body→CTA + specs CapCut/Canva/ElevenLabs + checklist de lanzamiento | ¿Tienes creativos y presupuesto listos antes de gastar? |
@@ -503,6 +503,8 @@ Plantillas **offline** del método Audisio & Domingo (no predicen CTR ni ventas)
 | Checklist | Mín. 5 videos, 5–10 imágenes, calentamiento 1–2 días a $5/día, lanzamiento principiante $10/día ≥ 4 días (o $20 si ya tienes experiencia), sin audiencia manual | 
 
 El estado de la checklist se guarda en `localStorage` por nombre de producto. El **kit de campaña** (export `.md`) incluye esta sección.
+
+**Bundles & Upsells (sección 21):** los precios de packs y el incremento de AOV se calculan offline con `generateBundleStructure` a partir del precio retail del informe (2x ≈ 1.60× retail con “20% OFF”, 3x ≈ 1.95× con “35% OFF”, upsell post-compra al 50%). El boost de AOV asume un mix de compra 35% / 50% / 15% entre packs — úsalo como plantilla de oferta, no como forecast.
 
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
