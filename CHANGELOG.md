@@ -12,6 +12,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Spy honesto (T11 Opción A):** banner permanente *Análisis inferido por IA — no verificado*; badge en resultados; Pixel/TikTok/GA4 siempre **No verificado** (ya no Sí/No); checklist manual gratis sin API; pestaña renombrada a «Análisis de URL (Gemini)» (no scraper). Intereses Meta y disclaimer estático sin cambios.
 - **Metodología Audisio (T43):** nueva §12 en el manual (disclaimers CLP/Chile, FX editable, sin sync Meta, mapa de paneles, cuándo usar el auditor, gates Winner, orden práctico). Ayuda in-app enlaza a esa sección; glosario ampliado (gates Winner, CPA proyectado) y troubleshooting FX/auditoría.
 - **Presupuesto de testeo $300 en Montecarlo (T42):** sección 20 ancla el pool Audisio ($300 primer mes / mes y medio), presets $10/$20 por día con runway, panel de CPA proyectado / pedidos estimados, avisos si el CPA agota el budget sin aprendizaje, y nota de autofinanciamiento. Defaults CPC alineados a banda Chile.
 - **Kit VSL & lanzamiento Audisio (T41):** sección 24 del informe con 3 guiones Hook→Body→CTA (20–60 s), specs CapCut/Canva/ElevenLabs, checklist de lanzamiento (5 videos, calentamiento, presupuestos) persistida en el navegador, y el mismo bloque en el export del kit de campaña. Prompt Hub fase 4 menciona las reglas Audisio.

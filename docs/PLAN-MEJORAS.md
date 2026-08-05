@@ -98,7 +98,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 ### Otras observaciones (actualizado 2026-08-05)
 
 - ~~**Cuota proxy UI parcial**~~ — ✅ T16: badge en menú usuario + fetch al login.
-- **Spy inferido como verificado:** ⬜ T11 — pixel/GA siguen Sí/No definitivos; sin badge “Inferido por IA”.
+- ~~**Spy inferido como verificado**~~ — ✅ T11-A: badge Inferido por IA; pixel/GA = No verificado; checklist manual.
 - **Sync remoto unidireccional:** 🟡 T19 — upsert sí; borrar local **no** borra en Supabase.
 - **Caché sin fuente/modo:** ⬜ T28 — `getCacheKey(query, language)` solo.
 - ~~**Código muerto**~~ — ✅ T30: eliminados `reportGenerator.js` y shim `src/data.js`.
@@ -199,7 +199,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 2. ~~**Gráfico tendencia simulado**~~ — ✅ T34.
 3. ~~**Sesión copiloto volátil**~~ — ✅ T05.
 4. ~~**Comparador sin eval manual**~~ — ✅ T10.
-5. **Spy sin verificación** — ⬜ T11-A: sin badge “Inferido por IA”; pixel/GA como booleanos.
+5. ~~**Spy sin verificación**~~ — ✅ T11-A (Opción A).
 6. ~~**`src/data.js` shim roto**~~ — ✅ T30 eliminado.
 7. **Sin E2E Playwright** — ⬜ T08; ~~unit/CI~~ ✅ T25/T36/T44.
 8. **Caché no distingue fuente/modo** — ⬜ T28.
@@ -650,7 +650,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 
 ### T11 — Spy: mantener honesto o añadir fuente verificada
 
-> **Estado (2026-08-05):** ⬜ No iniciado (Opción A) — pixel/GA como Sí/No; sin badge “Inferido por IA” en resultados. Opción B sigue en backlog diferido.
+> **Estado (2026-08-05):** ✅ Hecho (Opción A) — banner + badge Inferido por IA; pixel/GA = No verificado; checklist manual gratis. Opción B sigue diferida.
 
 **Objetivo:** Usuario entiende límites; opcionalmente datos verificables (Shopify/Wappalyzer) sin inventar.
 
@@ -1804,7 +1804,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial (posible corte Antigravity) · ⬜ No iniciad
 | T08 | E2E Playwright paste-back | P1 | ⬜ | Sin Playwright |
 | T09 | Bloque "Próxima decisión" | P1 | ✅ | Verificado |
 | T10 | Comparador + eval manual | P1 | ✅ | Verificado |
-| T11 | Spy honesto / fuente real | P1 | ⬜ | Sin badge Inferido; Opción B diferida |
+| T11 | Spy honesto / fuente real | P1 | ✅ | Opción A en main; Opción B diferida |
 | T12 | A/B heurístico (no CTR falso) | P1 | ✅ | Verificado |
 | T13 | Onboarding alineado copiloto | P2 | 🟡 | CTA no setea ruta copiloto |
 | T14 | Wizard sin dead-ends | P2 | 🟡 | Draft en feed; falta portafolio + CTAs |

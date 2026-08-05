@@ -747,13 +747,13 @@
               <span>INTELIGENCIA DE MERCADO & ESPIONAJE</span>
             </div>
             <h2>Suite de Espionaje Competitivo y <span class="gradient-text">Audiencias Ocultas</span></h2>
-            <p>Analiza tiendas con Gemini, explora intereses Meta de referencia, o audita métricas de Ads Manager con umbrales Audisio (Chile / CLP) — offline, sin API Meta.</p>
+            <p>Analiza URLs con Gemini (<strong>inferido, no scraper HTML</strong>), explora intereses Meta de referencia, o audita métricas de Ads Manager con umbrales Audisio (Chile / CLP) — offline, sin API Meta.</p>
           </div>
 
           <!-- Sub-navigation Tabs -->
           <div class="subtabs-bar" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
             <button type="button" id="subtab-competitor-btn" class="btn btn-secondary active-subtab" style="display: flex; align-items: center; gap: 0.5rem;">
-              <i data-lucide="shopping-bag"></i> Scraper de Tiendas (URL)
+              <i data-lucide="shopping-bag"></i> Análisis de URL (Gemini)
             </button>
             <button type="button" id="subtab-meta-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
               <i data-lucide="target"></i> Intereses Ocultos Meta
@@ -763,15 +763,19 @@
             </button>
           </div>
 
-          <!-- SUBTAB 1: STORE ANALYZER -->
+          <!-- SUBTAB 1: STORE ANALYZER (inferred IA — not HTML scrape) -->
           <div id="subtab-competitor-panel">
+            <p id="spy-store-honest-banner" class="spy-honest-banner" role="status">
+              <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0"></i>
+              <span>Análisis inferido por IA — no verificado. No sustituye visitar la tienda. Pixel/GA se muestran como <strong>No verificado</strong> (no escaneamos el HTML).</span>
+            </p>
             <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
               <div class="input-field-group">
                 <label for="competitor-url-analysis-input"><i data-lucide="link"></i> URL de la Tienda o Producto Competidor</label>
                 <div style="display: flex; gap: 0.75rem;">
                   <input type="url" id="competitor-url-analysis-input" placeholder="Ej: https://tienda-competidor.com/products/corrector-postura" style="flex: 1;" autocomplete="off">
                   <button type="button" id="run-competitor-analysis-btn" class="btn btn-primary btn-glow">
-                    <i data-lucide="search"></i> Escanear Tienda
+                    <i data-lucide="search"></i> Analizar con IA
                   </button>
                 </div>
               </div>
@@ -782,7 +786,15 @@
               <div class="spy-empty-state">
                 <i data-lucide="globe" class="spy-empty-icon"></i>
                 <h3>Ingresa una URL de competidor para analizarla con Gemini</h3>
-                <p>Requiere clave Gemini (BYOK) o proxy Supabase. Sin API no mostramos datos simulados.</p>
+                <p>Requiere clave Gemini (BYOK) o proxy Supabase. Sin API no mostramos datos simulados. También puedes usar el checklist manual gratis abajo.</p>
+                <div class="spy-manual-checklist">
+                  <h4>Checklist manual (sin API / gratis)</h4>
+                  <ol>
+                    <li>Copia la URL del competidor</li>
+                    <li>Abre la tienda en otra pestaña y anota PVP, envío y gancho del hero</li>
+                    <li>Usa <strong>Modo Copiloto</strong> o <strong>Evaluación manual</strong> en Inicio con esos datos</li>
+                  </ol>
+                </div>
                 <button type="button" class="btn btn-secondary btn-sm" id="spy-empty-dashboard-cta">
                   <i data-lucide="layout-dashboard"></i> Volver a Inicio
                 </button>

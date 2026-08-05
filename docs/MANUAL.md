@@ -59,7 +59,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Tiene paywall ni Stripe | No hay planes de pago integrados en la app. |
 | Simula investigaciones | No hay datos falsos ni “modo demo” de reportes. Todo viene de tu chatbot, de Gemini en vivo, de tu portafolio o de caché local reciente. |
 | Gestiona tu tienda | No conecta con Shopify, Meta Ads ni proveedores de forma automática. |
-| Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro. La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
+| Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro y un **checklist manual gratis**. La salida con IA lleva badge **Inferido por IA**; Pixel/GA se muestran como **No verificado** (no escaneamos el HTML). La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
 | Sincroniza en la nube sin cuenta | El portafolio local funciona sin login; la nube (Supabase) es opcional. |
 
 ---
@@ -73,7 +73,7 @@ Sé honesto contigo mismo sobre estos límites:
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
-| **Spy** | Espionaje competitivo: URL de tienda (Gemini), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
+| **Spy** | Espionaje competitivo: análisis de URL con Gemini (**inferido por IA**, no scraper HTML; pixel/GA = No verificado), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
 
 ### Buscador en Inicio
 
@@ -509,6 +509,18 @@ El estado de la checklist se guarda en `localStorage` por nombre de producto. El
 **Regla práctica:** si Product Score es **Riesgoso** (< 50) pero Evaluación manual dice **Lanzar**, confía más en tus números reales de margen y proveedor (manual). Si ambos coinciden en descartar, pivotea.
 
 **Gráfico de tendencia (sección 03):** muestra una curva **offline** derivada del campo *Tendencia* del informe (ej. `+120%`). **No son datos verificados de Google Trends.** Si falta el dato, verás *Sin datos de tendencia verificados para mostrar el gráfico.*
+
+### Spy — Análisis de URL (Gemini)
+
+En **Spy → Análisis de URL (Gemini)** pegas la URL de una tienda o producto. Con BYOK o proxy, Gemini **infiere** CMS, precios y ganchos. DropDeep:
+
+| Qué verás | Qué significa |
+|-----------|----------------|
+| Banner + badge **Inferido por IA** | No es un scraper HTML ni una fuente verificada |
+| Pixel / TikTok Pixel / GA4 = **No verificado** | No leemos el HTML de la tienda; se ignora cualquier Sí/No inventado por el modelo |
+| Checklist manual | Sin API: copia URL → visita la tienda → anota PVP/gancho → Copiloto o Evaluación manual |
+
+Los **Intereses Ocultos Meta** siguen siendo una base estática curada (`#meta-interests-disclaimer`); no son datos en vivo de Ads Manager.
 
 ### Auditoría Meta Ads Chile (pestaña Spy)
 
