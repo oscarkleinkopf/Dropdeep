@@ -9,12 +9,7 @@ Las entradas más recientes van primero.
 ### Añadido
 
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.
-
-### Documentación
-
-- **Evaluación del proyecto:** [docs/EVALUACION-PROYECTO.md](docs/EVALUACION-PROYECTO.md) — veredicto, fortalezas, riesgos (bundle, dogfooding pendiente, discovery) y mejoras priorizadas P0–P3.
-- **Roadmap post-evaluación:** [docs/ROADMAP.md](docs/ROADMAP.md) — T51–T62 (dogfood, code-split, enriquecer Descubrir, feedback/analítica, calidad) + enlace a discovery T45–T50.
-- **Dogfooding T51 (parcial):** [docs/DOGFOODING-T51.md](docs/DOGFOODING-T51.md) — protocolo founder + pasada agente (3 productos fixture); fricciones Descubrir/Audisio/T35.
+- **Dogfooding T51 (cierre):** E2E de 3 productos (Descubrir→informe→feedback); limpia campos al re-parsear; leyenda de colores Audisio.
 
 ### Cambiado
 
