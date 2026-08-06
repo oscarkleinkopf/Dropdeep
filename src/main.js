@@ -12,6 +12,7 @@ import { initResearchModeToggle } from './config/researchMode.js';
 import { initResearchPathToggle } from './config/researchPath.js';
 import { initCopilotPanel } from './ui/copilotPanel.js';
 import { initManualEvaluation } from './ui/manualEvaluation.js';
+import { initDiscover } from './ui/discover.js';
 import { syncProfileFromServer } from './auth/profile.js';
 import { syncResearchHistoryOnLoad } from './research/historySync.js';
 
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initResearchPathToggle();
   initCopilotPanel();
   initManualEvaluation();
+  initDiscover();
 
   if (isAuthenticated()) {
     await syncProfileFromServer();

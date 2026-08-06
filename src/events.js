@@ -47,6 +47,11 @@ export function setupEventListeners() {
     document.getElementById('search-input')?.focus();
   });
 
+  document.getElementById('open-discover-from-home')?.addEventListener('click', () => {
+    switchView('discover-view');
+    document.getElementById('discover-url-input')?.focus();
+  });
+
   // Spy empty state → dashboard
   document.getElementById('spy-empty-dashboard-cta')?.addEventListener('click', () => {
     switchView('dashboard-view');
@@ -68,10 +73,11 @@ export function setupEventListeners() {
     runManualEvaluationFlow(query);
   });
 
-  // Suggestion Tags
+  // Suggestion Tags (exclude Descubrir CTA)
   document.querySelectorAll('.suggestion-tag').forEach(tag => {
     tag.addEventListener('click', (e) => {
-      const query = e.target.textContent;
+      if (e.currentTarget.id === 'open-discover-from-home') return;
+      const query = e.currentTarget.textContent.trim();
       document.getElementById('search-input').value = query;
       const competitorUrl = document.getElementById('competitor-input') ? document.getElementById('competitor-input').value.trim() : '';
       runResearchDirect(query, competitorUrl);
