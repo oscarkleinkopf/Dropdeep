@@ -5942,6 +5942,19 @@ body.auth-locked {
   margin: 0 0 0.35rem;
 }
 
+.discover-prefilter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.discover-legend-item--ok { color: var(--accent-emerald); }
+.discover-legend-item--warn { color: var(--accent-amber); }
+.discover-legend-item--error { color: #f87171; }
+
 .discover-prefilter-summary {
   font-size: 0.88rem;
   color: var(--text-primary);

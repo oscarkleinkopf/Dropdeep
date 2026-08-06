@@ -62,10 +62,13 @@ function handleParse() {
     errEl.classList.add('hidden');
   }
 
+  // Nuevo parse: limpiar inputs del candidato anterior (fricción T51)
   const titleInput = document.getElementById('discover-title-input');
-  if (titleInput && result.titleHint && !titleInput.value.trim()) {
-    titleInput.value = result.titleHint;
-  }
+  const costInput = document.getElementById('discover-cost-input');
+  const retailInput = document.getElementById('discover-retail-input');
+  if (titleInput) titleInput.value = result.titleHint || '';
+  if (costInput) costInput.value = '';
+  if (retailInput) retailInput.value = '';
 
   lastCandidate = {
     source: 'aliexpress-paste',
@@ -129,6 +132,11 @@ function renderCandidateCard(candidate) {
     preEl.dataset.rank = pre.rankHint;
     preEl.innerHTML = `
       <p class="discover-prefilter-label">${escapeHtml(pre.disclaimer)}</p>
+      <p class="discover-prefilter-legend" aria-hidden="false">
+        <span class="discover-legend-item discover-legend-item--ok">Verde: cumple</span>
+        <span class="discover-legend-item discover-legend-item--warn">Ámbar: matiz</span>
+        <span class="discover-legend-item discover-legend-item--error">Rojo: fuera de regla</span>
+      </p>
       <p class="discover-prefilter-summary">${escapeHtml(pre.summary)}</p>
       ${
         pre.pricing
