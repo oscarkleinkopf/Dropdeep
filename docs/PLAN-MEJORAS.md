@@ -1718,6 +1718,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 |-----------|--------|---------|
 | 1 | **Descubrimiento real (T45–T50)** | Fricción founder: la app no encuentra productos; solo investiga un nombre ya conocido. Plan en [§10](#10-descubrimiento-real-de-productos-t45t50). |
 | 2 | **Dogfooding** en paralelo | Validar research + discovery con 3–5 productos reales (feedback T35). |
+| 3 | Mejoras P0–P3 según evaluación | Ver [EVALUACION-PROYECTO.md](EVALUACION-PROYECTO.md) — bundle, analítica, feedback sync, etc. (aún no numeradas). |
 | — | Backlog diferido §7 | Spy B, TikTok third-party, sync CRDT — no priorizar aún |
 | ✅ | ~~Ops T20 en prod~~ | `005` + `gemini-proxy` — [run](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319) |
 
