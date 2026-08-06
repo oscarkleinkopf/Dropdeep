@@ -1716,9 +1716,9 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 | Prioridad | Acción | Por qué |
 |-----------|--------|---------|
-| 1 | **Descubrimiento real (T45–T50)** | Fricción founder: la app no encuentra productos; solo investiga un nombre ya conocido. Plan en [§10](#10-descubrimiento-real-de-productos-t45t50). |
-| 2 | **Dogfooding** en paralelo | Validar research + discovery con 3–5 productos reales (feedback T35). |
-| 3 | Mejoras P0–P3 según evaluación | Ver [EVALUACION-PROYECTO.md](EVALUACION-PROYECTO.md) — bundle, analítica, feedback sync, etc. (aún no numeradas). |
+| 1 | **Roadmap unificado** | [ROADMAP.md](ROADMAP.md) — T51–T62 + discovery T45–T50. Fuente: [EVALUACION-PROYECTO.md](EVALUACION-PROYECTO.md). |
+| 2 | **T51 Dogfooding** | 3–5 productos reales antes de más features a ciegas. |
+| 3 | **T52 Code split** + **Portals → T45** | Bundle + discovery oficial en paralelo. |
 | — | Backlog diferido §7 | Spy B, TikTok third-party, sync CRDT — no priorizar aún |
 | ✅ | ~~Ops T20 en prod~~ | `005` + `gemini-proxy` — [run](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319) |
 
@@ -1813,6 +1813,22 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T48 | Pre-filtro Audisio en candidatos | P1 | 🟡 | Incluido en MVP Descubrir (costo pegado); ranking hot-list queda para T45 |
 | T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
 | T50 | Retirar discovery falso de UI | P2 | ⬜ | §10 |
+
+### T51–T62 (roadmap post-evaluación — ver [ROADMAP.md](ROADMAP.md))
+
+| ID | Título | P | Estado |
+|----|--------|---|--------|
+| T51 | Dogfooding founder 3–5 productos | P0 | ⬜ |
+| T52 | Code splitting vistas | P0 | ⬜ |
+| T53 | Enriquecer Descubrir (sin Affiliate) | P1 | ⬜ |
+| T54 | Feedback T35 → Supabase opt-in | P1 | ⬜ |
+| T55 | Analítica privacy-friendly | P1 | ⬜ |
+| T56 | Extraer módulos de report.js | P2 | ⬜ |
+| T57 | E2E WebKit CI | P2 | ⬜ |
+| T58 | Checklist RLS migraciones | P2 | ⬜ |
+| T59 | CSP / OG / a11y Descubrir | P2 | ⬜ |
+| T61 | Nota modelo de negocio (docs) | P3 | ⬜ |
+| T62 | País/moneda parametrizable | P3 | ⬜ |
 
 ---
 

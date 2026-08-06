@@ -13,6 +13,7 @@ Las entradas más recientes van primero.
 ### Documentación
 
 - **Evaluación del proyecto:** [docs/EVALUACION-PROYECTO.md](docs/EVALUACION-PROYECTO.md) — veredicto, fortalezas, riesgos (bundle, dogfooding pendiente, discovery) y mejoras priorizadas P0–P3.
+- **Roadmap post-evaluación:** [docs/ROADMAP.md](docs/ROADMAP.md) — T51–T62 (dogfood, code-split, enriquecer Descubrir, feedback/analítica, calidad) + enlace a discovery T45–T50.
 
 ### Cambiado
 
