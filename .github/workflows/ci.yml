@@ -22,6 +22,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit de dependencias (no bloqueante)
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
       - name: Unit tests
         run: npm test
 
