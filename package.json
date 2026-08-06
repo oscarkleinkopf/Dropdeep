@@ -13,7 +13,7 @@
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.51.0",
+    "@playwright/test": "1.62.1",
     "happy-dom": "^15.11.7",
     "sharp": "^0.35.3",
     "vite": "^5.0.0",
