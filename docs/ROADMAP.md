@@ -19,7 +19,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 ## Vista rápida
 
 ```
-Fase A (ahora)     dogfood T51 · code-split T52 · nota negocio T61
+Fase A (ahora)     dogfood T51 · code-split T52 · nota negocio T61 · deps T63✅ (bump mayor → T64)
 Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50 UI
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
 Fase D (calidad)   report extract T56 · WebKit E2E T57 · RLS checklist T58 · CSP T59
@@ -249,7 +249,41 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 | T59 | CSP / OG / a11y Descubrir | P2 | D | ⬜ |
 | T61 | Nota modelo de negocio (docs) | P3 | A | ⬜ |
 | T62 | País/moneda parametrizable | P3 | E | ⬜ |
-
-*(T60 reservado / no usado — evitar colisión con numeración interna.)*
+| T63 | Higiene deps (audit fix + Dependabot + CI) | P1 | A | ✅ |
+| T64 | Bump mayor Vite/Vitest/happy-dom/Playwright | P2 | D | ⬜ |
 
 T45–T50: ver [PLAN §8](PLAN-MEJORAS.md#8-índice-rápido-de-tareas) y §10.
+
+---
+
+## T63 — Higiene de dependencias (devDependencies) + visibilidad en CI
+
+| | |
+|--|--|
+| **Estado** | ✅ |
+| **Prioridad** | P1 |
+| **Origen** | Revisión externa (Claude, 2026-08-06) |
+
+**Hecho:** `npm audit fix` (postcss 8.5.15→8.5.26; 9→8 vulns); `.github/dependabot.yml` semanal; step no bloqueante `npm audit --audit-level=high` en `ci.yml`. Sin tocar deps de producción ni bumps mayores.
+
+---
+
+## T64 — Bump mayor de tooling (Vite / Vitest / happy-dom / Playwright)
+
+| | |
+|--|--|
+| **Estado** | ⬜ |
+| **Prioridad** | P2 |
+| **Origen** | Remanente de T63 (`npm audit` aún reporta happy-dom crítica + Playwright alta + Vite/esbuild moderadas) |
+| **Depende** | Rama aparte; no mezclar con features |
+
+**Objetivo:** Actualizar con prueba explícita:
+
+- `vite` 5 → 6/8 (y esbuild transitivo)
+- `vitest` 2 → 3/4
+- `happy-dom` 15 → 20+ (fix RCE GHSA-37j7-fg3j-429f)
+- `@playwright/test` 1.51 → ≥1.55.1 (SSL download)
+
+**Criterio:** `npm test` + `npm run test:e2e` + `npm run build` verdes; changelog de breaking changes revisado. **No** usar `npm audit fix --force` a ciegas en `main`.
+
+*(T60 reservado / no usado.)*

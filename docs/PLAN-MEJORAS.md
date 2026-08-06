@@ -1829,6 +1829,8 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T59 | CSP / OG / a11y Descubrir | P2 | ⬜ |
 | T61 | Nota modelo de negocio (docs) | P3 | ⬜ |
 | T62 | País/moneda parametrizable | P3 | ⬜ |
+| T63 | Higiene deps + Dependabot + CI audit | P1 | ✅ | postcss fix; audit no bloqueante |
+| T64 | Bump mayor Vite/Vitest/happy-dom/PW | P2 | ⬜ | Rama aparte; ver ROADMAP |
 
 ---
 
