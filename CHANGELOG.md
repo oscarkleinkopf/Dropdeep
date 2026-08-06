@@ -10,6 +10,10 @@ Las entradas más recientes van primero.
 
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.
 
+### Documentación
+
+- **Evaluación del proyecto:** [docs/EVALUACION-PROYECTO.md](docs/EVALUACION-PROYECTO.md) — veredicto, fortalezas, riesgos (bundle, dogfooding pendiente, discovery) y mejoras priorizadas P0–P3.
+
 ### Cambiado
 
 - **Deploy Pages desde `main`:** el workflow ya no dispara solo en `master` (estaba ~55 commits atrás); dogfooding debe usar el sitio tras el redeploy.
