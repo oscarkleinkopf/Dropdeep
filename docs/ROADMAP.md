@@ -34,15 +34,18 @@ Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | 🟡 |
 | **Prioridad** | P0 |
 | **Origen** | Evaluación §4.1 |
+| **Log** | [DOGFOODING-T51.md](DOGFOODING-T51.md) |
 
 **Objetivo:** Usar DropDeep de punta a punta (Descubrir paste → Copiloto Express → eval Winner → auditor Meta → VSL/feedback T35) y anotar fricciones reales.
 
 **Entregable:** nota en `docs/` o issues con: qué falló, qué confundió, qué faltó. Sin esto no abrir T53–T55 a ciegas.
 
 **Criterio:** ≥3 productos documentados; feedback T35 usado al menos una vez por informe.
+
+**Progreso 2026-08-06:** protocolo + pasada agente (3 productos fixture, 1 informe+T35). Pendiente founder: §3 del log con productos AliExpress reales.
 
 ---
 
@@ -235,7 +238,7 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 
 | ID | Título | P | Fase | Estado |
 |----|--------|---|------|--------|
-| T51 | Dogfooding founder 3–5 productos | P0 | A | ⬜ |
+| T51 | Dogfooding founder 3–5 productos | P0 | A | 🟡 | [DOGFOODING-T51.md](DOGFOODING-T51.md) |
 | T52 | Code splitting vistas | P0 | A | ⬜ |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | B | ⬜ |
 | T54 | Feedback T35 → Supabase opt-in | P1 | C | ⬜ |
