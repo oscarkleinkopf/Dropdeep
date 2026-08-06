@@ -1,6 +1,8 @@
 # Evaluación del proyecto DropDeep — opinión y mejoras
 
 > Documento de evaluación generado 2026-08-06. No modifica código ni el plan vigente; T45–T50 siguen como están en [PLAN-MEJORAS.md §10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50).
+>
+> **Roadmap ejecutable:** las mejoras P0–P3 de este documento están numeradas como **T51–T62** en [ROADMAP.md](ROADMAP.md).
 
 ## 1. Veredicto general
 
@@ -67,8 +69,13 @@ El mayor riesgo ya no es técnico: es que la promesa "encuentra productos en ten
 
 ## 5. Roadmap sugerido (orden, no fechas)
 
-1. Dogfooding (producto) + Portals/T45 (discovery) en paralelo
-2. Code splitting (P0 técnico, bajo riesgo)
-3. Enriquecer Descubrir + feedback sync
-4. Analítica mínima → datos para priorizar T47/T48
-5. Extracción report.js + E2E WebKit (mantenibilidad)
+> **Actualizado:** el orden ejecutable vive en [ROADMAP.md](ROADMAP.md) (T51–T62 + T45–T50). Resumen:
+
+1. Dogfooding (**T51**) + code split (**T52**) + nota negocio (**T61**)
+2. Portals → **T45–T49**; enriquecer paste (**T53**); **T50**
+3. Feedback sync (**T54**) + analítica (**T55**) → gate **T47**
+4. Mantenibilidad **T56–T59**; expansión **T62** solo con señal
+
+---
+
+*Documento generado 2026-08-06. Roadmap unificado: [ROADMAP.md](ROADMAP.md).*
