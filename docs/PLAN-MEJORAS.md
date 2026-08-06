@@ -1818,7 +1818,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 
 | ID | Título | P | Estado |
 |----|--------|---|--------|
-| T51 | Dogfooding founder 3–5 productos | P0 | ⬜ |
+| T51 | Dogfooding founder 3–5 productos | P0 | 🟡 | [DOGFOODING-T51.md](DOGFOODING-T51.md) |
 | T52 | Code splitting vistas | P0 | ⬜ |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | ⬜ |
 | T54 | Feedback T35 → Supabase opt-in | P1 | ⬜ |
