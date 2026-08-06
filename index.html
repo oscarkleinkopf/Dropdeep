@@ -119,6 +119,10 @@
             <i data-lucide="layout-dashboard" class="nav-icon"></i>
             <span class="nav-link-text">Inicio</span>
           </button>
+          <button class="nav-link" data-target="discover-view" id="nav-discover" title="Descubrir — pegar producto AliExpress" aria-label="Descubrir">
+            <i data-lucide="compass" class="nav-icon"></i>
+            <span class="nav-link-text">Descubrir</span>
+          </button>
           <button class="nav-link" data-target="portfolio-view" id="nav-portfolio" title="Portafolio — productos guardados" aria-label="Portafolio">
             <i data-lucide="folder-heart" class="nav-icon"></i>
             <span class="nav-link-text">Portafolio</span>
@@ -281,11 +285,10 @@
               </div>
             </form>
             <div class="search-tags">
-              <span class="tag-label">Sugerencias:</span>
-              <button class="suggestion-tag">Smart Pet Feeder</button>
-              <button class="suggestion-tag">Aroma Diffuser</button>
-              <button class="suggestion-tag">Skincare Massager</button>
-              <button class="suggestion-tag">Heated Mug</button>
+              <span class="tag-label">¿Sin nombre aún?</span>
+              <button type="button" class="suggestion-tag" id="open-discover-from-home" title="Pegar URL o ID de AliExpress">
+                Abrir Descubrir (AliExpress)
+              </button>
             </div>
           </div>
         </div>
@@ -731,6 +734,94 @@
             </div>
             <div id="vertical-packs-panel" class="vertical-packs-panel"></div>
           </div>
+        </div>
+      </section>
+
+      <!-- VIEW: DESCUBRIR (paste AliExpress — sin Affiliate API aún) -->
+      <section id="discover-view" class="view-section">
+        <div class="discover-container">
+          <header class="discover-header">
+            <div class="hub-title-badge" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35); color: var(--accent-cyan)">
+              <i data-lucide="compass"></i>
+              <span>DESCUBRIR · ALIEXPRESS</span>
+            </div>
+            <h2>Pega un producto de <span class="gradient-text">AliExpress</span></h2>
+            <p>
+              Mientras esperamos la API Affiliate oficial, pegas la <strong>URL o el ID</strong> del producto.
+              Completas costo (USD) para el <strong>pre-filtro Audisio</strong> y lanzas la investigación (Copiloto o API).
+              No es un catálogo “trending” en vivo — es discovery honesto desde un producto real que ya viste.
+            </p>
+          </header>
+
+          <form id="discover-form" class="discover-form" novalidate>
+            <label class="discover-label" for="discover-url-input">URL o ID de producto AliExpress</label>
+            <div class="discover-url-row">
+              <input
+                type="text"
+                id="discover-url-input"
+                class="discover-url-input"
+                placeholder="https://www.aliexpress.com/item/….html  o  1005001234567890"
+                autocomplete="off"
+                required
+              >
+              <button type="submit" class="btn btn-primary" id="discover-parse-btn">
+                <i data-lucide="scan-search"></i> Analizar enlace
+              </button>
+            </div>
+            <p id="discover-parse-error" class="discover-parse-error hidden" role="alert"></p>
+          </form>
+
+          <div id="discover-candidate" class="discover-candidate hidden">
+            <div class="discover-candidate-meta">
+              <span id="discover-source-badge" class="discover-source-badge">Pegado AliExpress</span>
+              <p>ID: <strong id="discover-candidate-id">—</strong></p>
+              <p>
+                Enlace:
+                <a id="discover-candidate-url" href="#" target="_blank" rel="noopener noreferrer">—</a>
+              </p>
+            </div>
+
+            <div class="discover-fields">
+              <div class="discover-field">
+                <label for="discover-title-input">Nombre del producto (para investigar)</label>
+                <input type="text" id="discover-title-input" placeholder="Ej: Botella UV con sensor" autocomplete="off">
+              </div>
+              <div class="discover-field">
+                <label for="discover-cost-input">Costo AliExpress (USD)</label>
+                <input type="number" id="discover-cost-input" min="0" step="0.01" placeholder="ej. 8.50" inputmode="decimal">
+              </div>
+              <div class="discover-field">
+                <label for="discover-retail-input">PVP estimado (USD, opcional)</label>
+                <input type="number" id="discover-retail-input" min="0" step="0.01" placeholder="vacío = costo × 2.5" inputmode="decimal">
+              </div>
+            </div>
+
+            <div id="discover-prefilter" class="discover-prefilter" data-rank="unknown"></div>
+
+            <div class="discover-actions">
+              <button type="button" class="btn btn-secondary" id="discover-open-ae-btn">
+                <i data-lucide="external-link"></i> Abrir en AliExpress
+              </button>
+              <button type="button" class="btn btn-secondary" id="discover-manual-btn">
+                <i data-lucide="clipboard-check"></i> Evaluación rápida
+              </button>
+              <button type="button" class="btn btn-primary btn-glow" id="discover-investigate-btn">
+                <i data-lucide="flask-conical"></i> Investigar
+              </button>
+            </div>
+          </div>
+
+          <aside class="discover-aside" aria-label="Notas">
+            <h3>Cómo usarlo</h3>
+            <ol>
+              <li>En AliExpress copia el enlace del producto (o el número largo del ID).</li>
+              <li>Pégalo aquí → completa el <strong>costo en USD</strong> que ves en la ficha.</li>
+              <li><strong>Investigar</strong> abre Copiloto/API con ese nombre y la URL como proveedor.</li>
+            </ol>
+            <p class="discover-aside-note">
+              Cuando Portals / Open Platform aprueben la App Key, esta vista podrá listar hot products automáticamente (T45). Hasta entonces: pegado manual, sin fingir tendencias.
+            </p>
+          </aside>
         </div>
       </section>
 

@@ -59,6 +59,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Tiene paywall ni Stripe | No hay planes de pago integrados en la app. |
 | Simula investigaciones | No hay datos falsos ni “modo demo” de reportes. Todo viene de tu chatbot, de Gemini en vivo, de tu portafolio o de caché local reciente. |
 | Gestiona tu tienda | No conecta con Shopify, Meta Ads ni proveedores de forma automática. |
+| Lista “trending” AliExpress en vivo | **Descubrir** usa un enlace/ID que **tú pegas**; la API Affiliate oficial llega cuando Portals/Open Platform aprueben la App Key. |
 | Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro y un **checklist manual gratis**. La salida con IA lleva badge **Inferido por IA**; Pixel/GA se muestran como **No verificado** (no escaneamos el HTML). La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
 | Sincroniza en la nube sin cuenta | El portafolio local funciona sin login; la nube (Supabase) es opcional. |
 
@@ -71,6 +72,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Pestaña | Qué hace |
 |---------|----------|
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
+| **Descubrir** | Pegas URL o ID de AliExpress → pre-filtro Audisio (costo USD) → lanzas Copiloto/API. Sin catálogo Affiliate en vivo aún. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
 | **Spy** | Espionaje competitivo: análisis de URL con Gemini (**inferido por IA**, no scraper HTML; pixel/GA = No verificado), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
@@ -87,6 +89,17 @@ Botones secundarios:
 
 - **Evaluación manual (sin IA)** — checklist offline.
 - **Generar prompts sin API** — abre Prompt Hub.
+- **Abrir Descubrir (AliExpress)** — si aún no tienes nombre: pega URL/ID del proveedor.
+
+### Descubrir (AliExpress)
+
+1. Copia el enlace del producto en AliExpress (o el ID numérico largo).
+2. En **Descubrir** → **Analizar enlace** (valida host e ID).
+3. Completa el **costo en USD** (y PVP opcional) para ver el **pre-filtro Audisio** (banda CLP, margen bruto).
+4. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API (la URL se trata como proveedor AliExpress en los prompts).
+5. **Evaluación rápida** abre la rúbrica manual con ese nombre.
+
+Esto **no** descarga hot lists ni Trends; es el MVP mientras llega la App Key Affiliate (plan T45).
 
 ### Ajustes (icono engranaje)
 

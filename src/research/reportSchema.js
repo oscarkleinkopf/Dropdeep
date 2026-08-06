@@ -92,6 +92,11 @@ export function getCopilotStepMeta(stepId) {
 
 function competitorBlock(competitorUrl) {
   if (!competitorUrl) return '';
+  const isAliExpress = /aliexpress\./i.test(competitorUrl);
+  if (isAliExpress) {
+    return `Además, el usuario ha proporcionado una URL de producto/proveedor AliExpress: "${competitorUrl}".
+Úsala como referencia de oferta (precio, variantes, reseñas) y como candidato a proveedor dropshipping. No la trates solo como tienda competidora D2C.`;
+  }
   return `Además, el usuario ha proporcionado la URL de un competidor: "${competitorUrl}".
 Investiga o deduce su estrategia y extrae ganchos, ángulos creativos y debilidades comparables.`;
 }

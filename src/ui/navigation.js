@@ -3,9 +3,11 @@ import { renderPortfolioList } from './portfolio.js';
 import { renderMetaHiddenInterests } from './spy.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { renderPromptHubOutput, setPromptHubMode } from './promptHub.js';
+import { renderDiscover } from './discover.js';
 
 const NAV_VIEW_MAP = {
   'dashboard-view': 'nav-dashboard',
+  'discover-view': 'nav-discover',
   'portfolio-view': 'nav-portfolio',
   'prompt-hub-view': 'nav-prompts',
   'spy-intelligence-view': 'nav-spy',
@@ -38,6 +40,8 @@ export function switchView(viewId) {
   if (viewId === 'dashboard-view') {
     renderDashboardStats();
     renderResearchFeed();
+  } else if (viewId === 'discover-view') {
+    renderDiscover();
   } else if (viewId === 'portfolio-view') {
     renderPortfolioList();
   } else if (viewId === 'spy-intelligence-view') {

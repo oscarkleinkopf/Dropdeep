@@ -1807,9 +1807,9 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
 | — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
 | T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | ⬜ | §10 |
-| T46 | UI Descubrir + handoff research | P0 | ⬜ | §10 |
+| T46 | UI Descubrir + handoff research | P0 | 🟡 | MVP paste URL/ID + Audisio + Investigar (sin Affiliate hot list; espera App Key) |
 | T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
-| T48 | Pre-filtro Audisio en candidatos | P1 | ⬜ | §10 |
+| T48 | Pre-filtro Audisio en candidatos | P1 | 🟡 | Incluido en MVP Descubrir (costo pegado); ranking hot-list queda para T45 |
 | T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
 | T50 | Retirar discovery falso de UI | P2 | ⬜ | §10 |
 
