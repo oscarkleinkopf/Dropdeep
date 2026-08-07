@@ -62,6 +62,19 @@ When `true` and the user is logged in, Deep Research uses the Edge Function inst
 
 Rate limit / cooldown (T20) surfaces Spanish errors `proxy_rate_limit` / `proxy_session_cooldown` / `proxy_payload_too_large`.
 
+## 2b. Discover enrich Edge Function (T53)
+
+`discover-enrich` hace un **fetch limitado** de la ficha pública AliExpress y extrae `og:title` / imagen / precio USD si aparecen en meta o JSON-LD. **No** usa Affiliate API ni Gemini; siempre responde `verified: false`.
+
+Requiere sesión (JWT). Si la función no está desplegada, Descubrir sigue con pegado manual + opcional Gemini BYOK.
+
+```bash
+export SUPABASE_ACCESS_TOKEN=sbp_...
+supabase functions deploy discover-enrich --project-ref texzlizelxavrybkdjdj
+```
+
+En la UI: tras **Analizar enlace**, el cliente intenta meta pública (logueado) y, si faltan campos y hay BYOK, Gemini inferido. Los campos llevan badge **No verificado**.
+
 ## 3. Auth redirect URLs
 
 Authentication → URL Configuration:

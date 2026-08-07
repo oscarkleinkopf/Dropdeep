@@ -20,7 +20,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 
 ```
 Fase A (ahora)     dogfood T51✅ · code-split T52✅ · nota negocio T61 · deps T63✅ (bump mayor → T64)
-Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50✅
+Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53✅ · T50✅
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
 Fase D (calidad)   XSS/sanitize T65✅ · report extract T56 · events split T66 (diferido) · WebKit E2E T57 · RLS · CSP T59
 Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
@@ -90,14 +90,14 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | ✅ |
 | **Prioridad** | P1 |
 | **Origen** | Evaluación §4.4 |
 | **Depende** | T46 🟡 |
 
 **Objetivo:** Tras pegar URL, intentar rellenar costo/título/imagen vía Edge fetch limitado o Gemini grounding, con badge **No verificado** / **Inferido**. Si falla, el flujo manual actual permanece.
 
-**Criterio:** Al menos un campo auto-rellenado en happy path; nunca se presenta como dato Affiliate oficial.
+**Hecho:** pipeline URL-hint → Edge `discover-enrich` (OG/JSON-LD, auth) → Gemini BYOK (sin quemar cuota proxy); badges de procedencia; imagen preview; tests de parse/merge.
 
 ---
 
@@ -234,7 +234,7 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 |----|--------|---|------|--------|
 | T51 | Dogfooding founder 3–5 productos | P0 | A | ✅ | [DOGFOODING-T51.md](DOGFOODING-T51.md) + e2e |
 | T52 | Code splitting vistas | P0 | A | ✅ |
-| T53 | Enriquecer Descubrir (sin Affiliate) | P1 | B | ⬜ |
+| T53 | Enriquecer Descubrir (sin Affiliate) | P1 | B | ✅ |
 | T54 | Feedback T35 → Supabase opt-in | P1 | C | ⬜ |
 | T55 | Analítica privacy-friendly | P1 | C | ⬜ |
 | T56 | Extraer módulos de report.js | P2 | D | ⬜ |
