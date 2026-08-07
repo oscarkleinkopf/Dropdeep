@@ -70,17 +70,6 @@ export function setupEventListeners() {
     runManualEvaluationFlow(query);
   });
 
-  // Suggestion Tags (exclude Descubrir CTA)
-  document.querySelectorAll('.suggestion-tag').forEach(tag => {
-    tag.addEventListener('click', (e) => {
-      if (e.currentTarget.id === 'open-discover-from-home') return;
-      const query = e.currentTarget.textContent.trim();
-      document.getElementById('search-input').value = query;
-      const competitorUrl = document.getElementById('competitor-input') ? document.getElementById('competitor-input').value.trim() : '';
-      runResearchDirect(query, competitorUrl);
-    });
-  });
-
   // Report Back Button
   document.getElementById('close-report-btn').addEventListener('click', () => {
     switchView('dashboard-view');

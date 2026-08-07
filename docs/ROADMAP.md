@@ -20,7 +20,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 
 ```
 Fase A (ahora)     dogfood T51✅ · code-split T52✅ · nota negocio T61 · deps T63✅ (bump mayor → T64)
-Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50 UI
+Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50✅
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
 Fase D (calidad)   XSS/sanitize T65✅ · report extract T56 · events split T66 (diferido) · WebKit E2E T57 · RLS · CSP T59
 Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
@@ -84,7 +84,7 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 | T47 | Trends CL (SerpAPI) | ⬜ solo si hay presupuesto (ver T55) |
 | T48 | Pre-filtro Audisio hot-list | 🟡 parcial en paste |
 | T49 | Caché / cuota discovery | ⬜ tras T45 |
-| T50 | Retirar discovery falso de UI | ⬜ (chips ya reducidos en #35) |
+| T50 | Retirar discovery falso de UI | ✅ home CTA Descubrir; Meta = checklist ads; feed = historial |
 
 ### T53 — Enriquecer Descubrir sin Affiliate
 

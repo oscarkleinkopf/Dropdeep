@@ -473,11 +473,26 @@ button {
   flex-wrap: wrap;
 }
 
+.discover-home-cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.discover-home-cta-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .tag-label {
   font-size: 0.8rem;
   color: var(--text-muted);
 }
 
+/* Legacy chip class kept for any residual markup; prefer .discover-home-cta */
 .suggestion-tag {
   font-size: 0.8rem;
   background: var(--bg-secondary);
@@ -5460,9 +5475,83 @@ body.auth-locked {
   font-size: 0.8rem;
   color: var(--text-muted);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
   margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+/* T50: Meta interests as ads checklist rows (not product-card discovery UI) */
+.meta-interests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.meta-interest-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.meta-interest-row:hover {
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.meta-interest-checkbox {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.meta-interest-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.meta-interest-cat {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--accent-violet);
+  font-weight: 600;
+}
+
+.meta-interest-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.meta-interest-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.meta-interest-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.meta-interest-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
 }
 
 .spy-honest-banner {
