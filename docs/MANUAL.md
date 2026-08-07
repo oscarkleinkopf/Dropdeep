@@ -634,7 +634,7 @@ Filas dedicadas: **Evaluación manual (puntuación)**, **Evaluación manual (ver
 ### Exportaciones y seguridad
 
 - Los JSON exportados **eliminan** campos sensibles (`apiKey`, `geminiKey`, `secret`, etc.).
-- Contenido de IA en Spy se escapa para reducir riesgo XSS.
+- Contenido de IA en Spy e informe se escapa (`escapeHtml` / `escapeDeep`); HTML intencional de Gemini (ficha Shopify, bloques) pasa por **DOMPurify** antes de insertarse en el DOM.
 
 ---
 

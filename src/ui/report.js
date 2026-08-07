@@ -46,7 +46,23 @@ import {
   helpfulLabel,
   saveReportFeedback,
 } from '../utils/feedbackStorage.js';
-import { escapeHtml } from '../utils/sanitize.js';
+import {
+  escapeHtml,
+  e,
+  escapeDeep,
+  purifyHtml,
+  safeHref,
+  dataCopyAttr,
+} from '../utils/sanitize.js';
+
+function setScoreBadgeHtml(el, score, badgeLabel) {
+  if (!el) return;
+  el.textContent = '';
+  el.append('Product Score: ');
+  const strong = document.createElement('strong');
+  strong.textContent = `${score}/100`;
+  el.append(strong, ` (${badgeLabel})`);
+}
 
 async function loadCharts() {
   return import('./charts.js');
@@ -105,7 +121,7 @@ export function openDeepResearchReport(productOrReport) {
   scoreBadge.className = `report-badge-status ${badgeClass}`;
   scoreBadge.title = getProductScoreTooltip();
   scoreBadge.setAttribute('aria-label', getProductScoreTooltip());
-  scoreBadge.innerHTML = `Product Score: <strong>${score}/100</strong> (${badgeLabel})`;
+  setScoreBadgeHtml(scoreBadge, score, badgeLabel);
   titleContainer.appendChild(scoreBadge);
 
   const oldScoreHelp = document.getElementById('report-score-manual-link');
@@ -146,7 +162,7 @@ export function openDeepResearchReport(productOrReport) {
     incompleteBanner.id = 'report-incomplete-banner';
     incompleteBanner.className = 'report-incomplete-banner';
     incompleteBanner.setAttribute('role', 'status');
-    incompleteBanner.innerHTML = `<strong>Secciones incompletas:</strong> ${report._incompleteSections.join(', ')}. No generado — reintenta o usa Completo/Copiloto.`;
+    incompleteBanner.innerHTML = `<strong>Secciones incompletas:</strong> ${report._incompleteSections.map((s) => e(s)).join(', ')}. No generado — reintenta o usa Completo/Copiloto.`;
     titleContainer.parentElement?.insertBefore(incompleteBanner, titleContainer.nextSibling);
   }
 
@@ -435,7 +451,7 @@ export function openDeepResearchReport(productOrReport) {
       headerBadge.className = `report-badge-status ${badgeClass}`;
       headerBadge.title = getProductScoreTooltip();
       headerBadge.setAttribute('aria-label', getProductScoreTooltip());
-      headerBadge.innerHTML = `Product Score: <strong>${score}/100</strong> (${badgeLabel})`;
+      setScoreBadgeHtml(headerBadge, score, badgeLabel);
     }
 
     // Trigger ad profitability recalculation
@@ -607,13 +623,13 @@ function renderNextDecisionBlock(report) {
     <div class="report-next-decision-inner">
       <div class="report-next-decision-header">
         <h3>Próxima decisión</h3>
-        <span class="report-next-decision-source">Fuente: ${decision.sourceLabel}</span>
+        <span class="report-next-decision-source">Fuente: ${e(decision.sourceLabel)}</span>
       </div>
       <div class="report-next-decision-verdict ${verdictCssClass(decision.verdict)}" style="--verdict-color: ${verdictColorVal}">
-        <strong>${decision.verdict}</strong>
+        <strong>${e(decision.verdict)}</strong>
         <span class="report-next-decision-score">${decision.score}/100</span>
       </div>
-      <p class="report-next-decision-explanation">${decision.explanation}</p>
+      <p class="report-next-decision-explanation">${e(decision.explanation)}</p>
       ${decision.source === 'productScore' ? '<p class="report-next-decision-caveat">Sugerencia orientativa — completa la Evaluación manual para un veredicto con tus criterios reales.</p>' : ''}
       <div class="report-next-decision-actions">${actionButtons}</div>
     </div>
@@ -804,6 +820,20 @@ export function renderReportContent() {
   const vslSpecs = getProductionSpecs();
   const launchChecklist = getLaunchChecklistItems();
   const checklistState = loadLaunchChecklistState(report?.name || 'general');
+  const rawShopifyBody = report.shopifyDescription?.body || '';
+  const d = escapeDeep(report);
+  // Markup intencional de Gemini/Shopify: sanitizar con DOMPurify (no solo escapar)
+  if (d.shopifyDescription) {
+    d.shopifyDescription.body = purifyHtml(rawShopifyBody);
+  }
+  const masterSeq = generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '');
+  const htmlBlocksRaw = generateHTMLConversionBlocks(report);
+  const htmlBlocks = {
+    comparisonTableHtml: purifyHtml(htmlBlocksRaw.comparisonTableHtml),
+    benefitsGridHtml: purifyHtml(htmlBlocksRaw.benefitsGridHtml),
+    faqAccordionHtml: purifyHtml(htmlBlocksRaw.faqAccordionHtml),
+  };
+  const waScripts = generateWhatsAppSalesScripts(report);
 
   container.innerHTML = `
     <!-- SECTION 1: DEMOGRAPHICS & PSYCHOGRAPHICS -->
@@ -813,22 +843,22 @@ export function renderReportContent() {
       
       <h3>1. Ficha del Cliente Ideal</h3>
       <div class="card-stats-table" style="background: var(--bg-secondary); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 2rem;">
-        <div class="stats-row"><span class="stats-label">Quién es (Target):</span><span class="stats-val" style="width:70%; text-align:right">${report.demographics.who}</span></div>
-        <div class="stats-row"><span class="stats-label">Creencia de Vida:</span><span class="stats-val" style="width:70%; text-align:right; font-style:italic">"${report.demographics.belief}"</span></div>
+        <div class="stats-row"><span class="stats-label">Quién es (Target):</span><span class="stats-val" style="width:70%; text-align:right">${d.demographics.who}</span></div>
+        <div class="stats-row"><span class="stats-label">Creencia de Vida:</span><span class="stats-val" style="width:70%; text-align:right; font-style:italic">"${d.demographics.belief}"</span></div>
       </div>
       
       <h3>2. Desglose Psicológico Profundo</h3>
       <h4>Esperanzas y Sueños (Hopes & Dreams)</h4>
-      <p>${report.demographics.dreams}</p>
+      <p>${d.demographics.dreams}</p>
       
       <h4>Victorias y Fracasos Anteriores (Victories & Defeats)</h4>
-      <p>${report.demographics.defeats}</p>
+      <p>${d.demographics.defeats}</p>
       
       <h4>Fuerzas Externas Culpables (Scapegoats)</h4>
-      <p>${report.demographics.outsideForces}</p>
+      <p>${d.demographics.outsideForces}</p>
       
       <h4>Prejuicios y Señales Tribales</h4>
-      <p>${report.demographics.prejudices}</p>
+      <p>${d.demographics.prejudices}</p>
     </section>
 
     <!-- SECTION 2: SOLUTIONS & REVIEWS -->
@@ -837,17 +867,17 @@ export function renderReportContent() {
       <p class="report-section-desc">Mapeo de la competencia, quejas recurrentes e historias de terror reales.</p>
       
       <h3>1. Soluciones que ya usan</h3>
-      <p><strong>Alternativas comunes:</strong> ${report.solutions.current}</p>
-      <p><strong>Experiencia del usuario:</strong> ${report.solutions.experience}</p>
+      <p><strong>Alternativas comunes:</strong> ${d.solutions.current}</p>
+      <p><strong>Experiencia del usuario:</strong> ${d.solutions.experience}</p>
       
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin: 2rem 0;">
         <div style="background:rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius:12px; padding:1.25rem;">
           <h4 style="color:var(--accent-emerald); margin-top:0"><i data-lucide="thumbs-up"></i> Lo que Aman (Likes)</h4>
-          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${report.solutions.likes}</p>
+          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${d.solutions.likes}</p>
         </div>
         <div style="background:rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius:12px; padding:1.25rem;">
           <h4 style="color:var(--accent-red); margin-top:0"><i data-lucide="thumbs-down"></i> Lo que Detestan (Dislikes)</h4>
-          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${report.solutions.dislikes}</p>
+          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${d.solutions.dislikes}</p>
         </div>
       </div>
 
@@ -859,7 +889,7 @@ export function renderReportContent() {
       <h3>3. Historias de Terror de Clientes (Horror Stories)</h3>
       <p>Utiliza estas narrativas en tu copy para generar empatía y disuadir del uso de productos de la competencia:</p>
       ${report.solutions.horrorStories.map(story => `
-        <div class="story-blockquote">${story}</div>
+        <div class="story-blockquote">${e(story)}</div>
       `).join('')}
     </section>
 
@@ -869,11 +899,11 @@ export function renderReportContent() {
       <p class="report-section-desc">Historias de supresión y la causa raíz física detrás del problema del cliente.</p>
       
       <h3>1. Intentos Históricos y Supresión (Nikola Tesla / WWII Style)</h3>
-      <p><strong>Intentos del Pasado:</strong> ${report.secrets.historical}</p>
-      <p><strong>Narrativa de Supresión:</strong> ${report.secrets.conspiracy}</p>
+      <p><strong>Intentos del Pasado:</strong> ${d.secrets.historical}</p>
+      <p><strong>Narrativa de Supresión:</strong> ${d.secrets.conspiracy}</p>
       
       <h3>2. Tendencia del informe (12 meses)</h3>
-      <p>Dato de tendencia del informe: <strong>${report.trend || 'Sin dato'}</strong>. El gráfico siguiente es una <strong>ilustración offline</strong> derivada de ese valor — <strong>no son datos verificados de Google Trends</strong>.</p>
+      <p>Dato de tendencia del informe: <strong>${d.trend || 'Sin dato'}</strong>. El gráfico siguiente es una <strong>ilustración offline</strong> derivada de ese valor — <strong>no son datos verificados de Google Trends</strong>.</p>
       <div class="report-chart-container" id="trend-chart-wrap">
         <canvas id="trend-chart-canvas"></canvas>
         <p id="trend-chart-na" class="trend-chart-na hidden" style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.9rem;">Sin datos de tendencia verificados para mostrar el gráfico.</p>
@@ -882,11 +912,11 @@ export function renderReportContent() {
       <h3>3. Los Dos Mecanismos Críticos</h3>
       <div class="angle-box">
         <div class="angle-header" style="color:var(--accent-red)"><i data-lucide="alert-octagon"></i> El Mecanismo Único del Problema</div>
-        <div class="angle-desc">${report.secrets.mechanismProblem}</div>
+        <div class="angle-desc">${d.secrets.mechanismProblem}</div>
       </div>
       <div class="angle-box" style="border-left-color: var(--accent-emerald)">
         <div class="angle-header" style="color:var(--accent-emerald)"><i data-lucide="check-circle2"></i> El Mecanismo Único de la Solución</div>
-        <div class="angle-desc">${report.secrets.mechanismSolution}</div>
+        <div class="angle-desc">${d.secrets.mechanismSolution}</div>
       </div>
     </section>
 
@@ -896,13 +926,13 @@ export function renderReportContent() {
       <p class="report-section-desc">Cómo la sociedad y la codicia moderna arruinaron un equilibrio biológico natural.</p>
       
       <h3>1. La Época Dorada (El Edén)</h3>
-      <p>${report.eden.goldenAge}</p>
+      <p>${d.eden.goldenAge}</p>
       
       <h3>2. El Agente Corruptor</h3>
-      <p>${report.eden.corruptor}</p>
+      <p>${d.eden.corruptor}</p>
       
       <h3>3. El Contraste Ancestral</h3>
-      <p>${report.eden.contrast}</p>
+      <p>${d.eden.contrast}</p>
     </section>
 
     <!-- SECTION 5: VERBATIMS SWIPE FILE -->
@@ -913,9 +943,9 @@ export function renderReportContent() {
       <div class="verbatim-list">
         ${report.verbatims.map((quote, idx) => `
           <div class="verbatim-card">
-            <span class="quotes">"</span>${quote}<span class="quotes">"</span>
+            <span class="quotes">"</span>${e(quote)}<span class="quotes">"</span>
             <span class="verbatim-meta">User Forum Extract #${idx+1} | Tono: Emocional Crítico</span>
-            <button class="btn-copy-clipboard" data-copy='${quote.replace(/'/g, "&apos;")}' title="Copiar Frase">
+            <button class="btn-copy-clipboard" data-copy="${dataCopyAttr(quote)}" title="Copiar Frase">
               <i data-lucide="copy" style="width:14px; height:14px"></i>
             </button>
           </div>
@@ -931,21 +961,21 @@ export function renderReportContent() {
       <div class="angles-container">
         ${report.angles.map((angle, idx) => `
           <div class="angle-box">
-            <div class="angle-header">${angle.title}</div>
-            <div class="angle-desc"><strong>Estrategia de Embudo:</strong> ${angle.narrative}</div>
+            <div class="angle-header">${e(angle.title)}</div>
+            <div class="angle-desc"><strong>Estrategia de Embudo:</strong> ${e(angle.narrative)}</div>
             
             <div class="copy-block">
               <span class="copy-label">TikTok / Instagram Ad Hook (Gancho)</span>
-              <div class="copy-text">"${angle.hook}"</div>
-              <button class="btn-copy-clipboard" data-copy='${angle.hook.replace(/'/g, "&apos;")}' title="Copiar Gancho">
+              <div class="copy-text">"${e(angle.hook)}"</div>
+              <button class="btn-copy-clipboard" data-copy="${dataCopyAttr(angle.hook)}" title="Copiar Gancho">
                 <i data-lucide="copy" style="width:14px; height:14px"></i>
               </button>
             </div>
             
             <div class="copy-block" style="margin-top:0.75rem">
               <span class="copy-label">Titular Altamente Persuasivo (Landing / Email)</span>
-              <div class="copy-text">"${angle.headline}"</div>
-              <button class="btn-copy-clipboard" data-copy='${angle.headline.replace(/'/g, "&apos;")}' title="Copiar Titular">
+              <div class="copy-text">"${e(angle.headline)}"</div>
+              <button class="btn-copy-clipboard" data-copy="${dataCopyAttr(angle.headline)}" title="Copiar Titular">
                 <i data-lucide="copy" style="width:14px; height:14px"></i>
               </button>
             </div>
@@ -961,32 +991,32 @@ export function renderReportContent() {
       
       <h3>🔍 Información Demográfica y General</h3>
       <div class="card-stats-table" style="background:var(--bg-secondary); border-radius:12px; padding:1.25rem; margin-bottom:2rem;">
-        <div class="stats-row"><span class="stats-label">Rango de edad:</span><span class="stats-val">${report.avatarBrief.general.age}</span></div>
-        <div class="stats-row"><span class="stats-label">Género:</span><span class="stats-val">${report.avatarBrief.general.gender}</span></div>
-        <div class="stats-row"><span class="stats-label">Ubicación:</span><span class="stats-val">${report.avatarBrief.general.location}</span></div>
-        <div class="stats-row"><span class="stats-label">Ingresos mensuales:</span><span class="stats-val">${report.avatarBrief.general.income}</span></div>
-        <div class="stats-row"><span class="stats-label">Antecedentes profesionales:</span><span class="stats-val" style="width:60%; text-align:right">${report.avatarBrief.general.background}</span></div>
-        <div class="stats-row"><span class="stats-label">Identidades típicas:</span><span class="stats-val" style="width:60%; text-align:right">${report.avatarBrief.general.identities}</span></div>
+        <div class="stats-row"><span class="stats-label">Rango de edad:</span><span class="stats-val">${d.avatarBrief.general.age}</span></div>
+        <div class="stats-row"><span class="stats-label">Género:</span><span class="stats-val">${d.avatarBrief.general.gender}</span></div>
+        <div class="stats-row"><span class="stats-label">Ubicación:</span><span class="stats-val">${d.avatarBrief.general.location}</span></div>
+        <div class="stats-row"><span class="stats-label">Ingresos mensuales:</span><span class="stats-val">${d.avatarBrief.general.income}</span></div>
+        <div class="stats-row"><span class="stats-label">Antecedentes profesionales:</span><span class="stats-val" style="width:60%; text-align:right">${d.avatarBrief.general.background}</span></div>
+        <div class="stats-row"><span class="stats-label">Identidades típicas:</span><span class="stats-val" style="width:60%; text-align:right">${d.avatarBrief.general.identities}</span></div>
       </div>
 
       <h3>🚩 Desafíos Clave y Puntos de Dolor</h3>
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:1.25rem; margin-bottom:2rem">
         <div class="angle-box" style="margin-bottom:0; border-left-color:var(--accent-red)">
-          <div class="angle-header" style="font-size:0.95rem">${report.avatarBrief.painPoints.p1.name}</div>
+          <div class="angle-header" style="font-size:0.95rem">${d.avatarBrief.painPoints.p1.name}</div>
           <ul style="padding-left:1.2rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5">
-            ${report.avatarBrief.painPoints.p1.list.map(item => `<li>${item}</li>`).join('')}
+            ${report.avatarBrief.painPoints.p1.list.map(item => `<li>${e(item)}</li>`).join('')}
           </ul>
         </div>
         <div class="angle-box" style="margin-bottom:0; border-left-color:var(--accent-amber)">
-          <div class="angle-header" style="font-size:0.95rem">${report.avatarBrief.painPoints.p2.name}</div>
+          <div class="angle-header" style="font-size:0.95rem">${d.avatarBrief.painPoints.p2.name}</div>
           <ul style="padding-left:1.2rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5">
-            ${report.avatarBrief.painPoints.p2.list.map(item => `<li>${item}</li>`).join('')}
+            ${report.avatarBrief.painPoints.p2.list.map(item => `<li>${e(item)}</li>`).join('')}
           </ul>
         </div>
         <div class="angle-box" style="margin-bottom:0; border-left-color:var(--accent-violet)">
-          <div class="angle-header" style="font-size:0.95rem">${report.avatarBrief.painPoints.p3.name}</div>
+          <div class="angle-header" style="font-size:0.95rem">${d.avatarBrief.painPoints.p3.name}</div>
           <ul style="padding-left:1.2rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5">
-            ${report.avatarBrief.painPoints.p3.list.map(item => `<li>${item}</li>`).join('')}
+            ${report.avatarBrief.painPoints.p3.list.map(item => `<li>${e(item)}</li>`).join('')}
           </ul>
         </div>
       </div>
@@ -996,81 +1026,81 @@ export function renderReportContent() {
         <div style="background:rgba(16, 185, 129, 0.03); border:1px solid rgba(16, 185, 129, 0.1); padding:1.25rem; border-radius:12px">
           <h4 style="color:var(--accent-emerald); margin-top:0">Metas a Corto Plazo</h4>
           <ul style="padding-left:1.2rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.6">
-            ${report.avatarBrief.goals.short.map(g => `<li>${g}</li>`).join('')}
+            ${report.avatarBrief.goals.short.map(g => `<li>${e(g)}</li>`).join('')}
           </ul>
         </div>
         <div style="background:rgba(6, 182, 212, 0.03); border:1px solid rgba(6, 182, 212, 0.1); padding:1.25rem; border-radius:12px">
           <h4 style="color:var(--accent-cyan); margin-top:0">Aspiraciones a Largo Plazo</h4>
           <ul style="padding-left:1.2rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.6">
-            ${report.avatarBrief.goals.long.map(g => `<li>${g}</li>`).join('')}
+            ${report.avatarBrief.goals.long.map(g => `<li>${e(g)}</li>`).join('')}
           </ul>
         </div>
       </div>
 
       <h3>🧠 Impulsores Emocionales e Ideas Psicológicas</h3>
       <ul style="padding-left:1.2rem; line-height:1.6; margin-bottom:2rem">
-        ${report.avatarBrief.emotionalDrivers.map(driver => `<li>${driver}</li>`).join('')}
+        ${report.avatarBrief.emotionalDrivers.map(driver => `<li>${e(driver)}</li>`).join('')}
       </ul>
 
       <h3>💬 Testimonios y Citas Directas (Voz del Cliente)</h3>
       
       <h4 style="color:var(--accent-cyan)">Citas Generales</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem">
-        ${report.avatarBrief.quotes.general.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.general.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h4 style="color:var(--accent-red)">Puntos de Dolor y Frustración</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem">
-        ${report.avatarBrief.quotes.pain.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-red)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.pain.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-red)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h4 style="color:var(--accent-violet)">Citas de Mentalidad</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem">
-        ${report.avatarBrief.quotes.mindset.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-violet)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.mindset.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-violet)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h4 style="color:var(--accent-amber)">Estado Emocional y Motivadores Personales</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem">
-        ${report.avatarBrief.quotes.emotional.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-amber)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.emotional.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-amber)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h4 style="color:var(--text-secondary)">Respuestas Emocionales ante Dificultades</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem">
-        ${report.avatarBrief.quotes.responses.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--text-muted)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.responses.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--text-muted)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h4 style="color:var(--accent-emerald)">Motivación y Urgencia en el Éxito</h4>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:2rem">
-        ${report.avatarBrief.quotes.success.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-emerald)"><span class="quotes">"</span>${q}<span class="quotes">"</span></div>`).join('')}
+        ${report.avatarBrief.quotes.success.map(q => `<div class="verbatim-card" style="font-family:inherit; color:var(--text-primary); border-left-color:var(--accent-emerald)"><span class="quotes">"</span>${e(q)}<span class="quotes">"</span></div>`).join('')}
       </div>
 
       <h3>🚩 Miedos Emocionales Clave y Frustraciones Profundas</h3>
       <ul style="padding-left:1.2rem; line-height:1.6; margin-bottom:2rem">
-        ${report.avatarBrief.fears.map(f => `<li>${f}</li>`).join('')}
+        ${report.avatarBrief.fears.map(f => `<li>${e(f)}</li>`).join('')}
       </ul>
 
       <h3>🧠 Insights Emocionales y Psicográficos</h3>
       <ul style="padding-left:1.2rem; line-height:1.6; margin-bottom:2rem">
-        ${report.avatarBrief.insights.map(i => `<li>${i}</li>`).join('')}
+        ${report.avatarBrief.insights.map(i => `<li>${e(i)}</li>`).join('')}
       </ul>
 
       <h3>📌 Viaje Emocional Típico del Comprador</h3>
       <div style="display:flex; flex-direction:column; gap:1.25rem; position:relative; padding-left:1.5rem; border-left:2px solid var(--border-color); margin:1.5rem 0">
         <div>
           <strong style="color:var(--accent-cyan)">Conciencia:</strong>
-          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${report.avatarBrief.journey.awareness}</p>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${d.avatarBrief.journey.awareness}</p>
         </div>
         <div>
           <strong style="color:var(--accent-red)">Frustración:</strong>
-          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${report.avatarBrief.journey.frustración}</p>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${d.avatarBrief.journey.frustración}</p>
         </div>
         <div>
           <strong style="color:var(--accent-amber)">Desesperación y Búsqueda de Soluciones:</strong>
-          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${report.avatarBrief.journey.desesperación}</p>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${d.avatarBrief.journey.desesperación}</p>
         </div>
         <div>
           <strong style="color:var(--accent-emerald)">Alivio y Compromiso:</strong>
-          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${report.avatarBrief.journey.alivio}</p>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.25rem">${d.avatarBrief.journey.alivio}</p>
         </div>
       </div>
     </section>
@@ -1082,34 +1112,34 @@ export function renderReportContent() {
       
       <h3>📋 Estructura General de Posicionamiento</h3>
       <div class="card-stats-table" style="background:var(--bg-secondary); border-radius:12px; padding:1.25rem; margin-bottom:2rem">
-        <div class="stats-row"><span class="stats-label">Posibles Nombres:</span><span class="stats-val">${report.offerBrief.names.join(', ')}</span></div>
-        <div class="stats-row"><span class="stats-label">Nivel de Consciencia:</span><span class="stats-val">${report.offerBrief.awareness}</span></div>
-        <div class="stats-row"><span class="stats-label">Etapa de Sofisticación:</span><span class="stats-val">${report.offerBrief.sophistication}</span></div>
-        <div class="stats-row"><span class="stats-label">Gran Idea (Big Idea):</span><span class="stats-val" style="width:65%; text-align:right">${report.offerBrief.bigIdea}</span></div>
-        <div class="stats-row"><span class="stats-label">Metáfora:</span><span class="stats-val" style="width:65%; text-align:right; font-style:italic">"${report.offerBrief.metaphor}"</span></div>
-        <div class="stats-row"><span class="stats-label">Guía / Gurú:</span><span class="stats-val">${report.offerBrief.guru}</span></div>
+        <div class="stats-row"><span class="stats-label">Posibles Nombres:</span><span class="stats-val">${d.offerBrief.names.join(', ')}</span></div>
+        <div class="stats-row"><span class="stats-label">Nivel de Consciencia:</span><span class="stats-val">${d.offerBrief.awareness}</span></div>
+        <div class="stats-row"><span class="stats-label">Etapa de Sofisticación:</span><span class="stats-val">${d.offerBrief.sophistication}</span></div>
+        <div class="stats-row"><span class="stats-label">Gran Idea (Big Idea):</span><span class="stats-val" style="width:65%; text-align:right">${d.offerBrief.bigIdea}</span></div>
+        <div class="stats-row"><span class="stats-label">Metáfora:</span><span class="stats-val" style="width:65%; text-align:right; font-style:italic">"${d.offerBrief.metaphor}"</span></div>
+        <div class="stats-row"><span class="stats-label">Guía / Gurú:</span><span class="stats-val">${d.offerBrief.guru}</span></div>
       </div>
 
       <h3>💡 Mecanismos y Narrativa</h3>
       <h4>Posible UMP (Mecanismo Único del Problema)</h4>
-      <p style="background:rgba(239, 68, 68, 0.02); border:1px solid rgba(239, 68, 68, 0.1); padding:1rem; border-radius:8px">${report.offerBrief.ump}</p>
+      <p style="background:rgba(239, 68, 68, 0.02); border:1px solid rgba(239, 68, 68, 0.1); padding:1rem; border-radius:8px">${d.offerBrief.ump}</p>
       
       <h4>Posible UMS (Mecanismo Único de la Solución)</h4>
-      <p style="background:rgba(16, 185, 129, 0.02); border:1px solid rgba(16, 185, 129, 0.1); padding:1rem; border-radius:8px">${report.offerBrief.ums}</p>
+      <p style="background:rgba(16, 185, 129, 0.02); border:1px solid rgba(16, 185, 129, 0.1); padding:1rem; border-radius:8px">${d.offerBrief.ums}</p>
       
       <h4>Historia de Descubrimiento (Discovery Story)</h4>
-      <p>${report.offerBrief.discovery}</p>
+      <p>${d.offerBrief.discovery}</p>
 
       <h4>Producto (Definición de Oferta)</h4>
-      <p>${report.offerBrief.product}</p>
+      <p>${d.offerBrief.product}</p>
 
       <h3>✍️ Ideas de Titulares y Subtítulos Persuasivos</h3>
       <div class="verbatim-list">
         ${report.offerBrief.headlines.map((headline, idx) => `
           <div class="verbatim-card" style="font-family:inherit; border-left-color:var(--accent-violet); color:var(--text-light)">
             <strong>Titular Sugerido #${idx+1}:</strong><br>
-            <span style="font-size:1.05rem; display:block; margin-top:0.3rem">"${headline}"</span>
-            <button class="btn-copy-clipboard" data-copy='${headline.replace(/'/g, "&apos;")}' title="Copiar Titular">
+            <span style="font-size:1.05rem; display:block; margin-top:0.3rem">"${e(headline)}"</span>
+            <button class="btn-copy-clipboard" data-copy="${dataCopyAttr(headline)}" title="Copiar Titular">
               <i data-lucide="copy" style="width:14px; height:14px"></i>
             </button>
           </div>
@@ -1124,8 +1154,8 @@ export function renderReportContent() {
           const a = parts[1] ? parts[1].replace(')', '') : '';
           return `
             <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:1.25rem; border-radius:12px">
-              <strong style="color:var(--accent-amber); display:block; margin-bottom:0.4rem">❓ ${q}</strong>
-              <span style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5; display:block">👉 ${a}</span>
+              <strong style="color:var(--accent-amber); display:block; margin-bottom:0.4rem">❓ ${e(q)}</strong>
+              <span style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5; display:block">👉 ${e(a)}</span>
             </div>
           `;
         }).join('')}
@@ -1134,19 +1164,19 @@ export function renderReportContent() {
       <h3>⛓️ Cadenas de Creencias (Belief Chains)</h3>
       <p>Lo que el prospecto necesita creer obligatoriamente para estar listo para comprar:</p>
       <ol style="padding-left:1.5rem; line-height:1.8; margin-bottom:2rem; color:var(--text-secondary)">
-        ${report.offerBrief.beliefs.map(b => `<li>${b}</li>`).join('')}
+        ${report.offerBrief.beliefs.map(b => `<li>${e(b)}</li>`).join('')}
       </ol>
 
       <h3>📐 Arquitectura del Embudo (Funnel Architecture) & Dominios</h3>
-      <p><strong>Diseño de Embudo Recomendado:</strong> ${report.offerBrief.funnel}</p>
-      <p style="margin-bottom:2rem"><strong>Dominios Potenciales Disponibles:</strong> <code>${report.offerBrief.domains.join(' | ')}</code></p>
+      <p><strong>Diseño de Embudo Recomendado:</strong> ${d.offerBrief.funnel}</p>
+      <p style="margin-bottom:2rem"><strong>Dominios Potenciales Disponibles:</strong> <code>${d.offerBrief.domains.join(' | ')}</code></p>
 
       <h3>✍️ Ejemplos y Swipes Ganadores (Copy Swipes)</h3>
       <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:2rem">
         ${report.offerBrief.swipes ? report.offerBrief.swipes.map(s => `
           <div class="verbatim-card" style="font-family:inherit; color:var(--text-primary)">
-            <span class="quotes">"</span>${s}<span class="quotes">"</span>
-            <button class="btn-copy-clipboard" data-copy='${s.replace(/'/g, "&apos;")}' title="Copiar Frase">
+            <span class="quotes">"</span>${e(s)}<span class="quotes">"</span>
+            <button class="btn-copy-clipboard" data-copy="${dataCopyAttr(s)}" title="Copiar Frase">
               <i data-lucide="copy" style="width:14px; height:14px"></i>
             </button>
           </div>
@@ -1154,7 +1184,7 @@ export function renderReportContent() {
       </div>
 
       <h3>📝 Otras Notas de la Oferta</h3>
-      <p style="background:rgba(255,255,255,0.01); border:1px solid var(--border-color); padding:1.25rem; border-radius:12px; color:var(--text-secondary); line-height:1.6; font-size:0.9rem">${report.offerBrief.otherNotes || 'Sin notas adicionales.'}</p>
+      <p style="background:rgba(255,255,255,0.01); border:1px solid var(--border-color); padding:1.25rem; border-radius:12px; color:var(--text-secondary); line-height:1.6; font-size:0.9rem">${d.offerBrief.otherNotes || 'Sin notas adicionales.'}</p>
     </section>
 
     <!-- SECTION 9: UGC SCRIPTS -->
@@ -1166,23 +1196,23 @@ export function renderReportContent() {
         ${report.ugcScripts.map((script, idx) => `
           <div class="ugc-script-card">
             <div class="ugc-header">
-              <span class="ugc-title">${script.title}</span>
-              <span class="ugc-duration"><i data-lucide="clock" style="width:12px; height:12px; display:inline; vertical-align:middle; margin-right:4px"></i>${script.duration}</span>
+              <span class="ugc-title">${e(script.title)}</span>
+              <span class="ugc-duration"><i data-lucide="clock" style="width:12px; height:12px; display:inline; vertical-align:middle; margin-right:4px"></i>${e(script.duration)}</span>
             </div>
             <div class="ugc-scenes-list">
               ${script.scenes.map(scene => `
                 <div class="ugc-scene">
-                  <div class="scene-time">${scene.time}</div>
+                  <div class="scene-time">${e(scene.time)}</div>
                   <div class="scene-body">
-                    <div class="scene-visual">${scene.visual}</div>
-                    <div class="scene-audio">Voz en Off: "${scene.audio}"</div>
-                    <div class="scene-text">Texto en Pantalla: [${scene.text}]</div>
+                    <div class="scene-visual">${e(scene.visual)}</div>
+                    <div class="scene-audio">Voz en Off: "${e(scene.audio)}"</div>
+                    <div class="scene-text">Texto en Pantalla: [${e(scene.text)}]</div>
                   </div>
                 </div>
               `).join('')}
             </div>
             <div style="display:flex; justify-content:flex-end; margin-top:1rem">
-              <button class="btn btn-secondary btn-copy-clipboard" data-copy="${script.scenes.map(s => `[${s.time}] Visual: ${s.visual}\nAudio: ${s.audio}\nTexto: ${s.text}`).join('\n\n')}" style="padding:0.4rem 0.8rem; font-size:0.75rem">
+              <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(script.scenes.map(s => `[${s.time}] Visual: ${s.visual}\nAudio: ${s.audio}\nTexto: ${s.text}`).join('\n\n'))}" style="padding:0.4rem 0.8rem; font-size:0.75rem">
                 <i data-lucide="copy" style="width:12px; height:12px"></i> Copiar Guion Completo
               </button>
             </div>
@@ -1211,7 +1241,7 @@ export function renderReportContent() {
                 </button>
               </div>
             </div>
-            <textarea class="editor-textarea" id="landing-html-code" readonly>${report.landingPage.html}</textarea>
+            <textarea class="editor-textarea" id="landing-html-code" readonly>${e(report.landingPage.html)}</textarea>
           </div>
           
           <!-- Right Panel: Visual Outline -->
@@ -1220,8 +1250,8 @@ export function renderReportContent() {
             <div class="outline-list">
               ${report.landingPage.outline.map((out, idx) => `
                 <div class="outline-section-item">
-                  <div class="outline-section-title">${idx + 1}. ${out.title}</div>
-                  <div class="outline-section-desc">${out.desc}</div>
+                  <div class="outline-section-title">${idx + 1}. ${e(out.title)}</div>
+                  <div class="outline-section-desc">${e(out.desc)}</div>
                 </div>
               `).join('')}
             </div>
@@ -1239,11 +1269,11 @@ export function renderReportContent() {
         <div class="ab-form-row">
           <div class="ab-input-group">
             <label class="ab-input-label" for="ab-headline-a">Titular Alternativa A (Ej. Enfocado en el Dolor)</label>
-            <input type="text" class="ab-input-field" id="ab-headline-a" value="${report.offerBrief.headlines[0] || ''}">
+            <input type="text" class="ab-input-field" id="ab-headline-a" value="${d.offerBrief.headlines[0] || ''}">
           </div>
           <div class="ab-input-group">
             <label class="ab-input-label" for="ab-headline-b">Titular Alternativa B (Ej. Enfocado en el Mecanismo Único)</label>
-            <input type="text" class="ab-input-field" id="ab-headline-b" value="${report.offerBrief.headlines[1] || ''}">
+            <input type="text" class="ab-input-field" id="ab-headline-b" value="${d.offerBrief.headlines[1] || ''}">
           </div>
         </div>
         
@@ -1331,7 +1361,7 @@ export function renderReportContent() {
               ${report.competitorAnalysis.competitorsGanchos.map(g => `
                 <div class="comp-list-item">
                   <i data-lucide="x" style="color:var(--accent-red); width:16px; height:16px; margin-top:2px"></i>
-                  <span>${g}</span>
+                  <span>${e(g)}</span>
                 </div>
               `).join('')}
             </div>
@@ -1344,7 +1374,7 @@ export function renderReportContent() {
               ${report.competitorAnalysis.ourGanchos.map(g => `
                 <div class="comp-list-item">
                   <i data-lucide="check" style="color:var(--accent-emerald); width:16px; height:16px; margin-top:2px"></i>
-                  <span>${g}</span>
+                  <span>${e(g)}</span>
                 </div>
               `).join('')}
             </div>
@@ -1353,12 +1383,12 @@ export function renderReportContent() {
         
         <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem">
           <h4 style="color:var(--text-light); margin-top:0; font-family:var(--font-display); font-size:1rem"><i data-lucide="help-circle" style="width:16px; height:16px; display:inline; margin-right:6px; vertical-align:middle"></i>Debilidades Clave del Competidor</h4>
-          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${report.competitorAnalysis.weaknesses}</p>
+          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${d.competitorAnalysis.weaknesses}</p>
         </div>
         
         <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem">
           <h4 style="color:var(--text-light); margin-top:0; font-family:var(--font-display); font-size:1rem"><i data-lucide="zap" style="color:var(--accent-cyan); width:16px; height:16px; display:inline; margin-right:6px; vertical-align:middle"></i>Estrategia de Diferenciación Propuesta</h4>
-          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${report.competitorAnalysis.differentiation}</p>
+          <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary)">${d.competitorAnalysis.differentiation}</p>
         </div>
       </div>
     </section>
@@ -1374,11 +1404,11 @@ export function renderReportContent() {
           return `
             <div class="supplier-card">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
-                <span class="supplier-platform-badge ${badgeClass}">${sup.platform}</span>
-                <span style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono)"><i data-lucide="truck" style="width:12px; height:12px; display:inline; vertical-align:middle; margin-right:3px"></i>${sup.shippingTime} días</span>
+                <span class="supplier-platform-badge ${badgeClass}">${e(sup.platform)}</span>
+                <span style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono)"><i data-lucide="truck" style="width:12px; height:12px; display:inline; vertical-align:middle; margin-right:3px"></i>${e(sup.shippingTime)} días</span>
               </div>
               
-              <h4 style="margin:0 0 0.5rem 0; font-family:var(--font-display); color:var(--text-light); font-size:1.05rem; line-height:1.4; font-weight:600">${sup.name}</h4>
+              <h4 style="margin:0 0 0.5rem 0; font-family:var(--font-display); color:var(--text-light); font-size:1.05rem; line-height:1.4; font-weight:600">${e(sup.name)}</h4>
               
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; background:rgba(0,0,0,0.15); padding:0.75rem; border-radius:8px; font-size:0.8rem; margin:1rem 0; font-family:var(--font-mono)">
                 <div>Costo Prod: <strong style="color:var(--accent-emerald); font-size:0.9rem">$${parseFloat(sup.price).toFixed(2)}</strong></div>
@@ -1386,7 +1416,7 @@ export function renderReportContent() {
               </div>
               
               <div style="margin-top:auto; padding-top:0.75rem">
-                <a href="${sup.link}" target="_blank" class="btn btn-primary" style="display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.5rem; font-size:0.8rem; text-decoration:none; background:linear-gradient(135deg, var(--accent-cyan), var(--accent-violet))">
+                <a href="${safeHref(sup.link) || '#'}" rel="noopener noreferrer" target="_blank" class="btn btn-primary" style="display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.5rem; font-size:0.8rem; text-decoration:none; background:linear-gradient(135deg, var(--accent-cyan), var(--accent-violet))">
                   <i data-lucide="external-link" style="width:12px; height:12px"></i> Ver en Proveedor
                 </a>
               </div>
@@ -1410,7 +1440,7 @@ export function renderReportContent() {
       <div class="emails-container" style="display: flex; flex-direction: column; gap: 1rem;">
         ${report.emailSequence && report.emailSequence.length > 0 ? report.emailSequence.map((email, idx) => {
           const emailNum = idx + 1;
-          const fullEmailText = `Asunto: ${email.subject}\nPrevisualización: ${email.preview}\n\n${email.body}`;
+          const fullEmailText = `Asunto: ${e(email.subject)}\nPrevisualización: ${e(email.preview)}\n\n${email.body}`;
           return `
             <div class="email-card">
               <div class="email-header-info">
@@ -1423,9 +1453,9 @@ export function renderReportContent() {
                   <span class="email-header-val" style="color: var(--text-muted); font-style: italic;">${email.preview}</span>
                 </div>
               </div>
-              <div class="email-body-content">${email.body}</div>
+              <div class="email-body-content">${e(email.body)}</div>
               <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${encodeURIComponent(fullEmailText)}">
+                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(fullEmailText)}">
                   <i data-lucide="copy"></i> Copiar Correo
                 </button>
               </div>
@@ -1442,9 +1472,9 @@ export function renderReportContent() {
       
       <h3 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Meta Ads (Facebook / Instagram)</h3>
       <div class="ad-copy-grid" style="margin-bottom: 2.5rem;">
-        ${report.adCopy && report.adCopy.facebook && report.adCopy.facebook.length > 0 ? report.adCopy.facebook.map((ad, idx) => {
+        ${report.adCopy && report.adCopy.facebook && d.adCopy.facebook.length > 0 ? report.adCopy.facebook.map((ad, idx) => {
           const adNum = idx + 1;
-          const fullAdText = `Texto Principal:\n${ad.primaryText}\n\nTitular: ${ad.headline}\nDescripción: ${ad.description}`;
+          const fullAdText = `Texto Principal:\n${e(ad.primaryText)}\n\nTitular: ${e(ad.headline)}\nDescripción: ${e(ad.description)}`;
           return `
             <div class="ad-copy-card">
               <div class="ad-copy-header">
@@ -1457,7 +1487,7 @@ export function renderReportContent() {
                 <div><strong>Descripción:</strong><br><span style="color:var(--text-muted)">${ad.description}</span></div>
               </div>
               <div style="display:flex; justify-content:flex-end; margin-top:auto;">
-                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${encodeURIComponent(fullAdText)}">
+                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(fullAdText)}">
                   <i data-lucide="copy"></i> Copiar Anuncio
                 </button>
               </div>
@@ -1468,9 +1498,9 @@ export function renderReportContent() {
 
       <h3 style="color: var(--accent-pink); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">TikTok Ads (Spark Ads / Organic)</h3>
       <div class="ad-copy-grid">
-        ${report.adCopy && report.adCopy.tiktok && report.adCopy.tiktok.length > 0 ? report.adCopy.tiktok.map((ad, idx) => {
+        ${report.adCopy && report.adCopy.tiktok && d.adCopy.tiktok.length > 0 ? report.adCopy.tiktok.map((ad, idx) => {
           const adNum = idx + 1;
-          const fullAdText = `Gancho (Hook):\n"${ad.hook}"\n\nCuerpo (Body):\n"${ad.body}"\n\nCTA Overlay: ${ad.cta}`;
+          const fullAdText = `Gancho (Hook):\n"${e(ad.hook)}"\n\nCuerpo (Body):\n"${e(ad.body)}"\n\nCTA Overlay: ${e(ad.cta)}`;
           return `
             <div class="ad-copy-card">
               <div class="ad-copy-header">
@@ -1486,7 +1516,7 @@ export function renderReportContent() {
                 <div><strong>Llamado a la Acción (CTA):</strong><br><span style="color:var(--accent-cyan); font-weight:600">${ad.cta}</span></div>
               </div>
               <div style="display:flex; justify-content:flex-end; margin-top:auto;">
-                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${encodeURIComponent(fullAdText)}">
+                <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(fullAdText)}">
                   <i data-lucide="copy"></i> Copiar Variante
                 </button>
               </div>
@@ -1502,7 +1532,7 @@ export function renderReportContent() {
       <p class="report-section-desc">Título, meta descripción SEO y descripción HTML estructurada con preguntas frecuentes lista para copiar y pegar en tu tienda.</p>
       
       <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-bottom: 1.5rem;">
-        <button class="btn btn-secondary btn-copy-clipboard" data-copy="${encodeURIComponent(report.shopifyDescription ? `Título: ${report.shopifyDescription.title}\nMeta Description: ${report.shopifyDescription.metaDescription}\n\nDescripción HTML:\n${report.shopifyDescription.body}` : '')}">
+        <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(report.shopifyDescription ? `Título: ${report.shopifyDescription.title}\nMeta Description: ${report.shopifyDescription.metaDescription}\n\nDescripción HTML:\n${report.shopifyDescription.body}` : '')}">
           <i data-lucide="copy"></i> Copiar Datos
         </button>
         <button class="btn btn-secondary" id="download-shopify-html-btn" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">
@@ -1510,37 +1540,37 @@ export function renderReportContent() {
         </button>
       </div>
 
-      ${report.shopifyDescription ? `
+      ${d.shopifyDescription ? `
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:1.25rem">
             <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:0.25rem">TÍTULO SEO OPTIMIZADO:</div>
-            <div style="font-weight:700; color:var(--text-light); font-size:1.1rem">${report.shopifyDescription.title}</div>
+            <div style="font-weight:700; color:var(--text-light); font-size:1.1rem">${d.shopifyDescription.title}</div>
           </div>
           
           <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:1.25rem">
             <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:0.25rem">META DESCRIPTION (SEO - MAX 155 CHARS):</div>
-            <div style="color:var(--text-secondary); font-size:0.9rem">${report.shopifyDescription.metaDescription}</div>
+            <div style="color:var(--text-secondary); font-size:0.9rem">${d.shopifyDescription.metaDescription}</div>
           </div>
 
           <div style="margin-top:1rem">
             <div style="font-size:0.8rem; color:var(--text-secondary); font-family:var(--font-display); text-transform:uppercase; margin-bottom:0.5rem">Previsualización de la Tienda (Shopify Preview)</div>
             <div class="shopify-preview-container">
-              <div class="shopify-title-preview">${report.shopifyDescription.title}</div>
+              <div class="shopify-title-preview">${d.shopifyDescription.title}</div>
               <div class="shopify-price-preview">
-                $${report.retail.toFixed(2)}
-                <span class="shopify-price-compare">$${(report.retail * 2 - 0.01).toFixed(2)}</span>
+                $${d.retail.toFixed(2)}
+                <span class="shopify-price-compare">$${(d.retail * 2 - 0.01).toFixed(2)}</span>
                 <span style="font-size:0.75rem; background:#fee2e2; color:#b91c1c; padding:0.15rem 0.4rem; border-radius:4px; font-weight:700">50% OFF</span>
               </div>
               
               <div class="shopify-body-preview">
-                ${report.shopifyDescription.body}
+                ${d.shopifyDescription.body}
                 
                 <h3>Preguntas Frecuentes (FAQ)</h3>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
                   ${report.shopifyDescription.faq && report.shopifyDescription.faq.length > 0 ? report.shopifyDescription.faq.map(item => `
                     <div class="shopify-faq-item">
-                      <div class="shopify-faq-q">❓ ${item.q}</div>
-                      <div class="shopify-faq-a">${item.a}</div>
+                      <div class="shopify-faq-q">❓ ${e(item.q)}</div>
+                      <div class="shopify-faq-a">${e(item.a)}</div>
                     </div>
                   `).join('') : ''}
                 </div>
@@ -1625,9 +1655,9 @@ export function renderReportContent() {
         <div class="prompt-card">
           <h4 style="color: var(--text-light); font-family: var(--font-display); font-size: 0.95rem; margin-bottom: 0.25rem; font-weight:600">1. Fondo Blanco Comercial (E-Commerce Studio)</h4>
           <p style="font-size: 0.75rem; color: var(--text-muted);">Ideal para imágenes de producto en tu página de Shopify.</p>
-          <div class="prompt-code">A professional studio product shot of "${report.name}", modern minimalist design, clean white background, soft studio lighting, high detail, sharp focus, 8k resolution, photorealistic.</div>
+          <div class="prompt-code">A professional studio product shot of "${d.name}", modern minimalist design, clean white background, soft studio lighting, high detail, sharp focus, 8k resolution, photorealistic.</div>
           <div style="display: flex; justify-content: flex-end;">
-            <button class="btn btn-secondary btn-copy-clipboard" data-copy="A professional studio product shot of &quot;${report.name}&quot;, modern minimalist design, clean white background, soft studio lighting, high detail, sharp focus, 8k resolution, photorealistic.">
+            <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(`A professional studio product shot of "${report.name}", modern minimalist design, clean white background, soft studio lighting, high detail, sharp focus, 8k resolution, photorealistic.`)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
@@ -1636,9 +1666,9 @@ export function renderReportContent() {
         <div class="prompt-card">
           <h4 style="color: var(--text-light); font-family: var(--font-display); font-size: 0.95rem; margin-bottom: 0.25rem; font-weight:600">2. Foto de Estilo de Vida (Lifestyle Scenario)</h4>
           <p style="font-size: 0.75rem; color: var(--text-muted);">Muestra el producto en un contexto de uso real y estético.</p>
-          <div class="prompt-code">A modern aesthetic lifestyle photograph of "${report.name}" being used in a cozy modern home environment, warm natural lighting through a window, blurred background, premium vibes, cinematic look, 35mm lens, photorealistic.</div>
+          <div class="prompt-code">A modern aesthetic lifestyle photograph of "${d.name}" being used in a cozy modern home environment, warm natural lighting through a window, blurred background, premium vibes, cinematic look, 35mm lens, photorealistic.</div>
           <div style="display: flex; justify-content: flex-end;">
-            <button class="btn btn-secondary btn-copy-clipboard" data-copy="A modern aesthetic lifestyle photograph of &quot;${report.name}&quot; being used in a cozy modern home environment, warm natural lighting through a window, blurred background, premium vibes, cinematic look, 35mm lens, photorealistic.">
+            <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(`A modern aesthetic lifestyle photograph of "${report.name}" being used in a cozy modern home environment, warm natural lighting through a window, blurred background, premium vibes, cinematic look, 35mm lens, photorealistic.`)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
@@ -1647,9 +1677,9 @@ export function renderReportContent() {
         <div class="prompt-card">
           <h4 style="color: var(--text-light); font-family: var(--font-display); font-size: 0.95rem; margin-bottom: 0.25rem; font-weight:600">3. Diseño de Empaque Premium (Premium Branding)</h4>
           <p style="font-size: 0.75rem; color: var(--text-muted);">Diseños conceptuales para cajas y marca propia (Brand Building).</p>
-          <div class="prompt-code">Elegant packaging design concept box for "${report.name}", gold foil accents, matte texture finish, luxurious brand styling, clean luxury aesthetics, mock-up presentation on dark marble surface, soft focus, dramatic lighting.</div>
+          <div class="prompt-code">Elegant packaging design concept box for "${d.name}", gold foil accents, matte texture finish, luxurious brand styling, clean luxury aesthetics, mock-up presentation on dark marble surface, soft focus, dramatic lighting.</div>
           <div style="display: flex; justify-content: flex-end;">
-            <button class="btn btn-secondary btn-copy-clipboard" data-copy="Elegant packaging design concept box for &quot;${report.name}&quot;, gold foil accents, matte texture finish, luxurious brand styling, clean luxury aesthetics, mock-up presentation on dark marble surface, soft focus, dramatic lighting.">
+            <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(`Elegant packaging design concept box for "${report.name}", gold foil accents, matte texture finish, luxurious brand styling, clean luxury aesthetics, mock-up presentation on dark marble surface, soft focus, dramatic lighting.`)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
@@ -1658,9 +1688,9 @@ export function renderReportContent() {
         <div class="prompt-card">
           <h4 style="color: var(--text-light); font-family: var(--font-display); font-size: 0.95rem; margin-bottom: 0.25rem; font-weight:600">4. Estilo Orgánico de Redes Sociales (UGC Style)</h4>
           <p style="font-size: 0.75rem; color: var(--text-muted);">Foto orgánica tipo selfie o tomada por un cliente real en casa.</p>
-          <div class="prompt-code">A casual smartphone photo of "${report.name}" sitting on a bathroom counter or vanity table, slightly messy aesthetic, real consumer photography style, soft natural overhead light, unedited, authentic look.</div>
+          <div class="prompt-code">A casual smartphone photo of "${d.name}" sitting on a bathroom counter or vanity table, slightly messy aesthetic, real consumer photography style, soft natural overhead light, unedited, authentic look.</div>
           <div style="display: flex; justify-content: flex-end;">
-            <button class="btn btn-secondary btn-copy-clipboard" data-copy="A casual smartphone photo of &quot;${report.name}&quot; sitting on a bathroom counter or vanity table, slightly messy aesthetic, real consumer photography style, soft natural overhead light, unedited, authentic look.">
+            <button class="btn btn-secondary btn-copy-clipboard" data-copy="${dataCopyAttr(`A casual smartphone photo of "${report.name}" sitting on a bathroom counter or vanity table, slightly messy aesthetic, real consumer photography style, soft natural overhead light, unedited, authentic look.`)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
@@ -1677,7 +1707,7 @@ export function renderReportContent() {
         <div style="display: flex; align-items: center; gap: 0.75rem;">
           <i data-lucide="sparkles" style="color: var(--accent-cyan); width: 24px; height: 24px; flex-shrink:0;"></i>
           <div>
-            <h4 style="margin: 0; color: var(--text-light); font-size: 0.9rem;">Secuencia de Prompts para ${report.name}</h4>
+            <h4 style="margin: 0; color: var(--text-light); font-size: 0.9rem;">Secuencia de Prompts para ${d.name}</h4>
             <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Prompts contextualizados listos para tu chatbot favorito.</p>
           </div>
         </div>
@@ -1692,60 +1722,60 @@ export function renderReportContent() {
         <div class="prompt-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">FASE 1: Investigación Psicográfica & Verbatims</h4>
-            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step1)}">
+            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.step1)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Genera 15 verbatims de dolor, historias de terror y 5 ángulos creativos de marketing.</p>
-          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step1}</div>
+          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${e(masterSeq.step1)}</div>
         </div>
 
         <div class="prompt-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <h4 style="color: var(--accent-violet); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">FASE 2: Ficha Avatar Brief</h4>
-            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step2)}">
+            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.step2)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Construye el mapa psicográfico P1, P2, P3, culpables externos y creencia fundamental.</p>
-          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step2}</div>
+          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${e(masterSeq.step2)}</div>
         </div>
 
         <div class="prompt-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <h4 style="color: var(--accent-amber); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">FASE 3: Offer Brief & Apilamiento</h4>
-            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step3)}">
+            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.step3)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Diseña la oferta irresistible, 3 bonus exclusivos, anclaje de precio y garantía.</p>
-          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step3}</div>
+          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${e(masterSeq.step3)}</div>
         </div>
 
         <div class="prompt-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <h4 style="color: var(--accent-emerald); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">FASE 4: Guiones UGC & Ad Copy Matrix</h4>
-            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step4)}">
+            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.step4)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Produce 3 guiones de video TikTok/Reels con escenas y 3 variantes de anuncios Meta.</p>
-          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step4}</div>
+          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${e(masterSeq.step4)}</div>
         </div>
 
         <div class="prompt-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <h4 style="color: #a78bfa; font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">FASE 5: Landing Page HTML5 & Shopify</h4>
-            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step5)}">
+            <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.step5)}">
               <i data-lucide="copy"></i> Copiar Prompt
             </button>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Genera el código HTML autocontenido de la landing page con Tailwind CSS.</p>
-          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').step5}</div>
+          <div class="prompt-code" style="max-height: 120px; overflow-y: auto;">${e(masterSeq.step5)}</div>
         </div>
 
         <div style="margin-top: 0.5rem; text-align: center;">
-          <button class="btn btn-primary btn-glow btn-copy-clipboard" data-copy="${encodeURIComponent(generateMasterPromptSequence(report.name, report.competitorUrl || '', report.retail || '').allInOne)}" style="padding: 0.75rem 1.5rem;">
+          <button class="btn btn-primary btn-glow btn-copy-clipboard" data-copy="${dataCopyAttr(masterSeq.allInOne)}" style="padding: 0.75rem 1.5rem;">
             <i data-lucide="copy"></i> Copiar Mega System Prompt Completo (All-in-One)
           </button>
         </div>
@@ -1794,14 +1824,14 @@ export function renderReportContent() {
             <label>Valor Medio Pedido / AOV ($)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-aov" value="${(typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99).toFixed(2)}" min="1">
+              <input type="number" id="mc-aov" value="${(typeof d.retail === 'number' ? d.retail : parseFloat(d.retail) || 39.99).toFixed(2)}" min="1">
             </div>
           </div>
           <div class="input-row">
             <label>Costo Producto / COGS ($)</label>
             <div class="input-with-symbol">
               <span>$</span>
-              <input type="number" id="mc-cost" value="${(typeof report.cost === 'number' ? report.cost : parseFloat(report.cost) || 10.00).toFixed(2)}" min="0">
+              <input type="number" id="mc-cost" value="${(typeof d.cost === 'number' ? d.cost : parseFloat(d.cost) || 10.00).toFixed(2)}" min="0">
             </div>
           </div>
         </div>
@@ -1841,39 +1871,39 @@ export function renderReportContent() {
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
         <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; position: relative;">
-          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${bundles.pack1.badge}</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack1.title}</h4>
-          <p style="font-size: 0.8rem; color: var(--text-muted);">${bundles.name}</p>
+          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${e(bundles.pack1.badge)}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${e(bundles.pack1.title)}</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">${e(bundles.name)}</p>
           <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-cyan); margin: 0.75rem 0;">$${bundles.pack1.totalPrice.toFixed(2)}</div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ Descuento ${bundles.pack1.discount}<br>✓ ${bundles.pack1.shipping}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ Descuento ${e(bundles.pack1.discount)}<br>✓ ${e(bundles.pack1.shipping)}</div>
         </div>
 
         <div style="background: var(--bg-card); border: 2px solid var(--accent-emerald); border-radius: 8px; padding: 1.25rem; position: relative; box-shadow: 0 0 15px rgba(16,185,129,0.15);">
-          <span class="report-badge-status score-excellent" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${bundles.pack2.badge}</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack2.title}</h4>
+          <span class="report-badge-status score-excellent" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem;">${e(bundles.pack2.badge)}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${e(bundles.pack2.title)}</h4>
           <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete pareja / repuesto</p>
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-emerald); margin: 0.75rem 0;">$${bundles.pack2.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${bundles.pack2.discount})</span></div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack2.unitPrice.toFixed(2)} / unidad<br>✓ <strong>${bundles.pack2.shipping}</strong></div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-emerald); margin: 0.75rem 0;">$${bundles.pack2.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${e(bundles.pack2.discount)})</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack2.unitPrice.toFixed(2)} / unidad<br>✓ <strong>${e(bundles.pack2.shipping)}</strong></div>
         </div>
 
         <div style="background: var(--bg-card); border: 1px solid var(--accent-violet); border-radius: 8px; padding: 1.25rem; position: relative;">
-          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem; background: rgba(139,92,246,0.2); color: var(--accent-violet);">${bundles.pack3.badge}</span>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${bundles.pack3.title}</h4>
+          <span class="report-badge-status score-viable" style="font-size: 0.7rem; position: absolute; top: 1rem; right: 1rem; background: rgba(139,92,246,0.2); color: var(--accent-violet);">${e(bundles.pack3.badge)}</span>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem;">${e(bundles.pack3.title)}</h4>
           <p style="font-size: 0.8rem; color: var(--text-muted);">Paquete familiar / regalo</p>
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-violet); margin: 0.75rem 0;">$${bundles.pack3.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${bundles.pack3.discount})</span></div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack3.unitPrice.toFixed(2)} / unidad<br>✓ ${bundles.pack3.shipping}</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-violet); margin: 0.75rem 0;">$${bundles.pack3.totalPrice.toFixed(2)} <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">(${e(bundles.pack3.discount)})</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">✓ $${bundles.pack3.unitPrice.toFixed(2)} / unidad<br>✓ ${e(bundles.pack3.shipping)}</div>
         </div>
       </div>
 
       <div class="prompt-card" style="border-color: var(--accent-cyan);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
           <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Guion de One-Click Upsell Post-Compra</h4>
-          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(bundles.upsellScript)}">
+          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(bundles.upsellScript)}">
             <i data-lucide="copy"></i> Copiar Guion
           </button>
         </div>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Insértalo justo después del checkout. Precio upsell: <strong>$${bundles.upsellPrice.toFixed(2)}</strong> (50% OFF una sola vez).</p>
-        <div class="prompt-code" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap;">${bundles.upsellScript.replace(/</g, '&lt;')}</div>
+        <div class="prompt-code" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap;">${e(bundles.upsellScript)}</div>
       </div>
     </section>
 
@@ -1886,13 +1916,13 @@ export function renderReportContent() {
       <div class="prompt-card" style="margin-bottom: 1.5rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Bloque 1: Tabla Comparativa "Nuestra Solución vs Tradicional"</h4>
-          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateHTMLConversionBlocks(report).comparisonTableHtml)}">
+          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(htmlBlocksRaw.comparisonTableHtml)}">
             <i data-lucide="copy"></i> Copiar Código HTML
           </button>
         </div>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Inserta esta tabla en la descripción del producto para resaltar tu superioridad frente a la competencia.</p>
         <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto;">
-          ${generateHTMLConversionBlocks(report).comparisonTableHtml}
+          ${htmlBlocks.comparisonTableHtml}
         </div>
       </div>
 
@@ -1900,13 +1930,13 @@ export function renderReportContent() {
       <div class="prompt-card" style="margin-bottom: 1.5rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <h4 style="color: var(--accent-emerald); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Bloque 2: Grilla de 4 Beneficios Clave</h4>
-          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateHTMLConversionBlocks(report).benefitsGridHtml)}">
+          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(htmlBlocksRaw.benefitsGridHtml)}">
             <i data-lucide="copy"></i> Copiar Código HTML
           </button>
         </div>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Resumen de valor de 4 tarjetas responsivas.</p>
         <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto;">
-          ${generateHTMLConversionBlocks(report).benefitsGridHtml}
+          ${htmlBlocks.benefitsGridHtml}
         </div>
       </div>
 
@@ -1914,13 +1944,13 @@ export function renderReportContent() {
       <div class="prompt-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <h4 style="color: var(--accent-violet); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">Bloque 3: Acordeón FAQ Interactivo (Nativo)</h4>
-          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(generateHTMLConversionBlocks(report).faqAccordionHtml)}">
+          <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(htmlBlocksRaw.faqAccordionHtml)}">
             <i data-lucide="copy"></i> Copiar Código HTML
           </button>
         </div>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Desplegable nativo sin JS externo para resolver objeciones.</p>
         <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto;">
-          ${generateHTMLConversionBlocks(report).faqAccordionHtml}
+          ${htmlBlocks.faqAccordionHtml}
         </div>
       </div>
     </section>
@@ -1931,16 +1961,16 @@ export function renderReportContent() {
       <p class="report-section-desc">Secuencia de mensajes persuasivos listos para copiar y responder a potenciales compradores por WhatsApp o chat en vivo para cerrar ventas manualmente.</p>
 
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        ${generateWhatsAppSalesScripts(report).map(script => `
+        ${waScripts.map(script => `
           <div class="prompt-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">${script.title}</h4>
-              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(script.copy)}">
+              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">${e(script.title)}</h4>
+              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(script.copy)}">
                 <i data-lucide="copy"></i> Copiar Mensaje
               </button>
             </div>
-            <span class="report-badge-status score-viable" style="font-size: 0.7rem; margin-bottom: 0.5rem; display: inline-block;">${script.tag}</span>
-            <div class="prompt-code" style="white-space: pre-wrap; font-family: var(--font-body); font-size: 0.85rem; max-height: 140px; overflow-y: auto;">${script.copy}</div>
+            <span class="report-badge-status score-viable" style="font-size: 0.7rem; margin-bottom: 0.5rem; display: inline-block;">${e(script.tag)}</span>
+            <div class="prompt-code" style="white-space: pre-wrap; font-family: var(--font-body); font-size: 0.85rem; max-height: 140px; overflow-y: auto;">${e(script.copy)}</div>
           </div>
         `).join('')}
       </div>
@@ -1965,15 +1995,15 @@ export function renderReportContent() {
         ${vslScripts.map((script) => `
           <div class="prompt-card vsl-script-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; gap:0.75rem; flex-wrap:wrap;">
-              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">VSL — ${script.angle}</h4>
-              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${encodeURIComponent(formatVslScriptCopy(script))}">
+              <h4 style="color: var(--accent-cyan); font-family: var(--font-display); font-size: 0.95rem; margin:0; font-weight:600">VSL — ${e(script.angle)}</h4>
+              <button class="btn btn-secondary btn-sm btn-copy-clipboard" data-copy="${dataCopyAttr(formatVslScriptCopy(script))}">
                 <i data-lucide="copy"></i> Copiar guion
               </button>
             </div>
-            <p class="vsl-meta">Duración ${script.durationHint} · Hook ${script.hookSec}</p>
-            <div class="vsl-block"><span class="vsl-block-label">HOOK</span><div class="prompt-code vsl-hook">${script.hook.replace(/</g, '&lt;')}</div></div>
-            <div class="vsl-block"><span class="vsl-block-label">BODY</span><div class="prompt-code">${script.body.replace(/</g, '&lt;')}</div></div>
-            <div class="vsl-block"><span class="vsl-block-label">CTA</span><div class="prompt-code">${script.cta.replace(/</g, '&lt;')}</div></div>
+            <p class="vsl-meta">Duración ${e(script.durationHint)} · Hook ${e(script.hookSec)}</p>
+            <div class="vsl-block"><span class="vsl-block-label">HOOK</span><div class="prompt-code vsl-hook">${e(script.hook)}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">BODY</span><div class="prompt-code">${e(script.body)}</div></div>
+            <div class="vsl-block"><span class="vsl-block-label">CTA</span><div class="prompt-code">${e(script.cta)}</div></div>
           </div>
         `).join('')}
       </div>
@@ -1986,7 +2016,7 @@ export function renderReportContent() {
             <li>
               <label class="vsl-check-label">
                 <input type="checkbox" class="vsl-check-input" data-check-id="${item.id}" ${checklistState[item.id] ? 'checked' : ''}>
-                <span>${item.label}</span>
+                <span>${e(item.label)}</span>
               </label>
             </li>
           `).join('')}
@@ -2020,19 +2050,19 @@ export function renderReportContent() {
       const flagHtml = (plan.flags || [])
         .map(
           (f) =>
-            `<li class="mc-plan-flag mc-plan-flag-${f.level === 'error' ? 'error' : f.level === 'warn' ? 'warn' : 'info'}">${f.message}</li>`,
+            `<li class="mc-plan-flag mc-plan-flag-${f.level === 'error' ? 'error' : f.level === 'warn' ? 'warn' : 'info'}">${e(f.message)}</li>`,
         )
         .join('');
       planContainer.innerHTML = `
         <div class="mc-test-plan-card">
           <h4>Plan de testeo Audisio ($${plan.totalTestBudgetUsd})</h4>
           <div class="mc-test-plan-metrics">
-            <div><span class="mc-metric-label">Runway</span><span class="mc-metric-val">${plan.daysRunway} días</span><span class="mc-metric-sub">${plan.weeksRunway} sem · ${plan.paceLabel}</span></div>
+            <div><span class="mc-metric-label">Runway</span><span class="mc-metric-val">${plan.daysRunway} días</span><span class="mc-metric-sub">${plan.weeksRunway} sem · ${e(plan.paceLabel)}</span></div>
             <div><span class="mc-metric-label">CPA proyectado</span><span class="mc-metric-val">$${plan.projectedCpaUsd}</span><span class="mc-metric-sub">CPC ÷ conversión</span></div>
             <div><span class="mc-metric-label">Pedidos estimados</span><span class="mc-metric-val">${plan.estimatedOrdersFromTest}</span><span class="mc-metric-sub">con el pool de $${plan.totalTestBudgetUsd} (mín. aprendizaje ${plan.minLearningOrders})</span></div>
           </div>
-          <p class="mc-test-plan-note">${plan.methodNote}</p>
-          <p class="mc-test-plan-note">${plan.autofinanceNote}</p>
+          <p class="mc-test-plan-note">${e(plan.methodNote)}</p>
+          <p class="mc-test-plan-note">${e(plan.autofinanceNote)}</p>
           ${flagHtml ? `<ul class="mc-plan-flags">${flagHtml}</ul>` : '<p class="mc-test-plan-ok">CPA y volumen de pedidos del test se ven razonables con estos inputs.</p>'}
         </div>
       `;
@@ -2194,31 +2224,31 @@ export function renderReportContent() {
       const firstTikTok = report.adCopy?.tiktok?.[0] || { hook: '¡Gancho viral!', body: 'Mira esto...' };
       const firstFb = report.adCopy?.facebook?.[0] || { primaryText: 'Consigue el tuyo hoy...' };
       nodeDesc = `El cliente potencial es interrumpido en redes sociales. 
-        <br><br><strong>Gancho TikTok Recomendado:</strong> "${firstTikTok.hook}"
-        <br><br><strong>Texto Principal Facebook Recomendado:</strong> "${firstFb.primaryText}"`;
+        <br><br><strong>Gancho TikTok Recomendado:</strong> "${e(firstTikTok.hook)}"
+        <br><br><strong>Texto Principal Facebook Recomendado:</strong> "${e(firstFb.primaryText)}"`;
     } else if (nodeType === 'landing') {
       nodeTitle = 'Etapa 2: Página de Ventas (Landing Page)';
       nodeDesc = `El cliente llega buscando respuestas. Se presenta el dolor mediante el Mecanismo Único de Dolor (UMP) y se valida con testimonios reales. 
-        <br><br><strong>Gran Idea de la Oferta:</strong> "${report.offerBrief?.bigIdea || 'Diferenciación única'}"
-        <br><br><strong>Mecanismo de Solución (UMS):</strong> "${report.secrets?.mechanismSolution || 'Resolución del dolor'}"`;
+        <br><br><strong>Gran Idea de la Oferta:</strong> "${e(report.offerBrief?.bigIdea || 'Diferenciación única')}"
+        <br><br><strong>Mecanismo de Solución (UMS):</strong> "${e(report.secrets?.mechanismSolution || 'Resolución del dolor')}"`;
     } else if (nodeType === 'checkout') {
       nodeTitle = 'Etapa 3: Pago (Checkout)';
       nodeDesc = `El cliente está a punto de comprar pero tiene objeciones sobre el precio o el envío.
-        <br><br><strong>Objeción Crítica:</strong> "${report.offerBrief?.objections?.[0] || '¿Llegará rápido?'}"
-        <br><br><strong>Precio de Venta Sugerido:</strong> $${report.retail.toFixed(2)}`;
+        <br><br><strong>Objeción Crítica:</strong> "${e(report.offerBrief?.objections?.[0] || '¿Llegará rápido?')}"
+        <br><br><strong>Precio de Venta Sugerido:</strong> $${Number(report.retail).toFixed(2)}`;
     } else if (nodeType === 'upsell') {
       nodeTitle = 'Etapa 4: Oferta Posterior (Upsell)';
       nodeDesc = `Inmediatamente después del pago, se le ofrece un producto complementario o paquete de mayor volumen para disparar el Ticket Medio (AOV).
-        <br><br><strong>Estrategia de Oferta:</strong> Ofrecer un pack familiar de 2x o 3x unidades de ${report.name} con un 65% de descuento adicional.`;
+        <br><br><strong>Estrategia de Oferta:</strong> Ofrecer un pack familiar de 2x o 3x unidades de ${e(report.name)} con un 65% de descuento adicional.`;
     } else if (nodeType === 'email') {
       nodeTitle = 'Etapa 5: Fidelización por Correo (Email Sequence)';
       const firstEmail = report.emailSequence?.[0] || { subject: 'Bienvenido...' };
       nodeDesc = `Se activa una secuencia automatizada de correos para asegurar que no cancelen el pedido, aumentar el valor de vida del cliente (LTV) y ofrecer ventas cruzadas.
-        <br><br><strong>Asunto del Primer Correo:</strong> "${firstEmail.subject}"`;
+        <br><br><strong>Asunto del Primer Correo:</strong> "${e(firstEmail.subject)}"`;
     }
 
-    title.innerHTML = nodeTitle;
-    desc.innerHTML = nodeDesc;
+    title.textContent = nodeTitle;
+    desc.innerHTML = purifyHtml(nodeDesc);
     
     // Apply temporary green glow
     details.classList.remove('glow-update');
@@ -2386,7 +2416,7 @@ export function renderReportContent() {
         let verdict = '';
         if (resA.hookScore > resB.hookScore) {
           winnerCardA.classList.add('winner');
-          verdict = `🏆 <strong>Variante A puntúa ${resA.hookScore}/100</strong> frente a ${resB.hookScore}/100 de la Variante B (heurística offline). Apela más al dolor del avatar ("${report.avatarBrief.painPoints?.p1?.name || 'dolor principal'}"). Prueba este titular primero en anuncios reales.`;
+          verdict = `🏆 <strong>Variante A puntúa ${resA.hookScore}/100</strong> frente a ${resB.hookScore}/100 de la Variante B (heurística offline). Apela más al dolor del avatar ("${e(report.avatarBrief.painPoints?.p1?.name || 'dolor principal')}"). Prueba este titular primero en anuncios reales.`;
         } else if (resB.hookScore > resA.hookScore) {
           winnerCardB.classList.add('winner');
           verdict = `🏆 <strong>Variante B puntúa ${resB.hookScore}/100</strong> frente a ${resA.hookScore}/100 de la Variante A (heurística offline). Enfatiza mejor el mecanismo único (UMS). Prueba este titular primero en anuncios reales.`;
@@ -2394,7 +2424,7 @@ export function renderReportContent() {
           verdict = `⚖️ <strong>Empate heurístico (${resA.hookScore}/100)</strong>. Ambos titulares tienen un perfil similar en dolor/mecanismo/intriga. Prueba A/B real en Meta o TikTok para decidir.`;
         }
 
-        container.querySelector('#ab-verdict-text').innerHTML = verdict;
+        container.querySelector('#ab-verdict-text').innerHTML = purifyHtml(verdict);
         lucide.createIcons();
         showToast('Comparación heurística finalizada', 'success');
         const resultContainer = resultsPanel;
@@ -2409,7 +2439,12 @@ export function renderReportContent() {
 // RENDER THE HIDDEN PRINT VIEW CONTAINING ALL SECTIONS SEQUENTIALLY
 export function renderPrintableReport() {
   const printContainer = document.getElementById('print-report-container');
-  const report = state.currentReport;
+  const rawReport = state.currentReport;
+  const rawShopifyBody = rawReport.shopifyDescription?.body || '';
+  const report = escapeDeep(rawReport);
+  if (report.shopifyDescription) {
+    report.shopifyDescription.body = purifyHtml(rawShopifyBody);
+  }
 
   printContainer.innerHTML = `
     <!-- PAGE 1: COVER -->
