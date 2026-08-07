@@ -137,11 +137,48 @@ export function renderMetaAdsAuditResults() {
   `;
 }
 
+export function resetMetaAdsAuditForm() {
+  const clearIds = [
+    'meta-audit-sale',
+    'meta-audit-cost',
+    'meta-audit-campaign-cpa',
+    'meta-audit-ctr',
+    'meta-audit-cpc',
+    'meta-audit-atc',
+    'meta-audit-cpm',
+  ];
+  clearIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  const competitive = document.getElementById('meta-audit-competitive');
+  if (competitive) competitive.checked = false;
+
+  const advancedDefaults = {
+    'meta-audit-ali-vat': '19',
+    'meta-audit-pay-fee': '3.5',
+    'meta-audit-shop-fee': '2',
+    'meta-audit-sales-vat': '19',
+  };
+  Object.entries(advancedDefaults).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  });
+
+  const out = document.getElementById('meta-audit-results');
+  if (out) out.innerHTML = '';
+}
+
 export function initMetaAdsAuditPanel() {
   const runBtn = document.getElementById('meta-audit-run-btn');
   if (!runBtn || runBtn.dataset.bound === '1') return;
   runBtn.dataset.bound = '1';
   runBtn.addEventListener('click', () => renderMetaAdsAuditResults());
+
+  document.getElementById('meta-audit-reset-btn')?.addEventListener('click', () => {
+    resetMetaAdsAuditForm();
+  });
 
   document.getElementById('meta-audit-prefill-btn')?.addEventListener('click', () => {
     prefillFromReport();

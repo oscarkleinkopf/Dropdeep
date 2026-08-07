@@ -282,6 +282,14 @@ export function openDeepResearchReport(productOrReport) {
             <input type="number" id="calc-aov-input" value="${report.retail.toFixed(2)}" step="0.1" min="0">
           </div>
         </div>
+        <div class="sim-action-row" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem">
+          <button type="button" class="btn btn-primary btn-sm" id="calc-run-btn">
+            <i data-lucide="play" style="width:14px;height:14px"></i> Calcular
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="calc-reset-btn">
+            <i data-lucide="rotate-ccw" style="width:14px;height:14px"></i> Restablecer
+          </button>
+        </div>
       </div>
 
       <!-- Column 2: Results -->
@@ -445,6 +453,34 @@ export function openDeepResearchReport(productOrReport) {
   cpcInput.addEventListener('input', recalculateAdsProfitability);
   convInput.addEventListener('input', recalculateAdsProfitability);
   aovInput.addEventListener('input', recalculateAdsProfitability);
+
+  const defaultCalcAov = report.retail.toFixed(2);
+  document.getElementById('calc-run-btn')?.addEventListener('click', () => {
+    recalculateAdsProfitability();
+  });
+  document.getElementById('calc-reset-btn')?.addEventListener('click', () => {
+    if (budgetInput) budgetInput.value = '50';
+    if (cpcInput) cpcInput.value = '0.80';
+    if (convInput) convInput.value = '2.5';
+    if (aovInput) aovInput.value = defaultCalcAov;
+    if (roasVal) {
+      roasVal.textContent = '—';
+      roasVal.className = 'calc-metric-val';
+    }
+    if (breakevenVal) breakevenVal.textContent = '—';
+    if (cpaVal) cpaVal.textContent = '—';
+    if (dailyProfitVal) {
+      dailyProfitVal.textContent = '—';
+      dailyProfitVal.className = 'calc-metric-val';
+    }
+    if (monthlyProfitVal) {
+      monthlyProfitVal.textContent = '—';
+      monthlyProfitVal.className = 'calc-metric-val';
+    }
+    void loadCharts().then(({ initProjectionChart }) => {
+      initProjectionChart(0);
+    });
+  });
 
   // Initialize both calculator values and chart
   recalculateAdsProfitability();
@@ -1210,9 +1246,12 @@ export function renderReportContent() {
           </div>
         </div>
         
-        <div style="display:flex; justify-content:center">
-          <button class="btn btn-primary btn-glow" id="run-ab-sim-btn" style="padding:0.75rem 2.5rem; font-size:0.95rem">
+        <div class="sim-action-row" style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-glow" id="run-ab-sim-btn" style="padding:0.75rem 2.5rem; font-size:0.95rem">
             <i data-lucide="play" style="width:16px; height:16px"></i> Comparar titulares
+          </button>
+          <button type="button" class="btn btn-secondary" id="reset-ab-sim-btn" style="padding:0.75rem 1.5rem; font-size:0.95rem">
+            <i data-lucide="rotate-ccw" style="width:16px; height:16px"></i> Restablecer
           </button>
         </div>
         
@@ -1765,6 +1804,15 @@ export function renderReportContent() {
             </div>
           </div>
         </div>
+
+        <div class="sim-action-row" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1.25rem">
+          <button type="button" class="btn btn-primary btn-glow" id="mc-run-btn">
+            <i data-lucide="play"></i> Calcular simulación
+          </button>
+          <button type="button" class="btn btn-secondary" id="mc-reset-btn">
+            <i data-lucide="rotate-ccw"></i> Restablecer
+          </button>
+        </div>
       </div>
 
       <div id="mc-test-plan-container" class="mc-test-plan"></div>
@@ -2034,6 +2082,30 @@ export function renderReportContent() {
     });
   });
 
+  const defaultMcAov = (typeof report.retail === 'number' ? report.retail : parseFloat(report.retail) || 39.99).toFixed(2);
+  const defaultMcCost = (typeof report.cost === 'number' ? report.cost : parseFloat(report.cost) || 10.00).toFixed(2);
+
+  container.querySelector('#mc-run-btn')?.addEventListener('click', () => {
+    updateMonteCarloUI();
+  });
+
+  container.querySelector('#mc-reset-btn')?.addEventListener('click', () => {
+    const budgetEl = container.querySelector('#mc-budget');
+    const cpcEl = container.querySelector('#mc-cpc');
+    const convEl = container.querySelector('#mc-conv');
+    const aovEl = container.querySelector('#mc-aov');
+    const costEl = container.querySelector('#mc-cost');
+    if (budgetEl) budgetEl.value = String(AUDISIO_LAUNCH_BUDGET_BEGINNER_USD);
+    if (cpcEl) cpcEl.value = String(AUDISIO_DEFAULT_MC_CPC_USD);
+    if (convEl) convEl.value = '2.5';
+    if (aovEl) aovEl.value = defaultMcAov;
+    if (costEl) costEl.value = defaultMcCost;
+    const planContainer = container.querySelector('#mc-test-plan-container');
+    const mcContainer = container.querySelector('#mc-results-container');
+    if (planContainer) planContainer.innerHTML = '';
+    if (mcContainer) mcContainer.innerHTML = '';
+  });
+
   updateMonteCarloUI();
 
   // Persist VSL launch checklist (local)
@@ -2180,6 +2252,41 @@ export function renderReportContent() {
 
   // Bind headline heuristic comparator
   const runAbSimBtn = container.querySelector('#run-ab-sim-btn');
+  const resetAbSimBtn = container.querySelector('#reset-ab-sim-btn');
+  const defaultHeadlineA = report.offerBrief?.headlines?.[0] || '';
+  const defaultHeadlineB = report.offerBrief?.headlines?.[1] || '';
+
+  const clearAbResults = () => {
+    const resultsPanel = container.querySelector('#ab-results-panel');
+    resultsPanel?.classList.add('hidden');
+    container.querySelector('#res-title-a') && (container.querySelector('#res-title-a').textContent = '"..."');
+    container.querySelector('#res-title-b') && (container.querySelector('#res-title-b').textContent = '"..."');
+    ['a', 'b'].forEach((side) => {
+      const hook = container.querySelector(`#hook-score-${side}`);
+      if (hook) hook.textContent = '0';
+      ['pain', 'ums', 'intrigue'].forEach((metric) => {
+        const label = container.querySelector(`#score-label-${metric}-${side}`);
+        const bar = container.querySelector(`#bar-${metric}-${side}`);
+        if (label) label.textContent = '0%';
+        if (bar) bar.style.width = '0%';
+      });
+    });
+    container.querySelector('#card-variant-a')?.classList.remove('winner');
+    container.querySelector('#card-variant-b')?.classList.remove('winner');
+    const verdict = container.querySelector('#ab-verdict-text');
+    if (verdict) verdict.textContent = '...';
+  };
+
+  if (resetAbSimBtn) {
+    resetAbSimBtn.addEventListener('click', () => {
+      const inputA = container.querySelector('#ab-headline-a');
+      const inputB = container.querySelector('#ab-headline-b');
+      if (inputA) inputA.value = defaultHeadlineA;
+      if (inputB) inputB.value = defaultHeadlineB;
+      clearAbResults();
+    });
+  }
+
   if (runAbSimBtn) {
     runAbSimBtn.addEventListener('click', () => {
       const headlineA = container.querySelector('#ab-headline-a').value.trim();

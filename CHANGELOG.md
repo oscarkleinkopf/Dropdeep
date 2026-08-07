@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Restablecer en simulaciones:** botón secundario junto a Calcular/Auditar/Comparar (auditoría Meta, Monte Carlo, titulares A/B y calculadora de ads). Restaura valores numéricos por defecto y limpia la tarjeta de resultados.
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.
 - **Dogfooding T51 (cierre):** E2E de 3 productos (Descubrir→informe→feedback); limpia campos al re-parsear; leyenda de colores Audisio.
 
