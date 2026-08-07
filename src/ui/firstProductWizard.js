@@ -2,6 +2,7 @@ import { getCurrentUserId } from '../auth/auth.js';
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
+import { copyToClipboardWithFeedback } from './clipboard.js';
 import {
   verticalPacks,
   getVerticalPackById,
@@ -228,6 +229,18 @@ function saveDraftToPortfolio() {
 function copyWizardPack() {
   const pack = getVerticalPackById(wizardState.verticalId);
   const text = formatPackForCopy(pack, wizardState.productName);
+  const btn = document.getElementById('wizard-copy-pack-btn');
+  if (btn) {
+    return copyToClipboardWithFeedback(btn, text).then((ok) => {
+      if (ok) {
+        markPromptHubDone();
+        updateOnboardingPanel();
+        document.dispatchEvent(new CustomEvent('dropdeep:prompt-copied'));
+      } else {
+        showToast('Error al copiar al portapapeles.', 'error');
+      }
+    });
+  }
   return navigator.clipboard.writeText(text).then(() => {
     showToast(`Pack "${pack.name}" copiado al portapapeles.`, 'success');
     markPromptHubDone();

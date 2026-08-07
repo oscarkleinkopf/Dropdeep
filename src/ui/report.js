@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
+import { copyToClipboardWithFeedback } from './clipboard.js';
 import { setCacheEntry } from '../research/cache.js';
 import { calculateProductScore, getNextDecision, getProductScoreTooltip } from '../research/scoring.js';
 import { verdictColor } from '../research/manualRubric.js';
@@ -2051,34 +2052,33 @@ export function renderReportContent() {
 
   // Bind clipboard copies
   container.querySelectorAll('.btn-copy-clipboard').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       const rawText = e.currentTarget.getAttribute('data-copy');
       let text = rawText;
       try {
-        if (rawText.includes('%')) {
+        if (rawText && rawText.includes('%')) {
           text = decodeURIComponent(rawText);
         }
       } catch (err) {
         text = rawText;
       }
-      navigator.clipboard.writeText(text).then(() => {
-        showToast("Copiado al portapapeles con éxito", "success");
-      }).catch(err => {
-        console.error("Fallo al copiar: ", err);
-        showToast("Error al copiar al portapapeles.", "error");
-      });
+      const ok = await copyToClipboardWithFeedback(e.currentTarget, text);
+      if (!ok) {
+        showToast('Error al copiar al portapapeles.', 'error');
+      }
     });
   });
 
   // Bind copy all emails
   const copyAllEmailsBtn = container.querySelector('#copy-all-emails-btn');
   if (copyAllEmailsBtn) {
-    copyAllEmailsBtn.addEventListener('click', () => {
+    copyAllEmailsBtn.addEventListener('click', async () => {
       if (report.emailSequence && report.emailSequence.length > 0) {
         const fullSequenceText = report.emailSequence.map((e, idx) => `====================\nEMAIL #${idx+1}: ${e.subject}\n====================\nPreview: ${e.preview}\n\n${e.body}`).join('\n\n');
-        navigator.clipboard.writeText(fullSequenceText).then(() => {
-          showToast("Secuencia completa copiada al portapapeles.", "success");
-        });
+        const ok = await copyToClipboardWithFeedback(copyAllEmailsBtn, fullSequenceText);
+        if (!ok) {
+          showToast('Error al copiar al portapapeles.', 'error');
+        }
       }
     });
   }
@@ -2152,11 +2152,12 @@ export function renderReportContent() {
   // Bind HTML Copy Button
   const copyHtmlBtn = container.querySelector('#copy-html-btn');
   if (copyHtmlBtn) {
-    copyHtmlBtn.addEventListener('click', () => {
+    copyHtmlBtn.addEventListener('click', async () => {
       const code = container.querySelector('#landing-html-code').value;
-      navigator.clipboard.writeText(code).then(() => {
-        showToast("Código HTML copiado al portapapeles", "success");
-      });
+      const ok = await copyToClipboardWithFeedback(copyHtmlBtn, code);
+      if (!ok) {
+        showToast('Error al copiar al portapapeles.', 'error');
+      }
     });
   }
 

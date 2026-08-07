@@ -1885,6 +1885,21 @@ button {
   background: rgba(6, 182, 212, 0.1);
 }
 
+.btn-copy-success {
+  color: var(--accent-emerald) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.btn-copy-success .btn-copy-check-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-emerald);
+  flex-shrink: 0;
+}
+
 /* Report Chart Container */
 .report-chart-container {
   background: var(--bg-secondary);
