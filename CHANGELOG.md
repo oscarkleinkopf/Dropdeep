@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Restablecer en simulaciones:** botón secundario junto a Calcular/Auditar/Comparar (auditoría Meta, Monte Carlo, titulares A/B y calculadora de ads). Restaura valores numéricos por defecto y limpia la tarjeta de resultados.
 - **Probar Conexión (Ajustes):** botón junto a la API Key de Gemini; llamada liviana `models.get` a Google. Badge verde **Conexión válida** si HTTP 200, o el mensaje de error de la API.
 - **Feedback al copiar:** `copyToClipboardWithFeedback` en `src/ui/clipboard.js` — el botón muestra «¡Copiado!» + check verde 2s (informe, Prompt Hub, Meta interests).
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.

@@ -18,6 +18,7 @@ import {
   showMetaAdsAuditPanel,
   renderMetaAdsAuditResults,
   prefillMetaAdsAuditFromReport,
+  resetMetaAdsAuditForm,
 } from './ui/metaAdsAuditPanel.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, closeSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
@@ -200,6 +201,13 @@ export function setupEventListeners() {
       renderMetaAdsAuditResults();
       const resultContainer = document.getElementById('meta-audit-results');
       resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
+  const metaAuditResetBtn = document.getElementById('meta-audit-reset-btn');
+  if (metaAuditResetBtn) {
+    metaAuditResetBtn.addEventListener('click', () => {
+      resetMetaAdsAuditForm();
     });
   }
 
