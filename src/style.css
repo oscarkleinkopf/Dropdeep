@@ -5268,6 +5268,28 @@ body.auth-locked {
   border-color: var(--accent-cyan);
 }
 
+.report-feedback-optin {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.report-feedback-optin input {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.report-feedback-optin-hint {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .report-feedback-footer {
   display: flex;
   align-items: center;

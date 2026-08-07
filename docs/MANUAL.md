@@ -492,9 +492,9 @@ Debajo de la barra del reporte verás el bloque **Próxima decisión** con:
 
 En informes **Modo Rápido** o **Express**, el panel recuerda que faltan secciones y ofrece activar **Modo Completo** para reinvestigar.
 
-### Feedback dogfooding (local)
+### Feedback dogfooding (local + opt-in nube)
 
-Debajo de **Próxima decisión** hay un panel **¿Te ayudó a decidir?** (Sí / No / Aún no sé + nota opcional). Se guarda **solo en este navegador** (`dropdeep_report_feedback_{slug}`); no se envía a Supabase ni se incluye al exportar el portafolio JSON. En Portafolio verás un badge **FB** si ya dejaste feedback.
+Debajo de **Próxima decisión** hay un panel **¿Te ayudó a decidir?** (Sí / No / Aún no sé + nota opcional). Siempre se guarda en este navegador (`dropdeep_report_feedback_{slug}`) y **no** se incluye al exportar el portafolio JSON. Con sesión iniciada puedes marcar **Enviar a DropDeep (opt-in)** para subir una copia a `report_feedback` (T54). Sin opt-in, no se envía nada. En Portafolio verás un badge **FB** si ya dejaste feedback.
 
 ### Secciones del sidebar (24 pestañas)
 
@@ -618,7 +618,8 @@ Filas dedicadas: **Evaluación manual (puntuación)**, **Evaluación manual (ver
 | Clave Gemini BYOK | Sí, por dispositivo/usuario | **Nunca** |
 | Preferencias Gemini (modelo, idioma) | Sí | Perfil (`profiles`) si hay sesión |
 | Evaluación manual | Dentro del reporte en portafolio | Igual que reportes |
-| Feedback dogfooding por informe | Sí (`dropdeep_report_feedback_*`) | **Nunca** |
+| Feedback dogfooding por informe | Sí (`dropdeep_report_feedback_*`) | Solo con **opt-in** + sesión (`report_feedback`, T54) |
+| Analítica funnel (T55) | Session id anónimo | Insert-only `analytics_events` (sin leer desde la app) |
 
 ### Cuenta opcional
 
