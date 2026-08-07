@@ -1,7 +1,6 @@
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { switchView } from './navigation.js';
-import { openDeepResearchReport } from './report.js';
 import { calculateProductScore, pickCompareWinner } from '../research/scoring.js';
 import { verdictColor } from '../research/manualRubric.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
@@ -18,24 +17,16 @@ import {
   FREE_PORTFOLIO_CAP,
   getCompareMax,
 } from '../config/freeTier.js';
-import { exportPortfolioJSON, exportCampaignKit } from './export.js';
 import { helpfulLabel, getReportFeedback } from '../utils/feedbackStorage.js';
 import { bindModalA11y } from '../utils/modalA11y.js';
+import { updatePortfolioBadge } from './portfolioBadge.js';
+
+export { updatePortfolioBadge } from './portfolioBadge.js';
 
 let releasePortfolioLimitA11y = null;
 
 function isDraftPortfolioItem(item) {
   return !!(item?.fullReport?._isDraft || item?._isDraft);
-}
-
-export function updatePortfolioBadge() {
-  const badge = document.getElementById('portfolio-count');
-  if (state.portfolio.length > 0) {
-    badge.textContent = state.portfolio.length;
-    badge.classList.remove('hidden');
-  } else {
-    badge.classList.add('hidden');
-  }
 }
 
 export function toggleSaveProduct() {
@@ -344,11 +335,13 @@ export function renderActivePortfolioDetail() {
   });
 
   // Open Full Report listener
-  document.getElementById('portfolio-open-report').addEventListener('click', () => {
+  document.getElementById('portfolio-open-report').addEventListener('click', async () => {
+    const { openDeepResearchReport } = await import('./report.js');
     openDeepResearchReport(activeItem.fullReport);
   });
 
-  document.getElementById('portfolio-campaign-kit-btn')?.addEventListener('click', () => {
+  document.getElementById('portfolio-campaign-kit-btn')?.addEventListener('click', async () => {
+    const { exportCampaignKit } = await import('./export.js');
     exportCampaignKit(activeItem.fullReport);
   });
 
@@ -651,7 +644,7 @@ export function openPortfolioLimitModal(opts = {}) {
       `Portafolio local limitado a ${FREE_PORTFOLIO_CAP} productos. Exporta JSON o elimina uno.`,
       'info',
     );
-    exportPortfolioJSON();
+    import('./export.js').then(({ exportPortfolioJSON }) => exportPortfolioJSON());
     return;
   }
 
@@ -723,7 +716,8 @@ export function initPortfolioLimitModal() {
 
   document.getElementById('portfolio-limit-close-dot')?.addEventListener('click', closePortfolioLimitModal);
   document.getElementById('portfolio-limit-cancel-btn')?.addEventListener('click', closePortfolioLimitModal);
-  document.getElementById('portfolio-limit-export-btn')?.addEventListener('click', () => {
+  document.getElementById('portfolio-limit-export-btn')?.addEventListener('click', async () => {
+    const { exportPortfolioJSON } = await import('./export.js');
     exportPortfolioJSON();
   });
   document.getElementById('portfolio-limit-delete-btn')?.addEventListener('click', () => {

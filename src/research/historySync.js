@@ -3,7 +3,7 @@ import { getCurrentUserId, isAuthenticated } from '../auth/auth.js';
 import { state } from '../state.js';
 import { calculateProductScore } from './scoring.js';
 import { listCacheEntries } from './cache.js';
-import { sanitizeReport } from './gemini.js';
+import { sanitizeReport } from './reportSanitize.js';
 
 const DELETED_SLUGS_KEY = 'dropdeep_portfolio_deleted_slugs';
 

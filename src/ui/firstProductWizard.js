@@ -9,12 +9,11 @@ import {
   getVerticalPackById,
   formatPackForCopy,
 } from '../data/verticalPacks.js';
-import { setPromptHubMode, setActiveVerticalPack } from './promptHub.js';
 import { markPromptHubDone, updateOnboardingPanel } from './onboarding.js';
 import { isPortfolioAtCap } from '../config/freeTier.js';
 import { savePortfolioLocal } from '../research/historySync.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
-import { updatePortfolioBadge, renderPortfolioList, openPortfolioLimitModal } from './portfolio.js';
+import { updatePortfolioBadge } from './portfolioBadge.js';
 import { runResearchDirect, runCopilotResearch } from '../research/flow.js';
 import { setResearchPath, RESEARCH_PATH_COPILOT, RESEARCH_PATH_API } from '../config/researchPath.js';
 import { bindModalA11y } from '../utils/modalA11y.js';
@@ -177,7 +176,9 @@ function saveDraftToPortfolio() {
   if (existing) return true;
 
   if (isPortfolioAtCap(state.portfolio.length)) {
-    openPortfolioLimitModal({ reason: 'save' });
+    import('./portfolio.js').then(({ openPortfolioLimitModal }) => {
+      openPortfolioLimitModal({ reason: 'save' });
+    });
     return false;
   }
 
@@ -222,7 +223,7 @@ function saveDraftToPortfolio() {
   updatePortfolioBadge();
   renderDashboardStats();
   renderResearchFeed();
-  renderPortfolioList();
+  import('./portfolio.js').then(({ renderPortfolioList }) => renderPortfolioList());
   showToast(`"${name}" guardado como borrador en tu portafolio.`, 'success');
   return true;
 }
@@ -250,14 +251,15 @@ function copyWizardPack() {
   });
 }
 
-function goToPromptHubWithVertical() {
+async function goToPromptHubWithVertical() {
+  const { setPromptHubMode, setActiveVerticalPack } = await import('./promptHub.js');
   setPromptHubMode('packs');
   setActiveVerticalPack(wizardState.verticalId);
   const hubProductInput = document.getElementById('prompt-product-input');
   if (hubProductInput && wizardState.productName) {
     hubProductInput.value = wizardState.productName;
   }
-  switchView('prompt-hub-view');
+  await switchView('prompt-hub-view');
   markPromptHubDone();
   updateOnboardingPanel();
 }

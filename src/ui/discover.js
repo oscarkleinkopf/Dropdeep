@@ -2,7 +2,6 @@ import { parseAliExpressInput } from '../discovery/parseAliExpress.js';
 import { prefilterAliExpressCandidate } from '../discovery/audisioPrefilter.js';
 import { runResearchDirect } from '../research/flow.js';
 import { switchView } from './navigation.js';
-import { openManualEvaluation } from './manualEvaluation.js';
 import { refreshIcons } from '../utils/icons.js';
 import { getStoredFxClpPerUsd } from '../research/pricingAudisio.js';
 
@@ -172,9 +171,10 @@ function investigateCandidate() {
   runResearchDirect(title, lastCandidate.productUrl);
 }
 
-function openManualFromCandidate() {
+async function openManualFromCandidate() {
   if (!lastCandidate) return;
   const title = currentTitle();
+  const { openManualEvaluation } = await import('./manualEvaluation.js');
   openManualEvaluation(title || `AliExpress #${lastCandidate.externalId}`);
 }
 

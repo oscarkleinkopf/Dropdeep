@@ -9,7 +9,7 @@ import {
   assembleCopilotReport,
   parseAndValidateStep,
 } from '../research/reportParse.js';
-import { sanitizeReport } from './gemini.js';
+import { sanitizeReport } from './reportSanitize.js';
 import { calculateProductScore } from './scoring.js';
 import { persistResearchReport } from './historySync.js';
 import { state } from '../state.js';

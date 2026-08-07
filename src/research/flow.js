@@ -2,14 +2,10 @@ import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
 import { formatCacheOriginLabel, getCacheEntry } from './cache.js';
 import { bindModalA11y } from '../utils/modalA11y.js';
-import { openDeepResearchReport } from '../ui/report.js';
-import { runRealResearchSequence } from './gemini.js';
 import { requireGeminiKey, hasGeminiKey } from '../ui/geminiKeyBanner.js';
 import { getGeminiKey, getGeminiModel, getGeminiLanguage } from '../utils/geminiStorage.js';
 import { isGeminiProxyConfigured } from './geminiProxy.js';
 import { getGeminiRoute, getGeminiApiCredential } from '../config/geminiRoute.js';
-import { openCopilotPanel } from '../ui/copilotPanel.js';
-import { openManualEvaluation } from '../ui/manualEvaluation.js';
 import {
   getResearchPath,
   RESEARCH_PATH_COPILOT,
@@ -61,9 +57,10 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
   closeDot.onclick = handleClose;
 
   const loadBtn = document.getElementById('cache-load-btn');
-  loadBtn.onclick = () => {
+  loadBtn.onclick = async () => {
     handleClose();
     cachedData._loadedFromCache = true;
+    const { openDeepResearchReport } = await import('../ui/report.js');
     openDeepResearchReport(cachedData);
     showToast(`Reporte «${origin}» cargado desde la caché local.`, 'success');
   };
@@ -75,11 +72,12 @@ export function openCacheModal(productName, competitorUrl, cachedData) {
   };
 }
 
-export function runApiResearchDirect(productName, competitorUrl = '') {
+export async function runApiResearchDirect(productName, competitorUrl = '') {
   const modelName = getGeminiModel();
   const credential = getGeminiApiCredential();
 
   if (credential) {
+    const { runRealResearchSequence } = await import('./gemini.js');
     runRealResearchSequence(productName, credential, modelName, competitorUrl);
     return;
   }
@@ -94,18 +92,22 @@ export function runApiResearchDirect(productName, competitorUrl = '') {
   const apiKey = getGeminiKey();
   if (!apiKey) {
     showToast('Sin clave API — abriendo Modo Copiloto gratis.', 'info');
+    const { openCopilotPanel } = await import('../ui/copilotPanel.js');
     openCopilotPanel(productName, competitorUrl);
     return;
   }
 
+  const { runRealResearchSequence } = await import('./gemini.js');
   runRealResearchSequence(productName, apiKey, modelName, competitorUrl);
 }
 
-export function runCopilotResearch(productName, competitorUrl = '') {
+export async function runCopilotResearch(productName, competitorUrl = '') {
+  const { openCopilotPanel } = await import('../ui/copilotPanel.js');
   openCopilotPanel(productName, competitorUrl);
 }
 
-export function runManualEvaluationFlow(productName = '') {
+export async function runManualEvaluationFlow(productName = '') {
+  const { openManualEvaluation } = await import('../ui/manualEvaluation.js');
   openManualEvaluation(productName);
 }
 
@@ -137,7 +139,7 @@ export function runResearchDirect(productName, competitorUrl = '', opts = {}) {
   if (path === RESEARCH_PATH_API) {
     if (!canUseApiResearch()) {
       showToast('Sin API configurada — usa Modo Copiloto (gratis) o pega tu clave en Ajustes.', 'info');
-      openCopilotPanel(productName, competitorUrl);
+      runCopilotResearch(productName, competitorUrl);
       return;
     }
     runApiResearchDirect(productName, competitorUrl);

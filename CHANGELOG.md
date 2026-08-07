@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Code splitting (T52):** entry JS ~17 KB (gzip ~5); chunks `view-report`, portfolio/spy/prompt-hub/export/copilot/discover; vendors separados (supabase/lucide/dompurify/gemini); Chart.js sigue lazy.
 - **Seguridad XSS (T65):** `escapeHtml` / `escapeDeep` / `safeHref` / `data-copy` seguro; **DOMPurify** para HTML de Gemini (Shopify, bloques de conversión); toasts con `textContent`. Tests en `tests/sanitize.test.js`.
 - **Restablecer en simulaciones:** botón secundario junto a Calcular/Auditar/Comparar (auditoría Meta, Monte Carlo, titulares A/B y calculadora de ads). Restaura valores numéricos por defecto y limpia la tarjeta de resultados.
 - **Probar Conexión (Ajustes):** botón junto a la API Key de Gemini; llamada liviana `models.get` a Google. Badge verde **Conexión válida** si HTTP 200, o el mensaje de error de la API.

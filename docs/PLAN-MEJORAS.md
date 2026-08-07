@@ -1819,7 +1819,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | ID | Título | P | Estado |
 |----|--------|---|--------|
 | T51 | Dogfooding founder 3–5 productos | P0 | ✅ | E2E×3 + fixes Descubrir |
-| T52 | Code splitting vistas | P0 | ⬜ |
+| T52 | Code splitting vistas | P0 | ✅ | entry ~17 KB; vistas/report lazy |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | ⬜ |
 | T54 | Feedback T35 → Supabase opt-in | P1 | ⬜ |
 | T55 | Analítica privacy-friendly | P1 | ⬜ |

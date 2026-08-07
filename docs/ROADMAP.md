@@ -19,7 +19,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 ## Vista rápida
 
 ```
-Fase A (ahora)     dogfood T51 · code-split T52 · nota negocio T61 · deps T63✅ (bump mayor → T64)
+Fase A (ahora)     dogfood T51✅ · code-split T52✅ · nota negocio T61 · deps T63✅ (bump mayor → T64)
 Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50 UI
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
 Fase D (calidad)   XSS/sanitize T65✅ · report extract T56 · events split T66 (diferido) · WebKit E2E T57 · RLS · CSP T59
@@ -49,15 +49,13 @@ Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | ✅ |
 | **Prioridad** | P0 |
 | **Origen** | Evaluación §4.3 |
 
 **Objetivo:** Bundle inicial JS &lt; ~300 KB (gzip objetivo &lt; ~100 KB para el entry) vía `import()` de portfolio, spy, prompt-hub, report chunks donde aún no estén.
 
-**Archivos:** `vite.config.js`, `src/main.js`, `src/ui/*.js` (lazy), mantener Chart lazy.
-
-**Criterio:** `npm run build` muestra chunks separados; Lighthouse/móvil sin regresión funcional de navegación.
+**Hecho:** `import()` en `navigation` / `events` / `flow` / feed·portfolio·copilot; `sanitizeReport` fuera de `gemini.js`; `manualChunks` + `modulePreload` solo vendors del shell. Entry ~17 KB (gzip ~5 KB); Chart.js sigue lazy.
 
 ---
 
@@ -235,7 +233,7 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 | ID | Título | P | Fase | Estado |
 |----|--------|---|------|--------|
 | T51 | Dogfooding founder 3–5 productos | P0 | A | ✅ | [DOGFOODING-T51.md](DOGFOODING-T51.md) + e2e |
-| T52 | Code splitting vistas | P0 | A | ⬜ |
+| T52 | Code splitting vistas | P0 | A | ✅ |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | B | ⬜ |
 | T54 | Feedback T35 → Supabase opt-in | P1 | C | ⬜ |
 | T55 | Analítica privacy-friendly | P1 | C | ⬜ |
