@@ -9,8 +9,14 @@ In Supabase Dashboard → **SQL Editor**, paste and run (in order):
 - `supabase/migrations/003_gemini_usage.sql` (daily proxy quota)
 - `supabase/migrations/004_research_session_quota.sql` (quota per investigation session)
 - `supabase/migrations/005_proxy_abuse.sql` (**T20** — rate 10/10s + cooldown 30s entre sesiones nuevas)
+- `supabase/migrations/006_report_feedback.sql` (**T54** — feedback dogfooding opt-in)
+- `supabase/migrations/007_analytics_events.sql` (**T55** — eventos funnel privacy-friendly)
 
 `research_reports` stores completed Deep Research JSON per user (RLS by `user_id`). The app merges remote rows with local portfolio/cache on login.
+
+`report_feedback` (T54) syncs dogfooding feedback **solo con checkbox opt-in** + sesión. Local T35 sigue siendo el default.
+
+`analytics_events` (T55) recibe inserts anónimos (`view_discover`, `parse_ae`, `start_research`, `copilot_paste_ok`, `save_portfolio`); **sin SELECT** para clientes. Consultas founder: `docs/sql/founder-observability.sql`.
 
 `gemini_usage` tracks per-user daily **investigations** (not individual Gemini RPC calls). The Edge Function increments via `check_and_increment_gemini_usage(user, limit, session_id)` — repeated calls with the same `researchSessionId` in one run do not consume extra quota.
 
@@ -76,6 +82,17 @@ supabase functions deploy discover-enrich --project-ref texzlizelxavrybkdjdj
 ```
 
 En la UI: tras **Analizar enlace**, el cliente intenta meta pública (logueado) y, si faltan campos y hay BYOK, Gemini inferido. Los campos llevan badge **No verificado**.
+
+### Deploy migraciones T54/T55
+
+```bash
+export SUPABASE_ACCESS_TOKEN=sbp_...
+bash scripts/deploy-t54-t55-migrations.sh
+# o: GitHub Actions → "Deploy T54/T55 migrations" → Run workflow
+# o: pegar 006 + 007 en SQL Editor
+```
+
+Consultas founder (agregados / funnel): `docs/sql/founder-observability.sql`.
 
 ## 3. Auth redirect URLs
 

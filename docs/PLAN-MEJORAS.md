@@ -1821,8 +1821,8 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 �
 | T51 | Dogfooding founder 3–5 productos | P0 | ✅ | E2E×3 + fixes Descubrir |
 | T52 | Code splitting vistas | P0 | ✅ | entry ~17 KB; vistas/report lazy |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | ✅ | Edge OG + BYOK; badges No verificado |
-| T54 | Feedback T35 → Supabase opt-in | P1 | ⬜ |
-| T55 | Analítica privacy-friendly | P1 | ⬜ |
+| T54 | Feedback T35 → Supabase opt-in | P1 | ✅ | 006 + checkbox opt-in |
+| T55 | Analítica privacy-friendly | P1 | ✅ | 007 + trackEvent funnel |
 | T56 | Extraer módulos de report.js | P2 | ⬜ |
 | T57 | E2E WebKit CI | P2 | ⬜ |
 | T58 | Checklist RLS migraciones | P2 | ⬜ |

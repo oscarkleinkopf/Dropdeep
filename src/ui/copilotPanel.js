@@ -18,6 +18,7 @@ import {
   peekCompletedCopilotStep,
   canPeekPreviousCopilotStep,
 } from '../research/copilotFlow.js';
+import { ANALYTICS_EVENTS, trackEventFireAndForget } from '../utils/analytics.js';
 
 /** null = editing current step; number = peeking completed step index */
 let peekStepIndex = null;
@@ -422,6 +423,9 @@ export function initCopilotPanel() {
 
     hideError();
     showToast('Paso procesado correctamente.', 'success');
+    trackEventFireAndForget(ANALYTICS_EVENTS.COPILOT_PASTE_OK, {
+      done: Boolean(result.done),
+    });
 
     if (result.done && result.report) {
       const fill = document.getElementById('copilot-progress-fill');

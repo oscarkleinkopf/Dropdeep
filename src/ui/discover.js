@@ -12,6 +12,7 @@ import { showToast } from '../utils/toast.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { isAuthConfigured } from '../auth/supabaseClient.js';
+import { ANALYTICS_EVENTS, trackEventFireAndForget } from '../utils/analytics.js';
 
 let lastCandidate = null;
 /** @type {AbortController | null} */
@@ -202,6 +203,7 @@ function handleParse() {
     }
     card?.classList.add('hidden');
     setEnrichStatus('idle', '');
+    trackEventFireAndForget(ANALYTICS_EVENTS.PARSE_AE, { ok: false });
     return;
   }
 
@@ -209,6 +211,8 @@ function handleParse() {
     errEl.textContent = '';
     errEl.classList.add('hidden');
   }
+
+  trackEventFireAndForget(ANALYTICS_EVENTS.PARSE_AE, { ok: true });
 
   autofillState = { title: false, cost: false, image: false };
   const titleInput = document.getElementById('discover-title-input');

@@ -1,6 +1,7 @@
 /**
  * Local dogfooding feedback per report (T35).
- * Keys: dropdeep_report_feedback_{slug} — never sent to Supabase.
+ * Keys: dropdeep_report_feedback_{slug}
+ * Cloud sync is opt-in via feedbackCloud.js (T54) — never automatic.
  */
 
 const KEY_PREFIX = 'dropdeep_report_feedback_';

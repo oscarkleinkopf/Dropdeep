@@ -43,6 +43,11 @@ export async function switchView(viewId) {
     } else if (viewId === 'discover-view') {
       const { renderDiscover } = await import('./discover.js');
       renderDiscover();
+      import('../utils/analytics.js')
+        .then(({ ANALYTICS_EVENTS, trackEventFireAndForget }) => {
+          trackEventFireAndForget(ANALYTICS_EVENTS.VIEW_DISCOVER);
+        })
+        .catch(() => {});
     } else if (viewId === 'portfolio-view') {
       const { renderPortfolioList } = await import('./portfolio.js');
       renderPortfolioList();

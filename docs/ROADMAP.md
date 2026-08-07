@@ -21,7 +21,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 ```
 Fase A (ahora)     dogfood T51✅ · code-split T52✅ · nota negocio T61 · deps T63✅ (bump mayor → T64)
 Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53✅ · T50✅
-Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
+Fase C (datos)     feedback sync T54✅ · analítica T55✅ → decide T47
 Fase D (calidad)   XSS/sanitize T65✅ · report extract T56 · events split T66 (diferido) · WebKit E2E T57 · RLS · CSP T59
 Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
 ```
@@ -107,13 +107,13 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | ✅ |
 | **Prioridad** | P1 |
 | **Origen** | Evaluación §4.5 |
 
 **Objetivo:** Migración `feedback` + RLS; checkbox “enviar a DropDeep”; el founder ve agregados sin PII de más.
 
-**Criterio:** Local-only sigue funcionando offline; sync solo con sesión + opt-in.
+**Hecho:** migración `006_report_feedback.sql` + RLS; checkbox opt-in en panel informe; `syncReportFeedbackToCloud`; agregados vía `report_feedback_aggregates()` / `docs/sql/founder-observability.sql`. Local-only sigue siendo el default.
 
 ---
 
@@ -121,13 +121,13 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | ✅ |
 | **Prioridad** | P1 |
 | **Origen** | Evaluación §4.6 |
 
 **Objetivo:** Eventos anónimos: `view_discover`, `parse_ae`, `start_research`, `copilot_paste_ok`, `save_portfolio`. Tabla + Edge o insert RLS; sin cookies de terceros.
 
-**Criterio:** Dashboard mínimo (SQL o vista admin) responde “dónde abandonan”; informe en dogfood siguiente.
+**Hecho:** migración `007_analytics_events.sql` (insert anon/auth, sin SELECT cliente); `trackEvent` + wire en Descubrir/research/copilot/portafolio; funnel SQL `analytics_funnel_daily`.
 
 **Gate T47:** no contratar SerpAPI hasta ver si Descubrir+paste+T53 bastan según T51/T55.
 
@@ -235,8 +235,8 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 | T51 | Dogfooding founder 3–5 productos | P0 | A | ✅ | [DOGFOODING-T51.md](DOGFOODING-T51.md) + e2e |
 | T52 | Code splitting vistas | P0 | A | ✅ |
 | T53 | Enriquecer Descubrir (sin Affiliate) | P1 | B | ✅ |
-| T54 | Feedback T35 → Supabase opt-in | P1 | C | ⬜ |
-| T55 | Analítica privacy-friendly | P1 | C | ⬜ |
+| T54 | Feedback T35 → Supabase opt-in | P1 | C | ✅ |
+| T55 | Analítica privacy-friendly | P1 | C | ✅ |
 | T56 | Extraer módulos de report.js | P2 | D | ⬜ |
 | T57 | E2E WebKit CI | P2 | D | ⬜ |
 | T58 | Checklist RLS migraciones | P2 | D | ⬜ |

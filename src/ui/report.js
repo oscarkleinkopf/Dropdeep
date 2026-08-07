@@ -47,6 +47,11 @@ import {
   saveReportFeedback,
 } from '../utils/feedbackStorage.js';
 import {
+  isFeedbackCloudOptIn,
+  setFeedbackCloudOptIn,
+  syncReportFeedbackToCloud,
+} from '../utils/feedbackCloud.js';
+import {
   escapeHtml,
   e,
   escapeDeep,
@@ -679,7 +684,7 @@ function renderNextDecisionBlock(report) {
   }
 }
 
-/** Compact dogfooding panel — local only (T35). */
+/** Compact dogfooding panel — local (T35) + opt-in cloud (T54). */
 function renderReportFeedbackPanel(report) {
   const existing = document.getElementById('report-feedback-panel');
   if (existing) existing.remove();
@@ -689,6 +694,8 @@ function renderReportFeedbackPanel(report) {
 
   const saved = getReportFeedback(slug);
   let selected = saved?.helpful || null;
+  const canCloud = isAuthenticated();
+  const optIn = isFeedbackCloudOptIn();
 
   const panel = document.createElement('div');
   panel.id = 'report-feedback-panel';
@@ -698,13 +705,13 @@ function renderReportFeedbackPanel(report) {
 
   const statusText = saved
     ? `Guardado: ${helpfulLabel(saved.helpful)}${saved.updatedAt ? ` · ${new Date(saved.updatedAt).toLocaleString('es')}` : ''}`
-    : 'Solo en este navegador — no se envía a la nube.';
+    : 'Se guarda en este navegador. Envío a DropDeep solo con opt-in.';
 
   panel.innerHTML = `
     <div class="report-feedback-inner">
       <div class="report-feedback-header">
         <h3>¿Te ayudó a decidir?</h3>
-        <span class="report-feedback-privacy">Feedback local (dogfooding)</span>
+        <span class="report-feedback-privacy">Dogfooding · local por defecto</span>
       </div>
       <div class="report-feedback-choices" role="group" aria-label="¿Te ayudó?">
         <button type="button" class="btn btn-secondary btn-sm report-feedback-choice" data-helpful="${FEEDBACK_HELPFUL.YES}" aria-pressed="false">👍 Sí</button>
@@ -713,6 +720,14 @@ function renderReportFeedbackPanel(report) {
       </div>
       <label class="report-feedback-note-label" for="report-feedback-note">Nota opcional (máx. ${FEEDBACK_NOTE_MAX})</label>
       <textarea id="report-feedback-note" class="report-feedback-note" maxlength="${FEEDBACK_NOTE_MAX}" rows="2" placeholder="Qué faltó, qué decidirías, qué mejorarías…">${escapeHtml(saved?.note || '')}</textarea>
+      ${
+        canCloud
+          ? `<label class="report-feedback-optin">
+              <input type="checkbox" id="report-feedback-cloud-optin" ${optIn ? 'checked' : ''}>
+              <span>Enviar a DropDeep (opt-in) — ayuda al founder; sin exportar en JSON del portafolio</span>
+            </label>`
+          : `<p class="report-feedback-optin-hint">Inicia sesión si quieres enviar feedback a DropDeep (opt-in).</p>`
+      }
       <div class="report-feedback-footer">
         <span id="report-feedback-status" class="report-feedback-status">${escapeHtml(statusText)}</span>
         <button type="button" class="btn btn-primary btn-sm" id="report-feedback-save-btn">Guardar feedback</button>
@@ -748,8 +763,15 @@ function renderReportFeedbackPanel(report) {
     });
   });
 
-  document.getElementById('report-feedback-save-btn')?.addEventListener('click', () => {
+  document.getElementById('report-feedback-cloud-optin')?.addEventListener('change', (e) => {
+    setFeedbackCloudOptIn(Boolean(e.target.checked));
+  });
+
+  document.getElementById('report-feedback-save-btn')?.addEventListener('click', async () => {
     const note = document.getElementById('report-feedback-note')?.value || '';
+    const cloudBox = document.getElementById('report-feedback-cloud-optin');
+    if (cloudBox) setFeedbackCloudOptIn(Boolean(cloudBox.checked));
+
     const result = saveReportFeedback({
       productSlug: slug,
       productName: report.name,
@@ -761,10 +783,25 @@ function renderReportFeedbackPanel(report) {
       showToast(result.error, 'info');
       return;
     }
-    if (statusEl) {
-      statusEl.textContent = `Guardado: ${helpfulLabel(result.feedback.helpful)} · ${new Date(result.feedback.updatedAt).toLocaleString('es')}`;
-    }
+
+    let statusMsg = `Guardado local: ${helpfulLabel(result.feedback.helpful)} · ${new Date(result.feedback.updatedAt).toLocaleString('es')}`;
     showToast('Feedback guardado en este navegador.', 'success');
+
+    if (isFeedbackCloudOptIn() && isAuthenticated()) {
+      const sync = await syncReportFeedbackToCloud({
+        ...result.feedback,
+        productName: report.name,
+      });
+      if (sync.ok) {
+        statusMsg += ' · enviado a DropDeep';
+        showToast('Feedback enviado a DropDeep (opt-in).', 'success');
+      } else if (!sync.skipped) {
+        statusMsg += ' · nube falló (queda local)';
+        showToast(sync.error || 'No se pudo sincronizar feedback.', 'info');
+      }
+    }
+
+    if (statusEl) statusEl.textContent = statusMsg;
     try {
       renderPortfolioList();
     } catch {

@@ -12,6 +12,7 @@ import {
   RESEARCH_PATH_API,
 } from '../config/researchPath.js';
 import { getResearchMode } from '../config/researchMode.js';
+import { ANALYTICS_EVENTS, trackEventFireAndForget } from '../utils/analytics.js';
 
 export function canUseApiResearch() {
   const route = getGeminiRoute();
@@ -122,6 +123,11 @@ export function runResearchDirect(productName, competitorUrl = '', opts = {}) {
   const path = getResearchPath();
   const mode = getResearchMode();
   const cacheSource = path === RESEARCH_PATH_API ? 'api' : 'copilot';
+
+  trackEventFireAndForget(ANALYTICS_EVENTS.START_RESEARCH, {
+    path: path === RESEARCH_PATH_API ? 'api' : 'copilot',
+    mode: String(mode || ''),
+  });
 
   if (!opts.skipCache) {
     const cachedData = getCacheEntry(productName, language, cacheSource, mode);

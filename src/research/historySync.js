@@ -4,6 +4,7 @@ import { state } from '../state.js';
 import { calculateProductScore } from './scoring.js';
 import { listCacheEntries } from './cache.js';
 import { sanitizeReport } from './reportSanitize.js';
+import { ANALYTICS_EVENTS, trackEventFireAndForget } from '../utils/analytics.js';
 
 const DELETED_SLUGS_KEY = 'dropdeep_portfolio_deleted_slugs';
 
@@ -124,6 +125,9 @@ export function mergePortfolioItems(localItems, remoteItems, deletedSlugs = read
 
 export function savePortfolioLocal() {
   localStorage.setItem('dropdeep_portfolio', JSON.stringify(state.portfolio));
+  trackEventFireAndForget(ANALYTICS_EVENTS.SAVE_PORTFOLIO, {
+    n: Array.isArray(state.portfolio) ? state.portfolio.length : 0,
+  });
 }
 
 /** Upsert a completed report to Supabase (best-effort). */

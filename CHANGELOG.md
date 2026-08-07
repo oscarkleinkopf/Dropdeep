@@ -8,6 +8,8 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Feedback cloud opt-in (T54):** checkbox «Enviar a DropDeep» en el panel del informe; migración `006_report_feedback` + RLS; local T35 sigue por defecto. Agregados founder: `docs/sql/founder-observability.sql`.
+- **Analítica privacy-friendly (T55):** eventos `view_discover` / `parse_ae` / `start_research` / `copilot_paste_ok` / `save_portfolio` → `analytics_events` (insert-only, sin cookies de terceros). Migración `007`.
 - **Enriquecer Descubrir (T53):** tras pegar URL/ID, sugiere título/costo/imagen con badge **No verificado** (slug URL → Edge `discover-enrich` meta pública → Gemini BYOK). No usa cuota proxy ni Affiliate. Flujo manual intacto si falla.
 - **Code splitting (T52):** entry JS ~17 KB (gzip ~5); chunks `view-report`, portfolio/spy/prompt-hub/export/copilot/discover; vendors separados (supabase/lucide/dompurify/gemini); Chart.js sigue lazy.
 - **Seguridad XSS (T65):** `escapeHtml` / `escapeDeep` / `safeHref` / `data-copy` seguro; **DOMPurify** para HTML de Gemini (Shopify, bloques de conversión); toasts con `textContent`. Tests en `tests/sanitize.test.js`.
