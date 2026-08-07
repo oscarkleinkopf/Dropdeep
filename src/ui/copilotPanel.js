@@ -1,5 +1,4 @@
 import { showToast } from '../utils/toast.js';
-import { openDeepResearchReport } from './report.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
 import { getCopilotStepJsonExample } from '../research/reportSchema.js';
@@ -433,8 +432,9 @@ export function initCopilotPanel() {
       updateOnboardingPanel();
       renderDashboardStats();
       renderResearchFeed();
-      setTimeout(() => {
+      setTimeout(async () => {
         releaseCopilotModal();
+        const { openDeepResearchReport } = await import('./report.js');
         openDeepResearchReport(result.report);
         showToast('Reporte completo — generado en modo copiloto.', 'success');
       }, 400);

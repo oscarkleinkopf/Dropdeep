@@ -1,13 +1,10 @@
 import { state } from '../state.js';
 import { listCacheEntries } from '../research/cache.js';
-import { runResearchDirect } from '../research/flow.js';
-import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { e } from '../utils/sanitize.js';
 import { showToast } from '../utils/toast.js';
 import { updateWizardVisibility } from './firstProductWizard.js';
 import { getStoredCopilotSession } from '../research/copilotFlow.js';
-import { resumeCopilotPanel, discardCopilotPanel } from './copilotPanel.js';
 
 function getRecentResearchItems(limit = 6) {
   const seen = new Set();
@@ -60,10 +57,12 @@ export function renderCopilotResumeBanner() {
   const feed = document.getElementById('research-feed');
   feed?.insertAdjacentElement('beforebegin', banner);
 
-  document.getElementById('copilot-resume-btn')?.addEventListener('click', () => {
+  document.getElementById('copilot-resume-btn')?.addEventListener('click', async () => {
+    const { resumeCopilotPanel } = await import('./copilotPanel.js');
     resumeCopilotPanel();
   });
-  document.getElementById('copilot-resume-discard-btn')?.addEventListener('click', () => {
+  document.getElementById('copilot-resume-discard-btn')?.addEventListener('click', async () => {
+    const { discardCopilotPanel } = await import('./copilotPanel.js');
     discardCopilotPanel();
     banner.remove();
   });
@@ -199,10 +198,11 @@ export function renderResearchFeed() {
   });
 
   feed.querySelectorAll('.open-report-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const pName = btn.getAttribute('data-product-name');
       const item = items.find((i) => i.name === pName);
       if (item?.report && !item.report._isDraft) {
+        const { openDeepResearchReport } = await import('./report.js');
         openDeepResearchReport(item.report);
       } else if (item?.report?._isDraft) {
         showToast('Este borrador aún no tiene reporte — ejecuta Deep Research.', 'info');
@@ -214,8 +214,9 @@ export function renderResearchFeed() {
   });
 
   feed.querySelectorAll('.rerun-research-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      runDeepResearchSequence(btn.getAttribute('data-product-name'));
+    btn.addEventListener('click', async () => {
+      const { runResearchDirect } = await import('../research/flow.js');
+      runResearchDirect(btn.getAttribute('data-product-name'));
     });
   });
 

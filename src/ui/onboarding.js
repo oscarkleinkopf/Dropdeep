@@ -5,7 +5,6 @@ import { state } from '../state.js';
 import { switchView } from './navigation.js';
 import { openAuthModal } from './authModal.js';
 import { shouldShowWizard } from './firstProductWizard.js';
-import { setPromptHubMode } from './promptHub.js';
 import { setResearchPath, RESEARCH_PATH_COPILOT } from '../config/researchPath.js';
 
 const STORAGE_PREFIX = 'dropdeep_onboarding_done_';
@@ -133,7 +132,9 @@ function renderSteps(panel) {
         }
       } else if (action === 'prompts') {
         switchView('prompt-hub-view');
-        setPromptHubMode('packs');
+        import('./promptHub.js').then(({ setPromptHubMode }) => {
+          setPromptHubMode('packs');
+        });
         markPromptHubDone();
       } else if (action === 'copilot' || action === 'search') {
         focusCopilotSearch();

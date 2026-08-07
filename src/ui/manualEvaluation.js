@@ -10,9 +10,9 @@ import {
   verdictColor,
 } from '../research/manualRubric.js';
 import { persistResearchReport, savePortfolioLocal } from '../research/historySync.js';
-import { updatePortfolioBadge, openPortfolioLimitModal } from './portfolio.js';
+import { openPortfolioLimitModal } from './portfolio.js';
+import { updatePortfolioBadge } from './portfolioBadge.js';
 import { renderDashboardStats, renderResearchFeed } from './feed.js';
-import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
 import { isPortfolioAtCap } from '../config/freeTier.js';
 import { markPortfolioSaveDone, updateOnboardingPanel } from './onboarding.js';
@@ -294,7 +294,7 @@ export function initManualEvaluation() {
     showToast(`Evaluación guardada: ${fullReport.manualEvaluation.verdict} (${fullReport.manualEvaluation.score}/100)`, 'success');
   });
 
-  document.getElementById('manual-eval-open-report-btn')?.addEventListener('click', () => {
+  document.getElementById('manual-eval-open-report-btn')?.addEventListener('click', async () => {
     const nameInput = document.getElementById('manual-eval-product-input');
     const productName = (nameInput?.value || evalProductName || '').trim();
     if (!productName) {
@@ -311,6 +311,7 @@ export function initManualEvaluation() {
     if (!fullReport) return;
 
     closeManualEvaluation();
+    const { openDeepResearchReport } = await import('./report.js');
     openDeepResearchReport(fullReport);
   });
 

@@ -3,28 +3,19 @@ import { showToast } from './utils/toast.js';
 import { switchView } from './ui/navigation.js';
 import { copyToClipboardWithFeedback } from './ui/clipboard.js';
 import { runResearchDirect, runCopilotResearch, runManualEvaluationFlow } from './research/flow.js';
-import { switchReportTab } from './ui/report.js';
-import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
-import { exportPortfolioJSON, exportReportToCSV, exportReportToMarkdown, exportCampaignKit, exportReportToShopifyCSV, exportReportToWooCommerceCSV } from './ui/export.js';
-import {
-  promptHubState,
-  renderPromptHubOutput,
-  updatePromptBoxContent,
-  setPromptHubMode,
-  setActiveVerticalPack,
-} from './ui/promptHub.js';
-import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
-import {
-  showMetaAdsAuditPanel,
-  renderMetaAdsAuditResults,
-  prefillMetaAdsAuditFromReport,
-  resetMetaAdsAuditForm,
-} from './ui/metaAdsAuditPanel.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, closeSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
 import { upsertProfilePrefs } from './auth/profile.js';
 import { cancelResearchSession } from './research/researchSession.js';
-import { hideTerminalModal } from './research/gemini.js';
+
+/** Lazy loaders — T52 code-split de vistas pesadas */
+const loadReport = () => import('./ui/report.js');
+const loadPortfolio = () => import('./ui/portfolio.js');
+const loadExport = () => import('./ui/export.js');
+const loadPromptHub = () => import('./ui/promptHub.js');
+const loadSpy = () => import('./ui/spy.js');
+const loadMetaAudit = () => import('./ui/metaAdsAuditPanel.js');
+const loadGeminiUi = () => import('./research/gemini.js');
 
 export function setupEventListeners() {
   document.addEventListener('dropdeep:prompt-copied', () => {
@@ -96,20 +87,25 @@ export function setupEventListeners() {
   });
 
   // Report Tab Switching (Sidebar)
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const tabBtn = e.target.closest('.sidebar-tab-btn');
     if (tabBtn) {
       const targetSection = tabBtn.getAttribute('data-section');
+      const { switchReportTab } = await loadReport();
       switchReportTab(targetSection);
     }
   });
 
   // Save to Portfolio Button
-  document.getElementById('save-report-btn').addEventListener('click', toggleSaveProduct);
+  document.getElementById('save-report-btn').addEventListener('click', async () => {
+    const { toggleSaveProduct } = await loadPortfolio();
+    toggleSaveProduct();
+  });
 
   // CSV Export Button
-  document.getElementById('export-csv-btn').addEventListener('click', () => {
+  document.getElementById('export-csv-btn').addEventListener('click', async () => {
     if (state.currentReport) {
+      const { exportReportToCSV } = await loadExport();
       exportReportToCSV(state.currentReport);
     } else {
       showToast("No hay un reporte activo para exportar.", "error");
@@ -119,8 +115,9 @@ export function setupEventListeners() {
   // Shopify CSV Export Button
   const shopifyBtn = document.getElementById('export-shopify-csv-btn');
   if (shopifyBtn) {
-    shopifyBtn.addEventListener('click', () => {
+    shopifyBtn.addEventListener('click', async () => {
       if (state.currentReport) {
+        const { exportReportToShopifyCSV } = await loadExport();
         exportReportToShopifyCSV(state.currentReport);
       } else {
         showToast("No hay un reporte activo para exportar.", "error");
@@ -131,8 +128,9 @@ export function setupEventListeners() {
   // WooCommerce CSV Export Button
   const wooBtn = document.getElementById('export-woocommerce-csv-btn');
   if (wooBtn) {
-    wooBtn.addEventListener('click', () => {
+    wooBtn.addEventListener('click', async () => {
       if (state.currentReport) {
+        const { exportReportToWooCommerceCSV } = await loadExport();
         exportReportToWooCommerceCSV(state.currentReport);
       } else {
         showToast("No hay un reporte activo para exportar.", "error");
@@ -146,7 +144,10 @@ export function setupEventListeners() {
   });
 
   // Export Portfolio JSON
-  document.getElementById('export-portfolio-btn').addEventListener('click', exportPortfolioJSON);
+  document.getElementById('export-portfolio-btn').addEventListener('click', async () => {
+    const { exportPortfolioJSON } = await loadExport();
+    exportPortfolioJSON();
+  });
 
   // Subtab switching in Espionaje Competitivo
   const subtabCompBtn = document.getElementById('subtab-competitor-btn');
@@ -171,15 +172,17 @@ export function setupEventListeners() {
   if (subtabCompBtn && subtabMetaBtn) {
     subtabCompBtn.addEventListener('click', () => styleSpySubtab(subtabCompBtn));
 
-    subtabMetaBtn.addEventListener('click', () => {
+    subtabMetaBtn.addEventListener('click', async () => {
       styleSpySubtab(subtabMetaBtn);
+      const { renderMetaHiddenInterests } = await loadSpy();
       renderMetaHiddenInterests();
     });
   }
 
   if (subtabAuditBtn) {
-    subtabAuditBtn.addEventListener('click', () => {
+    subtabAuditBtn.addEventListener('click', async () => {
       styleSpySubtab(subtabAuditBtn);
+      const { showMetaAdsAuditPanel } = await loadMetaAudit();
       showMetaAdsAuditPanel();
     });
   }
@@ -187,7 +190,8 @@ export function setupEventListeners() {
   // Meta Ads Audit form — render metrics then focus results
   const metaAuditRunBtn = document.getElementById('meta-audit-run-btn');
   if (metaAuditRunBtn) {
-    metaAuditRunBtn.addEventListener('click', () => {
+    metaAuditRunBtn.addEventListener('click', async () => {
+      const { renderMetaAdsAuditResults } = await loadMetaAudit();
       renderMetaAdsAuditResults();
       const resultContainer = document.getElementById('meta-audit-results');
       resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -196,7 +200,11 @@ export function setupEventListeners() {
 
   const metaAuditPrefillBtn = document.getElementById('meta-audit-prefill-btn');
   if (metaAuditPrefillBtn) {
-    metaAuditPrefillBtn.addEventListener('click', () => {
+    metaAuditPrefillBtn.addEventListener('click', async () => {
+      const {
+        prefillMetaAdsAuditFromReport,
+        renderMetaAdsAuditResults,
+      } = await loadMetaAudit();
       prefillMetaAdsAuditFromReport();
       renderMetaAdsAuditResults();
       const resultContainer = document.getElementById('meta-audit-results');
@@ -206,7 +214,8 @@ export function setupEventListeners() {
 
   const metaAuditResetBtn = document.getElementById('meta-audit-reset-btn');
   if (metaAuditResetBtn) {
-    metaAuditResetBtn.addEventListener('click', () => {
+    metaAuditResetBtn.addEventListener('click', async () => {
+      const { resetMetaAdsAuditForm } = await loadMetaAudit();
       resetMetaAdsAuditForm();
     });
   }
@@ -214,9 +223,10 @@ export function setupEventListeners() {
   // Competitor URL Scan Button
   const runCompScanBtn = document.getElementById('run-competitor-analysis-btn');
   if (runCompScanBtn) {
-    runCompScanBtn.addEventListener('click', () => {
+    runCompScanBtn.addEventListener('click', async () => {
       const urlInput = document.getElementById('competitor-url-analysis-input');
       const url = urlInput ? urlInput.value.trim() : '';
+      const { runCompetitorStoreScan } = await loadSpy();
       runCompetitorStoreScan(url);
       const resultContainer = document.getElementById('competitor-analysis-results');
       resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -226,21 +236,23 @@ export function setupEventListeners() {
   // Meta Hidden Interests Search Input & Category Chips
   const metaSearchInput = document.getElementById('meta-interest-search-input');
   if (metaSearchInput) {
-    metaSearchInput.addEventListener('input', (e) => {
+    metaSearchInput.addEventListener('input', async (e) => {
       const query = e.target.value;
       const activeChip = document.querySelector('#meta-category-chips .tag-chip.active');
       const cat = activeChip ? activeChip.getAttribute('data-category') : 'all';
+      const { renderMetaHiddenInterests } = await loadSpy();
       renderMetaHiddenInterests(query, cat);
     });
   }
 
   const categoryChips = document.querySelectorAll('#meta-category-chips .tag-chip');
   categoryChips.forEach(chip => {
-    chip.addEventListener('click', (e) => {
+    chip.addEventListener('click', async (e) => {
       categoryChips.forEach(c => c.classList.remove('active'));
       e.target.classList.add('active');
       const cat = e.target.getAttribute('data-category');
       const query = metaSearchInput ? metaSearchInput.value : '';
+      const { renderMetaHiddenInterests } = await loadSpy();
       renderMetaHiddenInterests(query, cat);
     });
   });
@@ -297,16 +309,25 @@ export function setupEventListeners() {
   const portSearch = document.getElementById('portfolio-search-input');
   const portCat = document.getElementById('portfolio-category-filter');
   if (portSearch) {
-    portSearch.addEventListener('input', renderPortfolioList);
+    portSearch.addEventListener('input', async () => {
+      const { renderPortfolioList } = await loadPortfolio();
+      renderPortfolioList();
+    });
   }
   if (portCat) {
-    portCat.addEventListener('change', renderPortfolioList);
+    portCat.addEventListener('change', async () => {
+      const { renderPortfolioList } = await loadPortfolio();
+      renderPortfolioList();
+    });
   }
 
   // Compare Button
   const compareBtn = document.getElementById('compare-btn');
   if (compareBtn) {
-    compareBtn.addEventListener('click', openProductComparison);
+    compareBtn.addEventListener('click', async () => {
+      const { openProductComparison } = await loadPortfolio();
+      openProductComparison();
+    });
   }
 
   // Close Comparator View Button
@@ -320,8 +341,9 @@ export function setupEventListeners() {
   // Export Markdown Button
   const exportMDBtn = document.getElementById('export-markdown-btn');
   if (exportMDBtn) {
-    exportMDBtn.addEventListener('click', () => {
+    exportMDBtn.addEventListener('click', async () => {
       if (state.currentReport) {
+        const { exportReportToMarkdown } = await loadExport();
         exportReportToMarkdown(state.currentReport);
       } else {
         showToast("No hay un reporte activo para exportar.", "error");
@@ -331,15 +353,17 @@ export function setupEventListeners() {
 
   const exportCampaignKitBtn = document.getElementById('export-campaign-kit-btn');
   if (exportCampaignKitBtn) {
-    exportCampaignKitBtn.addEventListener('click', () => {
+    exportCampaignKitBtn.addEventListener('click', async () => {
+      const { exportCampaignKit } = await loadExport();
       exportCampaignKit(state.currentReport);
     });
   }
 
   // Prompt Hub mode tabs (master vs vertical packs)
   document.querySelectorAll('.prompt-hub-mode-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
+    tab.addEventListener('click', async () => {
       const mode = tab.getAttribute('data-hub-mode') || 'master';
+      const { setPromptHubMode } = await loadPromptHub();
       setPromptHubMode(mode);
       if (mode === 'packs') {
         markPromptHubDone();
@@ -349,16 +373,20 @@ export function setupEventListeners() {
   });
 
   document.querySelectorAll('.vertical-pack-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
+    tab.addEventListener('click', async () => {
       const verticalId = tab.getAttribute('data-vertical-id');
-      if (verticalId) setActiveVerticalPack(verticalId);
+      if (verticalId) {
+        const { setActiveVerticalPack } = await loadPromptHub();
+        setActiveVerticalPack(verticalId);
+      }
     });
   });
 
   // Close Terminal Dot listener (hide modal only — use Cancel to abort API)
   const closeTerminalDot = document.getElementById('close-terminal-dot');
   if (closeTerminalDot) {
-    closeTerminalDot.addEventListener('click', () => {
+    closeTerminalDot.addEventListener('click', async () => {
+      const { hideTerminalModal } = await loadGeminiUi();
       hideTerminalModal();
     });
   }
@@ -373,7 +401,7 @@ export function setupEventListeners() {
   // Quick Prompt Button on Dashboard Search Form
   const quickPromptBtn = document.getElementById('quick-prompt-btn');
   if (quickPromptBtn) {
-    quickPromptBtn.addEventListener('click', () => {
+    quickPromptBtn.addEventListener('click', async () => {
       const searchInput = document.getElementById('search-input');
       const compInput = document.getElementById('competitor-input');
       const pName = searchInput ? searchInput.value.trim() : '';
@@ -392,8 +420,9 @@ export function setupEventListeners() {
       if (hubCompInput) hubCompInput.value = cUrl;
 
       // Switch view & generate
-      switchView('prompt-hub-view');
+      await switchView('prompt-hub-view');
 
+      const { renderPromptHubOutput } = await loadPromptHub();
       renderPromptHubOutput();
       markPromptHubDone();
       updateOnboardingPanel();
@@ -404,7 +433,8 @@ export function setupEventListeners() {
   // Prompt Hub Form Generate Button
   const generatePromptsBtn = document.getElementById('generate-prompts-btn');
   if (generatePromptsBtn) {
-    generatePromptsBtn.addEventListener('click', () => {
+    generatePromptsBtn.addEventListener('click', async () => {
+      const { renderPromptHubOutput } = await loadPromptHub();
       renderPromptHubOutput();
       markPromptHubDone();
       updateOnboardingPanel();
@@ -415,12 +445,13 @@ export function setupEventListeners() {
   // Prompt Hub Step Tabs
   const promptTabBtns = document.querySelectorAll('.prompt-tab-btn');
   promptTabBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       promptTabBtns.forEach(b => b.classList.remove('active'));
       e.currentTarget.classList.add('active');
       const step = parseInt(e.currentTarget.getAttribute('data-prompt-step')) || 1;
-      promptHubState.activeStep = step;
-      updatePromptBoxContent();
+      const hub = await loadPromptHub();
+      hub.promptHubState.activeStep = step;
+      hub.updatePromptBoxContent();
     });
   });
 
@@ -428,10 +459,11 @@ export function setupEventListeners() {
   const copySinglePromptBtn = document.getElementById('copy-single-prompt-btn');
   if (copySinglePromptBtn) {
     copySinglePromptBtn.addEventListener('click', async () => {
-      if (!promptHubState.promptData) {
-        renderPromptHubOutput();
+      const hub = await loadPromptHub();
+      if (!hub.promptHubState.promptData) {
+        hub.renderPromptHubOutput();
       }
-      const activeText = promptHubState.promptData['step' + promptHubState.activeStep];
+      const activeText = hub.promptHubState.promptData['step' + hub.promptHubState.activeStep];
       if (activeText) {
         const ok = await copyToClipboardWithFeedback(copySinglePromptBtn, activeText);
         if (ok) {
@@ -448,10 +480,11 @@ export function setupEventListeners() {
   const copyAllPromptsBtn = document.getElementById('copy-all-prompts-btn');
   if (copyAllPromptsBtn) {
     copyAllPromptsBtn.addEventListener('click', async () => {
-      if (!promptHubState.promptData) {
-        renderPromptHubOutput();
+      const hub = await loadPromptHub();
+      if (!hub.promptHubState.promptData) {
+        hub.renderPromptHubOutput();
       }
-      const allText = promptHubState.promptData.allInOne;
+      const allText = hub.promptHubState.promptData.allInOne;
       if (allText) {
         const ok = await copyToClipboardWithFeedback(copyAllPromptsBtn, allText);
         if (ok) {

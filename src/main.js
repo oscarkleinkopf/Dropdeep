@@ -1,6 +1,6 @@
 import { refreshIcons } from './utils/icons.js';
 import { renderDashboardStats, renderResearchFeed, offerCopilotResumeToast } from './ui/feed.js';
-import { updatePortfolioBadge, initPortfolioLimitModal } from './ui/portfolio.js';
+import { updatePortfolioBadge } from './ui/portfolioBadge.js';
 import { setupEventListeners } from './events.js';
 import { initAuth, onAuthStateChange, isAuthenticated } from './auth/auth.js';
 import { initAuthModal } from './ui/authModal.js';
@@ -10,13 +10,29 @@ import { initOnboarding } from './ui/onboarding.js';
 import { initFirstProductWizard, updateWizardVisibility } from './ui/firstProductWizard.js';
 import { initResearchModeToggle } from './config/researchMode.js';
 import { initResearchPathToggle } from './config/researchPath.js';
-import { initCopilotPanel } from './ui/copilotPanel.js';
-import { initManualEvaluation } from './ui/manualEvaluation.js';
-import { initDiscover } from './ui/discover.js';
 import { syncProfileFromServer } from './auth/profile.js';
 import { syncResearchHistoryOnLoad } from './research/historySync.js';
 
 let appBootstrapped = false;
+
+/** T52 — paneles / vistas pesadas tras el primer paint */
+async function initDeferredPanels() {
+  const [
+    { initCopilotPanel },
+    { initManualEvaluation },
+    { initDiscover },
+    { initPortfolioLimitModal },
+  ] = await Promise.all([
+    import('./ui/copilotPanel.js'),
+    import('./ui/manualEvaluation.js'),
+    import('./ui/discover.js'),
+    import('./ui/portfolio.js'),
+  ]);
+  initCopilotPanel();
+  initManualEvaluation();
+  initDiscover();
+  initPortfolioLimitModal();
+}
 
 async function bootstrapAppShell() {
   if (appBootstrapped) return;
@@ -29,6 +45,14 @@ async function bootstrapAppShell() {
   updateWizardVisibility();
   setupEventListeners();
   refreshIcons();
+  // No bloquear el shell: hidratar paneles diferidos en idle
+  const schedule =
+    typeof requestIdleCallback === 'function'
+      ? (fn) => requestIdleCallback(() => { fn(); }, { timeout: 2000 })
+      : (fn) => setTimeout(fn, 0);
+  schedule(() => {
+    initDeferredPanels().catch((err) => console.error('Deferred UI init failed', err));
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,12 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAuthGate();
   initOnboarding();
   initFirstProductWizard();
-  initPortfolioLimitModal();
   initResearchModeToggle();
   initResearchPathToggle();
-  initCopilotPanel();
-  initManualEvaluation();
-  initDiscover();
 
   if (isAuthenticated()) {
     await syncProfileFromServer();

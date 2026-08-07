@@ -5,7 +5,7 @@ import { copyToClipboardWithFeedback } from './clipboard.js';
 import { setCacheEntry } from '../research/cache.js';
 import { calculateProductScore, getNextDecision, getProductScoreTooltip } from '../research/scoring.js';
 import { verdictColor } from '../research/manualRubric.js';
-import { sanitizeReport } from '../research/gemini.js';
+import { sanitizeReport } from '../research/reportSanitize.js';
 import { generateMasterPromptSequence } from './promptHub.js';
 import { runApiResearchDirect } from '../research/flow.js';
 import { markFirstResearchDone, updateOnboardingPanel } from './onboarding.js';
