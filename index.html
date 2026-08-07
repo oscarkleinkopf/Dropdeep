@@ -132,7 +132,7 @@
             <i data-lucide="sparkles" class="nav-icon"></i>
             <span class="nav-link-text">Prompts</span>
           </button>
-          <button class="nav-link" data-target="spy-intelligence-view" id="nav-spy" title="Spy — espionaje competitivo" aria-label="Spy">
+          <button class="nav-link" data-target="spy-intelligence-view" id="nav-spy" title="Spy — ads, URL y checklist Meta (no discovery de productos)" aria-label="Spy">
             <i data-lucide="eye" class="nav-icon"></i>
             <span class="nav-link-text">Spy</span>
           </button>
@@ -284,10 +284,10 @@
                 <input type="url" id="competitor-input" placeholder="URL de competidor (opcional)">
               </div>
             </form>
-            <div class="search-tags">
-              <span class="tag-label">¿Sin nombre aún?</span>
-              <button type="button" class="suggestion-tag" id="open-discover-from-home" title="Pegar URL o ID de AliExpress">
-                Abrir Descubrir (AliExpress)
+            <div class="discover-home-cta">
+              <span class="discover-home-cta-label">¿Sin nombre aún?</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="open-discover-from-home" title="Pegar URL o ID de AliExpress">
+                <i data-lucide="compass"></i> Abrir Descubrir (AliExpress)
               </button>
             </div>
           </div>
@@ -333,7 +333,7 @@
         <div class="section-title-bar">
           <div class="title-left">
             <h2>Tus Investigaciones Recientes</h2>
-            <p>Reportes de copiloto, API o evaluación manual guardados en tu portafolio.</p>
+            <p>Historial propio (portafolio / caché local) — no es un feed de trending global.</p>
           </div>
         </div>
 
@@ -825,16 +825,16 @@
         </div>
       </section>
 
-      <!-- VIEW: ESPIONAJE COMPETITIVO & INTERESES OCULTOS -->
+      <!-- VIEW: SPY — ads / competitor tools (not product discovery) -->
       <section id="spy-intelligence-view" class="view-section">
         <div class="prompt-hub-container">
           <div class="prompt-hub-header">
             <div class="hub-title-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: var(--accent-violet)">
               <i data-lucide="eye"></i>
-              <span>INTELIGENCIA DE MERCADO & ESPIONAJE</span>
+              <span>HERRAMIENTAS DE ADS & COMPETENCIA</span>
             </div>
-            <h2>Suite de Espionaje Competitivo y <span class="gradient-text">Audiencias Ocultas</span></h2>
-            <p>Analiza URLs con Gemini (<strong>inferido, no scraper HTML</strong>), explora intereses Meta de referencia, o audita métricas de Ads Manager con umbrales Audisio (Chile / CLP) — offline, sin API Meta.</p>
+            <h2>Espionaje competitivo y <span class="gradient-text">checklist Meta Ads</span></h2>
+            <p>Analiza URLs con Gemini (<strong>inferido, no scraper HTML</strong>), usa una checklist estática de intereses para targeting en Ads Manager, o audita métricas con umbrales Audisio (Chile / CLP). <strong>No es un buscador de productos para vender</strong> — eso vive en Descubrir.</p>
           </div>
 
           <!-- Sub-navigation Tabs -->
@@ -843,7 +843,7 @@
               <i data-lucide="shopping-bag"></i> Análisis de URL (Gemini)
             </button>
             <button type="button" id="subtab-meta-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
-              <i data-lucide="target"></i> Intereses Ocultos Meta
+              <i data-lucide="target"></i> Checklist intereses Meta (ads)
             </button>
             <button type="button" id="subtab-meta-audit-btn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
               <i data-lucide="gauge"></i> Auditoría Meta Ads (Chile)
@@ -889,15 +889,17 @@
             </div>
           </div>
 
-          <!-- SUBTAB 2: META HIDDEN INTERESTS -->
+          <!-- SUBTAB 2: META INTERESTS CHECKLIST (ads targeting — not product discovery) -->
             <div id="subtab-meta-panel" class="hidden">
             <p id="meta-interests-disclaimer" class="spy-disclaimer">
-              <i data-lucide="info"></i> Lista curada offline para inspiración — no son audiencias Meta en vivo. Verifica siempre en Meta Ads Manager.
+              <i data-lucide="info"></i>
+              <strong>No es descubrimiento de productos.</strong> Checklist estática offline para inspirar targeting en Meta Ads Manager.
+              Los tamaños/afinidad son referencias curadas, no datos en vivo de Meta. Verifica siempre en Ads Manager.
             </p>
             <div class="prompt-config-card" style="margin-bottom: 1.5rem;">
               <div class="config-inputs-grid" style="grid-template-columns: 1fr auto;">
                 <div class="input-field-group">
-                  <label for="meta-interest-search-input"><i data-lucide="search"></i> Buscar por Nicho o Palabra Clave</label>
+                  <label for="meta-interest-search-input"><i data-lucide="search"></i> Filtrar checklist por nicho o palabra</label>
                   <input type="text" id="meta-interest-search-input" placeholder="Ej: Posture, Skincare, Pets, Yoga, Fitness..." autocomplete="off">
                 </div>
                 <div class="input-field-group" style="display: flex; align-items: flex-end;">
@@ -919,8 +921,8 @@
               </div>
             </div>
 
-            <!-- Interests Grid -->
-            <div id="meta-interests-grid" class="products-grid">
+            <!-- Interests checklist (not product cards) -->
+            <div id="meta-interests-grid" class="meta-interests-list">
               <!-- Dynamically populated from JS -->
             </div>
           </div>

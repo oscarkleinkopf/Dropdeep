@@ -4,13 +4,13 @@
 >
 > **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅. Deploy Pages alineado a **`main`**.
 >
-> **Siguiente ciclo (abierto por fricción founder):** **Descubrimiento real de productos** — [§10](#10-descubrimiento-real-de-productos-t45t50) (T45–T50 ⬜). Listas estáticas / Meta Interests **no** son el camino de discovery.
+> **Siguiente ciclo (abierto por fricción founder):** **Descubrimiento real de productos** — [§10](#10-descubrimiento-real-de-productos-t45t50) (T45–T49; **T50 ✅** UI falsa retirada). Listas estáticas / Meta Interests **no** son el camino de discovery.
 >
 > **Última higiene plan ↔ repo:** 2026-08-05 — cierre T01–T44 + mobile #33; plan T45+ discovery.
 >
 > **Metodología de negocio:** método **Audisio & Domingo** (CLP Chile, Winner, Meta Ads offline, VSL). Ver [§9](#9-metodología-audisio--domingo) — capacidades en T38–T44.
 >
-> Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado · *(§8 = T01–T44 ✅; §10 = T45–T50 ⬜)*.
+> Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado · *(§8 = T01–T44 ✅; §10 = T45–T49 abiertos, T50 ✅)*.
 
 ---
 
@@ -1758,7 +1758,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 ## 8. Índice rápido de tareas
 
-Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45–T50 ⬜ (§10)**
+Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 ✅; T45–T49 abiertos (§10)**
 
 | ID | Título | P | Estado | Nota auditoría 2026-08-05 |
 |----|--------|---|--------|---------------------------|
@@ -1812,7 +1812,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
 | T48 | Pre-filtro Audisio en candidatos | P1 | 🟡 | Incluido en MVP Descubrir (costo pegado); ranking hot-list queda para T45 |
 | T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
-| T50 | Retirar discovery falso de UI | P2 | ⬜ | §10 |
+| T50 | Retirar discovery falso de UI | P2 | ✅ | Home CTA Descubrir; Meta = checklist ads; feed = historial |
 
 ### T51–T62 (roadmap post-evaluación — ver [ROADMAP.md](ROADMAP.md))
 
@@ -2114,24 +2114,24 @@ Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app 
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | ✅ |
 | **Prioridad** | P2 |
 | **Depende** | T46 (o en paralelo tras T46) |
 | **Impacto / Esfuerzo** | Bajo / Bajo |
 
 **Objetivo:** No competir con Descubrir real.
 
-**Pasos:**
-1. Chips de sugerencia hardcodeados en home: reemplazar por “Abrir Descubrir” o quitar.
-2. Meta Hidden Interests: disclaimer más fuerte o mover fuera del camino “encontrar producto”; no presentarlo como tendencias de producto.
-3. Feed inicio: dejar claro que es historial propio, no trending global.
+**Hecho:**
+1. Chips hardcodeados → CTA **Abrir Descubrir** (`.discover-home-cta`); handler de `.suggestion-tag` retirado.
+2. Meta Interests → checklist ads (no product-cards); disclaimer “no es discovery”; Spy copy alineado.
+3. Feed inicio: copy de historial propio + CTA Descubrir en empty state.
 
 ---
 
 ### 10.6 Orden de ejecución
 
 ```
-T45 (AE proxy) → T46 (UI + handoff) → T48 (Audisio rank) → T47 (Trends CL) → T49 (cache/cuota) → T50 (limpiar UI falsa)
+T45 (AE proxy) → T46 (UI + handoff) → T48 (Audisio rank) → T47 (Trends CL) → T49 (cache/cuota) · T50 ✅ (UI falsa retirada)
 ```
 
 T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupuesto SerpAPI.

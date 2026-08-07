@@ -47,8 +47,8 @@ export async function switchView(viewId) {
       const { renderPortfolioList } = await import('./portfolio.js');
       renderPortfolioList();
     } else if (viewId === 'spy-intelligence-view') {
-      const { renderMetaHiddenInterests } = await import('./spy.js');
-      renderMetaHiddenInterests();
+      // T50: no precargar checklist Meta (parece discovery). Solo al abrir ese subtab.
+      /* noop — paneles Spy se hidratan on demand */
     } else if (viewId === 'prompt-hub-view') {
       const { renderPromptHubOutput, setPromptHubMode } = await import('./promptHub.js');
       renderPromptHubOutput({ prefill: true, useReport: true });

@@ -75,7 +75,7 @@ Sé honesto contigo mismo sobre estos límites:
 | **Descubrir** | Pegas URL o ID de AliExpress → pre-filtro Audisio (costo USD) → lanzas Copiloto/API. Sin catálogo Affiliate en vivo aún. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
-| **Spy** | Espionaje competitivo: análisis de URL con Gemini (**inferido por IA**, no scraper HTML; pixel/GA = No verificado), intereses Meta de referencia, y **Auditoría Meta Ads Chile** (offline / Audisio). |
+| **Spy** | Herramientas de ads/competencia (no discovery de productos): análisis de URL con Gemini (**inferido por IA**), **checklist** de intereses Meta para targeting, y **Auditoría Meta Ads Chile** (offline / Audisio). Para encontrar qué vender → **Descubrir**. |
 
 ### Buscador en Inicio
 
@@ -550,9 +550,9 @@ En **Spy → Análisis de URL (Gemini)** pegas la URL de una tienda o producto. 
 | Pixel / TikTok Pixel / GA4 = **No verificado** | No leemos el HTML de la tienda; se ignora cualquier Sí/No inventado por el modelo |
 | Checklist manual | Sin API: copia URL → visita la tienda → anota PVP/gancho → Copiloto o Evaluación manual |
 
-### Spy — Intereses Meta (referencia)
+### Spy — Checklist intereses Meta (ads)
 
-En **Spy → Meta Hidden Interests** el disclaimer está **visible de entrada**: lista **curada offline** para inspiración — **no** son audiencias Meta en vivo. Verifica siempre en Meta Ads Manager antes de gastar presupuesto.
+En **Spy → Checklist intereses Meta (ads)** el disclaimer está **visible de entrada**: checklist **estática offline** para inspirar targeting — **no** es descubrimiento de productos ni audiencias Meta en vivo. Verifica siempre en Meta Ads Manager antes de gastar presupuesto. Para candidatos AliExpress usa **Descubrir**.
 
 ### Auditoría Meta Ads Chile (pestaña Spy)
 

@@ -18,6 +18,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **UI discovery falso retirada (T50):** home sin chips de producto (CTA Descubrir); Spy Meta Interests como checklist de ads (no product-cards ni “tendencias”); feed = historial propio + CTA Descubrir en empty state.
 - **Focus tras calcular:** auditoría Meta Ads y escaneo Spy en `events.js` hacen `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` al contenedor de resultados; también presets Monte Carlo y comparador de titulares en el informe.
 - **Deps (T63):** `npm audit fix` sube `postcss` (8.5.15→8.5.26); Dependabot semanal; `npm audit --audit-level=high` no bloqueante en CI. Remanentes (happy-dom/Playwright/Vite) → T64.
 - **Deploy Pages desde `main`:** el workflow ya no dispara solo en `master` (estaba ~55 commits atrás); dogfooding debe usar el sitio tras el redeploy.

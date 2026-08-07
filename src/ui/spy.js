@@ -329,7 +329,7 @@ Devuelve un JSON estricto sin markdown adicional con las siguientes claves:
   }
 }
 
-// Render Meta Hidden Interests Grid
+// Render Meta interests checklist (ads targeting — not product discovery) T50
 export function renderMetaHiddenInterests(query = '', category = 'all') {
   const grid = document.getElementById('meta-interests-grid');
   if (!grid) return;
@@ -350,14 +350,13 @@ export function renderMetaHiddenInterests(query = '', category = 'all') {
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; color: var(--text-muted);">
-        No se encontraron intereses ocultos para "${escapeHtml(query)}". Intenta buscar con otro nicho.
+      <div class="meta-interest-empty">
+        No hay intereses en la checklist para "${escapeHtml(query)}". Prueba otro filtro de nicho.
       </div>
     `;
     return;
   }
 
-  // Disclaimer stays visible by default (T31); keep class toggle for safety if HTML regresses
   const disclaimer = document.getElementById('meta-interests-disclaimer');
   if (disclaimer) disclaimer.classList.remove('hidden');
 
@@ -369,31 +368,19 @@ export function renderMetaHiddenInterests(query = '', category = 'all') {
       if (item.saturation === 'Alta') satColor = 'score-risky';
 
       return `
-      <div class="product-card" style="position: relative;">
-        <div style="position: absolute; top: 1rem; right: 1rem;">
-          <input type="checkbox" class="meta-interest-checkbox" data-name="${item.name}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-cyan);">
-        </div>
-        <div class="product-card-body" style="padding-top: 0.5rem;">
-          <span class="product-card-category">${item.category.toUpperCase()}</span>
-          <h3 class="product-card-title" style="margin-top: 0.2rem; font-size: 1.1rem; padding-right: 2rem;">${item.name}</h3>
-          <p class="product-card-desc" style="font-size: 0.8rem; margin: 0.4rem 0 0.8rem 0;">${item.description}</p>
-
-          <div class="card-stats-table">
-            <div class="stats-row">
-              <span class="stats-label">Tamaño Audiencia:</span>
-              <span class="stats-val" style="font-weight: 700; color: var(--accent-cyan);">${item.audienceSize}</span>
-            </div>
-            <div class="stats-row">
-              <span class="stats-label">Puntaje Afinidad:</span>
-              <span class="stats-val green" style="font-weight: 700;">${item.affinityScore}%</span>
-            </div>
-            <div class="stats-row">
-              <span class="stats-label">Saturación:</span>
-              <span class="report-badge-status ${satColor}" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">${item.saturation}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <label class="meta-interest-row">
+        <input type="checkbox" class="meta-interest-checkbox" data-name="${escapeHtml(item.name)}" ${isChecked ? 'checked' : ''}>
+        <span class="meta-interest-body">
+          <span class="meta-interest-cat">${escapeHtml(String(item.category || '').toUpperCase())}</span>
+          <span class="meta-interest-name">${escapeHtml(item.name)}</span>
+          <span class="meta-interest-desc">${escapeHtml(item.description)}</span>
+          <span class="meta-interest-meta">
+            <span title="Referencia curada, no live Meta">Ref. audiencia: ${escapeHtml(item.audienceSize)}</span>
+            <span title="Referencia curada, no live Meta">Ref. afinidad: ${escapeHtml(String(item.affinityScore))}%</span>
+            <span class="report-badge-status ${satColor}">${escapeHtml(item.saturation)}</span>
+          </span>
+        </span>
+      </label>
     `;
     })
     .join('');

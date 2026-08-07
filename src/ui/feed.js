@@ -126,10 +126,13 @@ export function renderResearchFeed() {
       <div class="empty-portfolio research-feed-empty">
         <i data-lucide="search" class="empty-icon"></i>
         <h3>Sin investigaciones todavía</h3>
-        <p>Ejecuta Modo Copiloto (gratis), Deep Research con API, o Evaluación manual. Los resultados aparecerán aquí.</p>
+        <p>Este bloque es tu historial (no trending). Ejecuta Modo Copiloto, Deep Research, Evaluación manual, o abre <strong>Descubrir</strong> si aún no tienes nombre de producto.</p>
         <div class="research-feed-empty-actions">
           <button type="button" class="btn btn-primary btn-glow" id="research-feed-cta">
             <i data-lucide="zap"></i> Ir al buscador
+          </button>
+          <button type="button" class="btn btn-secondary" id="research-feed-discover-cta">
+            <i data-lucide="compass"></i> Abrir Descubrir
           </button>
           <button type="button" class="btn btn-secondary hidden" id="wizard-feed-cta">
             <i data-lucide="rocket"></i> Configurar primer producto
@@ -140,6 +143,11 @@ export function renderResearchFeed() {
     document.getElementById('research-feed-cta')?.addEventListener('click', () => {
       document.getElementById('search-input')?.focus();
       document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    document.getElementById('research-feed-discover-cta')?.addEventListener('click', async () => {
+      const { switchView } = await import('./navigation.js');
+      switchView('discover-view');
+      document.getElementById('discover-url-input')?.focus();
     });
     if (typeof lucide !== 'undefined') lucide.createIcons();
     updateWizardVisibility();
