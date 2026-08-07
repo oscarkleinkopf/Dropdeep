@@ -1,11 +1,23 @@
 import { parseAliExpressInput } from '../discovery/parseAliExpress.js';
 import { prefilterAliExpressCandidate } from '../discovery/audisioPrefilter.js';
+import {
+  enrichAliExpressCandidate,
+  enrichSourceLabel,
+} from '../discovery/enrichAliExpress.js';
 import { runResearchDirect } from '../research/flow.js';
 import { switchView } from './navigation.js';
 import { refreshIcons } from '../utils/icons.js';
 import { getStoredFxClpPerUsd } from '../research/pricingAudisio.js';
+import { showToast } from '../utils/toast.js';
+import { getGeminiRoute } from '../config/geminiRoute.js';
+import { isAuthenticated } from '../auth/auth.js';
+import { isAuthConfigured } from '../auth/supabaseClient.js';
 
 let lastCandidate = null;
+/** @type {AbortController | null} */
+let enrichAbort = null;
+/** Tracks which inputs were auto-filled so we don't overwrite user edits. */
+let autofillState = { title: false, cost: false, image: false };
 
 export function initDiscover() {
   const form = document.getElementById('discover-form');
@@ -18,9 +30,11 @@ export function initDiscover() {
   });
 
   document.getElementById('discover-cost-input')?.addEventListener('input', () => {
+    autofillState.cost = false;
     if (lastCandidate) renderCandidateCard(lastCandidate);
   });
   document.getElementById('discover-title-input')?.addEventListener('input', () => {
+    autofillState.title = false;
     if (lastCandidate) renderCandidateCard(lastCandidate);
   });
   document.getElementById('discover-retail-input')?.addEventListener('input', () => {
@@ -38,6 +52,139 @@ export function initDiscover() {
       window.open(lastCandidate.productUrl, '_blank', 'noopener,noreferrer');
     }
   });
+  document.getElementById('discover-enrich-retry-btn')?.addEventListener('click', () => {
+    if (lastCandidate) startEnrichment(lastCandidate);
+  });
+}
+
+function setEnrichStatus(kind, message) {
+  const el = document.getElementById('discover-enrich-status');
+  if (!el) return;
+  el.dataset.kind = kind || 'idle';
+  el.textContent = message || '';
+  el.classList.toggle('hidden', !message);
+}
+
+function setFieldProvenance(field, source) {
+  const el = document.getElementById(`discover-${field}-provenance`);
+  if (!el) return;
+  if (!source) {
+    el.textContent = '';
+    el.classList.add('hidden');
+    return;
+  }
+  el.textContent = enrichSourceLabel(source);
+  el.classList.remove('hidden');
+}
+
+function applyAutofill(enrichment) {
+  const titleInput = document.getElementById('discover-title-input');
+  const costInput = document.getElementById('discover-cost-input');
+  const imgEl = document.getElementById('discover-candidate-image');
+  const imgWrap = document.getElementById('discover-candidate-media');
+
+  if (
+    enrichment.title &&
+    titleInput &&
+    (!titleInput.value.trim() || autofillState.title)
+  ) {
+    titleInput.value = enrichment.title;
+    autofillState.title = true;
+    setFieldProvenance('title', enrichment.sources?.title || 'url-hint');
+  } else if (titleInput?.value.trim() && !autofillState.title) {
+    setFieldProvenance('title', null);
+  } else if (enrichment.sources?.title) {
+    setFieldProvenance('title', enrichment.sources.title);
+  }
+
+  if (
+    enrichment.costUsd != null &&
+    costInput &&
+    (!costInput.value.trim() || autofillState.cost)
+  ) {
+    costInput.value = String(enrichment.costUsd);
+    autofillState.cost = true;
+    setFieldProvenance('cost', enrichment.sources?.cost || 'og-meta');
+  } else if (costInput?.value.trim() && !autofillState.cost) {
+    setFieldProvenance('cost', null);
+  } else if (enrichment.sources?.cost) {
+    setFieldProvenance('cost', enrichment.sources.cost);
+  }
+
+  if (enrichment.imageUrl && imgEl && imgWrap) {
+    imgEl.src = enrichment.imageUrl;
+    imgEl.alt = enrichment.title || 'Producto AliExpress (imagen no verificada)';
+    imgWrap.classList.remove('hidden');
+    autofillState.image = true;
+    setFieldProvenance('image', enrichment.sources?.image || 'og-meta');
+  }
+}
+
+async function startEnrichment(candidate) {
+  enrichAbort?.abort();
+  enrichAbort = new AbortController();
+  const { signal } = enrichAbort;
+
+  const canEdge = isAuthConfigured && isAuthenticated();
+  const canGemini = getGeminiRoute() === 'byok';
+
+  if (!canEdge && !canGemini && !candidate.titleHint) {
+    setEnrichStatus(
+      'idle',
+      'Sin sesión ni BYOK: completa título y costo a mano (o inicia sesión para meta pública).',
+    );
+    return;
+  }
+
+  setEnrichStatus(
+    'loading',
+    canEdge
+      ? 'Enriqueciendo desde meta pública…'
+      : canGemini
+        ? 'Enriqueciendo con Gemini BYOK (inferido)…'
+        : 'Usando sugerencia de URL…',
+  );
+
+  try {
+    const result = await enrichAliExpressCandidate(candidate, { signal });
+    if (signal.aborted) return;
+
+    lastCandidate = {
+      ...candidate,
+      titleHint: result.title || candidate.titleHint,
+      imageUrl: result.imageUrl || null,
+      enrichSources: result.sources || {},
+      enrichedAt: new Date().toISOString(),
+    };
+
+    applyAutofill(result);
+    renderCandidateCard(lastCandidate);
+
+    if (result.filled) {
+      const parts = [];
+      if (result.sources?.title) parts.push('título');
+      if (result.sources?.cost) parts.push('costo');
+      if (result.sources?.image) parts.push('imagen');
+      setEnrichStatus(
+        'ok',
+        `Campos sugeridos (${parts.join(', ') || 'parcial'}) — No verificado · no es Affiliate. Confirma en AliExpress.`,
+      );
+      showToast('Descubrir: campos sugeridos (no verificados). Revisa antes de investigar.', 'info');
+    } else {
+      setEnrichStatus(
+        'empty',
+        'No se pudo auto-rellenar. Completa título/costo a mano — el flujo manual sigue igual.',
+      );
+    }
+  } catch (err) {
+    if (err?.name === 'AbortError') return;
+    setEnrichStatus(
+      'error',
+      'Enriquecimiento no disponible. Completa los campos a mano.',
+    );
+  } finally {
+    refreshIcons();
+  }
 }
 
 function handleParse() {
@@ -48,11 +195,13 @@ function handleParse() {
 
   if (!result.ok) {
     lastCandidate = null;
+    enrichAbort?.abort();
     if (errEl) {
       errEl.textContent = result.error;
       errEl.classList.remove('hidden');
     }
     card?.classList.add('hidden');
+    setEnrichStatus('idle', '');
     return;
   }
 
@@ -61,13 +210,24 @@ function handleParse() {
     errEl.classList.add('hidden');
   }
 
-  // Nuevo parse: limpiar inputs del candidato anterior (fricción T51)
+  autofillState = { title: false, cost: false, image: false };
   const titleInput = document.getElementById('discover-title-input');
   const costInput = document.getElementById('discover-cost-input');
   const retailInput = document.getElementById('discover-retail-input');
+  const imgWrap = document.getElementById('discover-candidate-media');
+  const imgEl = document.getElementById('discover-candidate-image');
   if (titleInput) titleInput.value = result.titleHint || '';
   if (costInput) costInput.value = '';
   if (retailInput) retailInput.value = '';
+  if (imgWrap) imgWrap.classList.add('hidden');
+  if (imgEl) {
+    imgEl.removeAttribute('src');
+    imgEl.alt = '';
+  }
+  setFieldProvenance('title', result.titleHint ? 'url-hint' : null);
+  setFieldProvenance('cost', null);
+  setFieldProvenance('image', null);
+  if (result.titleHint) autofillState.title = true;
 
   lastCandidate = {
     source: 'aliexpress-paste',
@@ -81,6 +241,7 @@ function handleParse() {
   renderCandidateCard(lastCandidate);
   card?.classList.remove('hidden');
   refreshIcons();
+  startEnrichment(lastCandidate);
 }
 
 function currentTitle() {

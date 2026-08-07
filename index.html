@@ -748,8 +748,8 @@
             <h2>Pega un producto de <span class="gradient-text">AliExpress</span></h2>
             <p>
               Mientras esperamos la API Affiliate oficial, pegas la <strong>URL o el ID</strong> del producto.
-              Completas costo (USD) para el <strong>pre-filtro Audisio</strong> y lanzas la investigación (Copiloto o API).
-              No es un catálogo “trending” en vivo — es discovery honesto desde un producto real que ya viste.
+              DropDeep intentará <strong>sugerir</strong> título / costo / imagen (meta pública o Gemini BYOK) con badge
+              <strong>No verificado</strong> — nunca como dato Affiliate. Confirmas, aplicas el <strong>pre-filtro Audisio</strong> y lanzas la investigación.
             </p>
           </header>
 
@@ -772,23 +772,32 @@
           </form>
 
           <div id="discover-candidate" class="discover-candidate hidden">
-            <div class="discover-candidate-meta">
-              <span id="discover-source-badge" class="discover-source-badge">Pegado AliExpress</span>
-              <p>ID: <strong id="discover-candidate-id">—</strong></p>
-              <p>
-                Enlace:
-                <a id="discover-candidate-url" href="#" target="_blank" rel="noopener noreferrer">—</a>
-              </p>
+            <div class="discover-candidate-top">
+              <div id="discover-candidate-media" class="discover-candidate-media hidden">
+                <img id="discover-candidate-image" class="discover-candidate-image" alt="">
+                <span id="discover-image-provenance" class="discover-field-provenance hidden"></span>
+              </div>
+              <div class="discover-candidate-meta">
+                <span id="discover-source-badge" class="discover-source-badge">Pegado AliExpress</span>
+                <p>ID: <strong id="discover-candidate-id">—</strong></p>
+                <p>
+                  Enlace:
+                  <a id="discover-candidate-url" href="#" target="_blank" rel="noopener noreferrer">—</a>
+                </p>
+                <p id="discover-enrich-status" class="discover-enrich-status hidden" role="status" data-kind="idle"></p>
+              </div>
             </div>
 
             <div class="discover-fields">
               <div class="discover-field">
                 <label for="discover-title-input">Nombre del producto (para investigar)</label>
                 <input type="text" id="discover-title-input" placeholder="Ej: Botella UV con sensor" autocomplete="off">
+                <span id="discover-title-provenance" class="discover-field-provenance hidden"></span>
               </div>
               <div class="discover-field">
                 <label for="discover-cost-input">Costo AliExpress (USD)</label>
                 <input type="number" id="discover-cost-input" min="0" step="0.01" placeholder="ej. 8.50" inputmode="decimal">
+                <span id="discover-cost-provenance" class="discover-field-provenance hidden"></span>
               </div>
               <div class="discover-field">
                 <label for="discover-retail-input">PVP estimado (USD, opcional)</label>
@@ -801,6 +810,9 @@
             <div class="discover-actions">
               <button type="button" class="btn btn-secondary" id="discover-open-ae-btn">
                 <i data-lucide="external-link"></i> Abrir en AliExpress
+              </button>
+              <button type="button" class="btn btn-secondary" id="discover-enrich-retry-btn">
+                <i data-lucide="refresh-cw"></i> Reintentar sugerencias
               </button>
               <button type="button" class="btn btn-secondary" id="discover-manual-btn">
                 <i data-lucide="clipboard-check"></i> Evaluación rápida
@@ -815,11 +827,11 @@
             <h3>Cómo usarlo</h3>
             <ol>
               <li>En AliExpress copia el enlace del producto (o el número largo del ID).</li>
-              <li>Pégalo aquí → completa el <strong>costo en USD</strong> que ves en la ficha.</li>
-              <li><strong>Investigar</strong> abre Copiloto/API con ese nombre y la URL como proveedor.</li>
+              <li>Pégalo aquí → DropDeep sugiere campos si puede (sesión para meta pública, o BYOK Gemini).</li>
+              <li>Revisa costo/título (son <strong>no verificados</strong>) → <strong>Investigar</strong>.</li>
             </ol>
             <p class="discover-aside-note">
-              Cuando Portals / Open Platform aprueben la App Key, esta vista podrá listar hot products automáticamente (T45). Hasta entonces: pegado manual, sin fingir tendencias.
+              Cuando Portals / Open Platform aprueben la App Key, esta vista podrá listar hot products automáticamente (T45). Hasta entonces: pegado + enriquecimiento honesto, sin fingir Affiliate.
             </p>
           </aside>
         </div>

@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Enriquecer Descubrir (T53):** tras pegar URL/ID, sugiere título/costo/imagen con badge **No verificado** (slug URL → Edge `discover-enrich` meta pública → Gemini BYOK). No usa cuota proxy ni Affiliate. Flujo manual intacto si falla.
 - **Code splitting (T52):** entry JS ~17 KB (gzip ~5); chunks `view-report`, portfolio/spy/prompt-hub/export/copilot/discover; vendors separados (supabase/lucide/dompurify/gemini); Chart.js sigue lazy.
 - **Seguridad XSS (T65):** `escapeHtml` / `escapeDeep` / `safeHref` / `data-copy` seguro; **DOMPurify** para HTML de Gemini (Shopify, bloques de conversión); toasts con `textContent`. Tests en `tests/sanitize.test.js`.
 - **Restablecer en simulaciones:** botón secundario junto a Calcular/Auditar/Comparar (auditoría Meta, Monte Carlo, titulares A/B y calculadora de ads). Restaura valores numéricos por defecto y limpia la tarjeta de resultados.

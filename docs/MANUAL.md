@@ -72,7 +72,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Pestaña | Qué hace |
 |---------|----------|
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
-| **Descubrir** | Pegas URL o ID de AliExpress → pre-filtro Audisio (costo USD) → lanzas Copiloto/API. Sin catálogo Affiliate en vivo aún. |
+| **Descubrir** | Pegas URL o ID de AliExpress → sugiere título/costo/imagen (**No verificado**; meta pública o Gemini BYOK) → pre-filtro Audisio → Copiloto/API. Sin catálogo Affiliate en vivo aún. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
 | **Spy** | Herramientas de ads/competencia (no discovery de productos): análisis de URL con Gemini (**inferido por IA**), **checklist** de intereses Meta para targeting, y **Auditoría Meta Ads Chile** (offline / Audisio). Para encontrar qué vender → **Descubrir**. |
@@ -95,11 +95,16 @@ Botones secundarios:
 
 1. Copia el enlace del producto en AliExpress (o el ID numérico largo).
 2. En **Descubrir** → **Analizar enlace** (valida host e ID).
-3. Completa el **costo en USD** (y PVP opcional) para ver el **pre-filtro Audisio** (banda CLP, margen bruto).
-4. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API (la URL se trata como proveedor AliExpress en los prompts).
-5. **Evaluación rápida** abre la rúbrica manual con ese nombre.
+3. DropDeep **sugiere** título / costo / imagen si puede:
+   - slug de la URL (siempre, offline);
+   - meta pública vía Edge `discover-enrich` (sesión iniciada);
+   - Gemini **BYOK** (no usa cuota proxy) si faltan campos.
+   Cada sugerencia lleva badge **No verificado** — **nunca** se presenta como Affiliate oficial. Si falla, el flujo manual sigue igual.
+4. Revisa el **costo en USD** (y PVP opcional) para el **pre-filtro Audisio**.
+5. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API.
+6. **Evaluación rápida** abre la rúbrica manual con ese nombre.
 
-Esto **no** descarga hot lists ni Trends; es el MVP mientras llega la App Key Affiliate (plan T45).
+Esto **no** descarga hot lists ni Trends; es el MVP mientras llega la App Key Affiliate (plan T45). Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
 
 ### Ajustes (icono engranaje)
 
