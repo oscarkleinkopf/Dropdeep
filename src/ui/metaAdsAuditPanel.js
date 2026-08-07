@@ -137,19 +137,16 @@ export function renderMetaAdsAuditResults() {
   `;
 }
 
-export function initMetaAdsAuditPanel() {
-  const runBtn = document.getElementById('meta-audit-run-btn');
-  if (!runBtn || runBtn.dataset.bound === '1') return;
-  runBtn.dataset.bound = '1';
-  runBtn.addEventListener('click', () => renderMetaAdsAuditResults());
+/** Prefill PVP/costo desde el informe activo (CLP vía FX guardado). */
+export function prefillMetaAdsAuditFromReport() {
+  prefillFromReport();
+}
 
-  document.getElementById('meta-audit-prefill-btn')?.addEventListener('click', () => {
-    prefillFromReport();
-    renderMetaAdsAuditResults();
-  });
+/** Bindings de botones viven en `src/events.js` (scroll a resultados). */
+export function initMetaAdsAuditPanel() {
+  /* no-op: listeners en setupEventListeners */
 }
 
 export function showMetaAdsAuditPanel() {
-  initMetaAdsAuditPanel();
   prefillFromReport();
 }

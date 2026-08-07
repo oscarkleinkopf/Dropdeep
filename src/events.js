@@ -13,7 +13,11 @@ import {
   setActiveVerticalPack,
 } from './ui/promptHub.js';
 import { runCompetitorStoreScan, renderMetaHiddenInterests } from './ui/spy.js';
-import { showMetaAdsAuditPanel } from './ui/metaAdsAuditPanel.js';
+import {
+  showMetaAdsAuditPanel,
+  renderMetaAdsAuditResults,
+  prefillMetaAdsAuditFromReport,
+} from './ui/metaAdsAuditPanel.js';
 import { initGeminiKeyBanner, onGeminiKeySaved, openSettingsModal, closeSettingsModal, populateSettingsForm, saveSettingsFromForm } from './ui/geminiKeyBanner.js';
 import { updateOnboardingPanel, markPromptHubDone } from './ui/onboarding.js';
 import { upsertProfilePrefs } from './auth/profile.js';
@@ -178,6 +182,26 @@ export function setupEventListeners() {
     });
   }
 
+  // Meta Ads Audit form — render metrics then focus results
+  const metaAuditRunBtn = document.getElementById('meta-audit-run-btn');
+  if (metaAuditRunBtn) {
+    metaAuditRunBtn.addEventListener('click', () => {
+      renderMetaAdsAuditResults();
+      const resultContainer = document.getElementById('meta-audit-results');
+      resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
+  const metaAuditPrefillBtn = document.getElementById('meta-audit-prefill-btn');
+  if (metaAuditPrefillBtn) {
+    metaAuditPrefillBtn.addEventListener('click', () => {
+      prefillMetaAdsAuditFromReport();
+      renderMetaAdsAuditResults();
+      const resultContainer = document.getElementById('meta-audit-results');
+      resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
   // Competitor URL Scan Button
   const runCompScanBtn = document.getElementById('run-competitor-analysis-btn');
   if (runCompScanBtn) {
@@ -185,6 +209,8 @@ export function setupEventListeners() {
       const urlInput = document.getElementById('competitor-url-analysis-input');
       const url = urlInput ? urlInput.value.trim() : '';
       runCompetitorStoreScan(url);
+      const resultContainer = document.getElementById('competitor-analysis-results');
+      resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
   }
 
