@@ -1,6 +1,7 @@
 import { getCurrentUserId } from '../auth/auth.js';
 import { state } from '../state.js';
 import { showToast } from '../utils/toast.js';
+import { e } from '../utils/sanitize.js';
 import { switchView } from './navigation.js';
 import {
   verticalPacks,
@@ -79,9 +80,9 @@ function renderVerticalStep() {
   grid.innerHTML = verticalPacks
     .map(
       (pack) => `
-    <button type="button" class="wizard-vertical-card ${wizardState.verticalId === pack.id ? 'active' : ''}" data-vertical-id="${pack.id}">
-      <span class="wizard-vertical-emoji">${pack.emoji}</span>
-      <span class="wizard-vertical-name">${pack.name}</span>
+    <button type="button" class="wizard-vertical-card ${wizardState.verticalId === pack.id ? 'active' : ''}" data-vertical-id="${e(pack.id)}">
+      <span class="wizard-vertical-emoji">${e(pack.emoji)}</span>
+      <span class="wizard-vertical-name">${e(pack.name)}</span>
     </button>`
     )
     .join('');
@@ -131,8 +132,8 @@ function renderWizardStep() {
     const summary = document.getElementById('wizard-summary');
     if (summary) {
       summary.innerHTML = `
-        <p><strong>Vertical:</strong> ${pack.emoji} ${pack.name}</p>
-        <p><strong>Producto:</strong> ${wizardState.productName || '(sin nombre — solo copiar pack)'}</p>
+        <p><strong>Vertical:</strong> ${e(pack.emoji)} ${e(pack.name)}</p>
+        <p><strong>Producto:</strong> ${e(wizardState.productName || '(sin nombre — solo copiar pack)')}</p>
       `;
     }
     syncWizardActionAvailability();

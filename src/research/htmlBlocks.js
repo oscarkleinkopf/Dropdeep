@@ -1,7 +1,9 @@
+import { escapeHtml } from '../utils/sanitize.js';
+
 // High-Converting HTML Page Builder Blocks Generator for Shopify & WooCommerce
 
 export function generateHTMLConversionBlocks(report) {
-  const name = report.name || "Producto Destacado";
+  const name = escapeHtml(report.name || "Producto Destacado");
   const retail = typeof report.retail === 'number' ? report.retail : (parseFloat(report.retail) || 39.99);
 
   // 1. Comparison Table HTML (Our Solution vs Traditional Solutions)

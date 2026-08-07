@@ -143,7 +143,7 @@ DropDeep cumple la promesa central del tier gratis: **Copiloto Express (1 pegado
 |-------|---------|---------|
 | Entrada HTML | `index.html` | Shell, modales (auth **fuera** de app), vistas; Chart/Lucide vía Vite (T22, sin CDN) |
 | Bootstrap | `src/main.js` | Auth, onboarding, wizard, toggles modo/ruta, copiloto, eval manual, sync historial, `icons.js` |
-| Eventos | `src/events.js` | Navegación, búsqueda, portafolio, Prompt Hub, Spy, export, ajustes |
+| Eventos | `src/events.js` + `src/events/*` | Orquestador fino; navegación, portafolio/export, Prompt Hub, Spy, ajustes (T66) |
 | Estado | `src/state.js` | Portafolio localStorage, reporte activo, selección comparar |
 
 ### Rutas de investigación
@@ -1831,6 +1831,8 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T62 | País/moneda parametrizable | P3 | ⬜ |
 | T63 | Higiene deps + Dependabot + CI audit | P1 | ✅ | postcss fix; audit no bloqueante |
 | T64 | Bump mayor Vite/Vitest/happy-dom/PW | P2 | ⬜ | Rama aparte; ver ROADMAP |
+| T65 | XSS / sanitize innerHTML críticos | P0 | ✅ | sanitize.js + report/toast/feed/wizard |
+| T66 | Partir events.js en módulos | P1 | ✅ | src/events/* + orquestador fino |
 
 ---
 

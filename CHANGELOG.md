@@ -8,11 +8,13 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Seguridad XSS (T65):** escape HTML / URLs / `data-copy` en informe, toasts, feed y wizard (`src/utils/sanitize.js` + tests).
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.
 - **Dogfooding T51 (cierre):** E2E de 3 productos (Descubrir→informe→feedback); limpia campos al re-parsear; leyenda de colores Audisio.
 
 ### Cambiado
 
+- **Eventos (T66):** `src/events.js` partido en módulos (`navigation`, `portfolioExport`, `spy`, `settings`, `promptHub`); la API pública `setupEventListeners` se mantiene.
 - **Deps (T63):** `npm audit fix` sube `postcss` (8.5.15→8.5.26); Dependabot semanal; `npm audit --audit-level=high` no bloqueante en CI. Remanentes (happy-dom/Playwright/Vite) → T64.
 - **Deploy Pages desde `main`:** el workflow ya no dispara solo en `master` (estaba ~55 commits atrás); dogfooding debe usar el sitio tras el redeploy.
 - **Ops T20 en prod:** migración `005` + redeploy `gemini-proxy` aplicados ([Actions](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319)); PLAN actualizado — siguiente ciclo = dogfooding.

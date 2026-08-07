@@ -22,7 +22,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 Fase A (ahora)     dogfood T51 · code-split T52 · nota negocio T61 · deps T63✅ (bump mayor → T64)
 Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50 UI
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
-Fase D (calidad)   report extract T56 · WebKit E2E T57 · RLS checklist T58 · CSP T59
+Fase D (calidad)   XSS/sanitize T65✅ · events split T66✅ · report extract T56 · WebKit E2E T57 · RLS T58 · CSP T59
 Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
 ```
 
@@ -219,7 +219,7 @@ Solo diseño/ADR primero; no hardcodear MX/AR sin señales.
 | 5 | **T45 → T49** | Cuando App Key exista |
 | 6 | **T54**, **T55** | Datos para priorizar |
 | 7 | **T47** | Solo si T55 + presupuesto lo justifican |
-| 8 | **T56–T59** | Mantenibilidad |
+| 8 | **T56–T59** | Mantenibilidad (T65/T66 ya ✅) |
 | 9 | **T62** | Si hay señal de expansión |
 
 ---
@@ -247,6 +247,8 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 | T62 | País/moneda parametrizable | P3 | E | ⬜ |
 | T63 | Higiene deps (audit fix + Dependabot + CI) | P1 | A | ✅ |
 | T64 | Bump mayor Vite/Vitest/happy-dom/Playwright | P2 | D | ⬜ |
+| T65 | XSS / sanitize innerHTML críticos | P0 | D | ✅ |
+| T66 | Partir `events.js` en módulos | P1 | D | ✅ |
 
 T45–T50: ver [PLAN §8](PLAN-MEJORAS.md#8-índice-rápido-de-tareas) y §10.
 
@@ -281,5 +283,29 @@ T45–T50: ver [PLAN §8](PLAN-MEJORAS.md#8-índice-rápido-de-tareas) y §10.
 - `@playwright/test` 1.51 → ≥1.55.1 (SSL download)
 
 **Criterio:** `npm test` + `npm run test:e2e` + `npm run build` verdes; changelog de breaking changes revisado. **No** usar `npm audit fix --force` a ciegas en `main`.
+
+---
+
+## T65 — XSS / sanitización de sinks `innerHTML`
+
+| | |
+|--|--|
+| **Estado** | ✅ |
+| **Prioridad** | P0 |
+| **Origen** | Revisión arquitectura (2026-08) |
+
+**Hecho:** `src/utils/sanitize.js` (`escapeHtml`/`e`, `safeUrl`/`safeHref`, `dataCopyAttr`, `escapeDeep`); informe (`report.js` + preview Shopify/HTML blocks), toasts, feed, wizard; tests en `tests/sanitize.test.js`. URLs de proveedores vía `safeHref`. `data-copy` con encode + escape.
+
+---
+
+## T66 — Partir `events.js` en módulos
+
+| | |
+|--|--|
+| **Estado** | ✅ |
+| **Prioridad** | P1 |
+| **Origen** | Revisión arquitectura (mantenibilidad; complementa T56) |
+
+**Hecho:** `src/events.js` orquesta; listeners en `src/events/{navigation,portfolioExport,spy,settings,promptHub}.js`. `main.js` sigue importando `setupEventListeners` desde `./events.js`.
 
 *(T60 reservado / no usado.)*

@@ -3,6 +3,7 @@ import { listCacheEntries } from '../research/cache.js';
 import { runResearchDirect } from '../research/flow.js';
 import { openDeepResearchReport } from './report.js';
 import { calculateProductScore } from '../research/scoring.js';
+import { e } from '../utils/sanitize.js';
 import { showToast } from '../utils/toast.js';
 import { updateWizardVisibility } from './firstProductWizard.js';
 import { getStoredCopilotSession } from '../research/copilotFlow.js';
@@ -45,7 +46,7 @@ export function renderCopilotResumeBanner() {
     <div class="copilot-resume-banner-inner">
       <div>
         <strong>Investigación copiloto en progreso</strong>
-        <p>«${stored.productName}» — paso ${stored.currentStepIndex + 1} de ${stored.steps.length}. Puedes retomar o descartar.</p>
+        <p>«${e(stored.productName)}» — paso ${stored.currentStepIndex + 1} de ${stored.steps.length}. Puedes retomar o descartar.</p>
       </div>
       <div class="copilot-resume-banner-actions">
         <button type="button" class="btn btn-primary btn-sm" id="copilot-resume-btn">
@@ -164,10 +165,10 @@ export function renderResearchFeed() {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <div class="product-card-badge">${sourceLabel}${sourceBadge}${isDraft ? ' · Borrador' : ''}${modeLabel}</div>
+      <div class="product-card-badge">${e(sourceLabel)}${e(sourceBadge)}${isDraft ? ' · Borrador' : ''}${e(modeLabel)}</div>
       <div class="product-card-body">
-        <span class="product-card-category">${report?.categoryId?.toUpperCase() || 'INVESTIGACIÓN'}</span>
-        <h3 class="product-card-title">${name}</h3>
+        <span class="product-card-category">${e(report?.categoryId?.toUpperCase() || 'INVESTIGACIÓN')}</span>
+        <h3 class="product-card-title">${e(name)}</h3>
         <div class="card-stats-table">
           <div class="stats-row">
             <span class="stats-label">Product Score:</span>
@@ -179,20 +180,22 @@ export function renderResearchFeed() {
           </div>
           <div class="stats-row">
             <span class="stats-label">Fecha:</span>
-            <span class="stats-val">${savedAt}</span>
+            <span class="stats-val">${e(savedAt)}</span>
           </div>
         </div>
         <div class="product-card-footer" style="display:flex; gap:0.5rem; flex-wrap:wrap">
-          <button class="btn btn-primary open-report-btn" data-product-name="${name}" ${report ? '' : 'disabled'}>
+          <button class="btn btn-primary open-report-btn" ${report ? '' : 'disabled'}>
             <i data-lucide="file-text"></i> Reabrir reporte
           </button>
-          <button class="btn btn-secondary rerun-research-btn" data-product-name="${name}">
+          <button class="btn btn-secondary rerun-research-btn">
             <i data-lucide="refresh-cw"></i> Re-investigar
           </button>
         </div>
       </div>
     `;
     feed.appendChild(card);
+    card.querySelector('.open-report-btn')?.setAttribute('data-product-name', name);
+    card.querySelector('.rerun-research-btn')?.setAttribute('data-product-name', name);
   });
 
   feed.querySelectorAll('.open-report-btn').forEach((btn) => {
