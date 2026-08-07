@@ -7,6 +7,7 @@ import {
 } from '../data/verticalPacks.js';
 import { showToast } from '../utils/toast.js';
 import { escapeHtml } from '../utils/sanitize.js';
+import { copyToClipboardWithFeedback } from './clipboard.js';
 
 // PROMPT HUB STATE & GENERATOR ENGINE
 export let promptHubState = {
@@ -296,24 +297,28 @@ export function renderVerticalPacksPanel() {
     tab.classList.toggle('active', tab.getAttribute('data-vertical-id') === pack.id);
   });
 
-  container.querySelector('#copy-vertical-pack-btn')?.addEventListener('click', () => {
+  container.querySelector('#copy-vertical-pack-btn')?.addEventListener('click', async (e) => {
     const text = formatPackForCopy(pack, productName);
-    navigator.clipboard.writeText(text).then(() => {
-      showToast(`Pack "${pack.name}" copiado al portapapeles.`, 'success');
+    const ok = await copyToClipboardWithFeedback(e.currentTarget, text);
+    if (ok) {
       document.dispatchEvent(new CustomEvent('dropdeep:prompt-copied'));
-    });
+    } else {
+      showToast('Error al copiar al portapapeles.', 'error');
+    }
   });
 
   container.querySelectorAll('.copy-vertical-prompt-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const idx = parseInt(btn.getAttribute('data-prompt-index'), 10);
       const prompt = pack.prompts[idx];
       if (!prompt) return;
       const text = personalizePromptText(prompt.text, productName, pack.name);
-      navigator.clipboard.writeText(text).then(() => {
-        showToast(`Prompt "${prompt.title}" copiado.`, 'success');
+      const ok = await copyToClipboardWithFeedback(btn, text);
+      if (ok) {
         document.dispatchEvent(new CustomEvent('dropdeep:prompt-copied'));
-      });
+      } else {
+        showToast('Error al copiar al portapapeles.', 'error');
+      }
     });
   });
 }

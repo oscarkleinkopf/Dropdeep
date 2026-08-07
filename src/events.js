@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { showToast } from './utils/toast.js';
 import { switchView } from './ui/navigation.js';
+import { copyToClipboardWithFeedback } from './ui/clipboard.js';
 import { runResearchDirect, runCopilotResearch, runManualEvaluationFlow } from './research/flow.js';
 import { switchReportTab } from './ui/report.js';
 import { toggleSaveProduct, renderPortfolioList, openProductComparison } from './ui/portfolio.js';
@@ -213,12 +214,13 @@ export function setupEventListeners() {
   // Copy Selected Meta Interests Button
   const copyMetaBtn = document.getElementById('copy-selected-interests-btn');
   if (copyMetaBtn) {
-    copyMetaBtn.addEventListener('click', () => {
+    copyMetaBtn.addEventListener('click', async () => {
       if (state.selectedMetaInterests.length === 0) return;
       const formattedText = state.selectedMetaInterests.join(', ');
-      navigator.clipboard.writeText(formattedText).then(() => {
-        showToast(`${state.selectedMetaInterests.length} intereses copiados al portapapeles.`, "success");
-      });
+      const ok = await copyToClipboardWithFeedback(copyMetaBtn, formattedText);
+      if (!ok) {
+        showToast('Error al copiar al portapapeles.', 'error');
+      }
     });
   }
 
@@ -391,17 +393,19 @@ export function setupEventListeners() {
   // Copy Single Prompt Button
   const copySinglePromptBtn = document.getElementById('copy-single-prompt-btn');
   if (copySinglePromptBtn) {
-    copySinglePromptBtn.addEventListener('click', () => {
+    copySinglePromptBtn.addEventListener('click', async () => {
       if (!promptHubState.promptData) {
         renderPromptHubOutput();
       }
       const activeText = promptHubState.promptData['step' + promptHubState.activeStep];
       if (activeText) {
-        navigator.clipboard.writeText(activeText).then(() => {
-          showToast(`Prompt de la Fase ${promptHubState.activeStep} copiado al portapapeles.`, "success");
+        const ok = await copyToClipboardWithFeedback(copySinglePromptBtn, activeText);
+        if (ok) {
           markPromptHubDone();
           updateOnboardingPanel();
-        });
+        } else {
+          showToast('Error al copiar al portapapeles.', 'error');
+        }
       }
     });
   }
@@ -409,17 +413,19 @@ export function setupEventListeners() {
   // Copy All Prompts Button
   const copyAllPromptsBtn = document.getElementById('copy-all-prompts-btn');
   if (copyAllPromptsBtn) {
-    copyAllPromptsBtn.addEventListener('click', () => {
+    copyAllPromptsBtn.addEventListener('click', async () => {
       if (!promptHubState.promptData) {
         renderPromptHubOutput();
       }
       const allText = promptHubState.promptData.allInOne;
       if (allText) {
-        navigator.clipboard.writeText(allText).then(() => {
-          showToast("Mega System Prompt Completo (All-in-One) copiado al portapapeles.", "success");
+        const ok = await copyToClipboardWithFeedback(copyAllPromptsBtn, allText);
+        if (ok) {
           markPromptHubDone();
           updateOnboardingPanel();
-        });
+        } else {
+          showToast('Error al copiar al portapapeles.', 'error');
+        }
       }
     });
   }
