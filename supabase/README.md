@@ -71,6 +71,8 @@ Requiere sesión (JWT). Si la función no está desplegada, Descubrir sigue con 
 ```bash
 export SUPABASE_ACCESS_TOKEN=sbp_...
 supabase functions deploy discover-enrich --project-ref texzlizelxavrybkdjdj
+# o: bash scripts/deploy-discover-enrich.sh
+# o: GitHub Actions → "Deploy discover-enrich (T53)" → Run workflow
 ```
 
 En la UI: tras **Analizar enlace**, el cliente intenta meta pública (logueado) y, si faltan campos y hay BYOK, Gemini inferido. Los campos llevan badge **No verificado**.
