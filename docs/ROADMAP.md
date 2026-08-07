@@ -22,7 +22,7 @@ No hay fechas de calendario: el orden es de dependencia y riesgo.
 Fase A (ahora)     dogfood T51 · code-split T52 · nota negocio T61 · deps T63✅ (bump mayor → T64)
 Fase B (paralelo)  Portals → T45→T49 · enriquecer paste T53 · T50 UI
 Fase C (datos)     feedback sync T54 · analítica T55 → decide T47
-Fase D (calidad)   report extract T56 · WebKit E2E T57 · RLS checklist T58 · CSP T59
+Fase D (calidad)   report extract T56 · events split T66 (diferido) · WebKit E2E T57 · RLS checklist T58 · CSP T59
 Fase E (opcional)  país país T62 · monetización review T61 (solo doc)
 ```
 
@@ -219,7 +219,7 @@ Solo diseño/ADR primero; no hardcodear MX/AR sin señales.
 | 5 | **T45 → T49** | Cuando App Key exista |
 | 6 | **T54**, **T55** | Datos para priorizar |
 | 7 | **T47** | Solo si T55 + presupuesto lo justifican |
-| 8 | **T56–T59** | Mantenibilidad |
+| 8 | **T56–T59**, **T66** | Mantenibilidad (T66 diferido) |
 | 9 | **T62** | Si hay señal de expansión |
 
 ---
@@ -247,6 +247,7 @@ Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app
 | T62 | País/moneda parametrizable | P3 | E | ⬜ |
 | T63 | Higiene deps (audit fix + Dependabot + CI) | P1 | A | ✅ |
 | T64 | Bump mayor Vite/Vitest/happy-dom/Playwright | P2 | D | ⬜ |
+| T66 | Partir `events.js` en módulos (`src/events/*`) | P2 | D | ⬜ | diferido — ver nota abajo |
 
 T45–T50: ver [PLAN §8](PLAN-MEJORAS.md#8-índice-rápido-de-tareas) y §10.
 
@@ -282,4 +283,19 @@ T45–T50: ver [PLAN §8](PLAN-MEJORAS.md#8-índice-rápido-de-tareas) y §10.
 
 **Criterio:** `npm test` + `npm run test:e2e` + `npm run build` verdes; changelog de breaking changes revisado. **No** usar `npm audit fix --force` a ciegas en `main`.
 
-*(T60 reservado / no usado.)*
+---
+
+## T66 — Partir `events.js` (mantenibilidad, diferido)
+
+| | |
+|--|--|
+| **Estado** | ⬜ diferido |
+| **Prioridad** | P2 |
+| **Origen** | Revisión arquitectura (2026-08); confirmado “tener presente para más adelante” |
+| **No hacer** | Capa `src/controllers/` ni “routerController” (no hay router SPA). Las calculadoras/simuladores ya se bindean en `report.js` / `metaAdsAuditPanel.js`. |
+
+**Objetivo (cuando toque):** Orquestador fino `setupEventListeners()` + módulos en `src/events/` (p. ej. `navigation`, `promptHub`, `spy`, `settings`, `portfolioExport`). Sin mover lógica de dominio.
+
+**Criterio:** Misma API pública (`import { setupEventListeners } from './events.js'`); `npm test` + build verdes.
+
+*(T60 reservado / no usado. T65 = XSS/sanitize si se agenda aparte.)*
