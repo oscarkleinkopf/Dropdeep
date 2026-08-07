@@ -8,8 +8,10 @@ import {
   setGeminiPref
 } from '../utils/geminiStorage.js';
 import { showToast } from '../utils/toast.js';
+import { escapeHtml } from '../utils/sanitize.js';
 import { isGeminiProxyEnabled, refreshProxyUsageUI } from '../research/geminiProxy.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
+import { testGeminiConnection } from '../research/testGeminiConnection.js';
 import { updateOnboardingPanel } from './onboarding.js';
 import { bindModalA11y } from '../utils/modalA11y.js';
 
@@ -18,11 +20,61 @@ const DISMISS_KEY = 'dropdeep_gemini_banner_dismissed';
 export { hasGeminiKey };
 
 let releaseSettingsA11y = null;
+let connectionTestBound = false;
+
+function setConnectionStatus(kind, message) {
+  const el = document.getElementById('gemini-connection-status');
+  if (!el) return;
+  if (!kind) {
+    el.innerHTML = '';
+    return;
+  }
+  const safe = escapeHtml(message);
+  if (kind === 'ok') {
+    el.innerHTML = `<span class="gemini-connection-badge gemini-connection-badge--ok"><i data-lucide="check-circle" style="width:14px;height:14px"></i> ${safe}</span>`;
+  } else if (kind === 'pending') {
+    el.innerHTML = `<span class="gemini-connection-badge gemini-connection-badge--pending">${safe}</span>`;
+  } else {
+    el.innerHTML = `<span class="gemini-connection-badge gemini-connection-badge--error">${safe}</span>`;
+  }
+  if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+    lucide.createIcons();
+  }
+}
+
+function bindGeminiConnectionTest() {
+  if (connectionTestBound) return;
+  const btn = document.getElementById('gemini-test-connection-btn');
+  if (!btn) return;
+  connectionTestBound = true;
+
+  btn.addEventListener('click', async () => {
+    const key = document.getElementById('gemini-key-input')?.value.trim() || '';
+    const model = document.getElementById('gemini-model-select')?.value || getGeminiModel();
+    setConnectionStatus('pending', 'Probando conexión…');
+    btn.disabled = true;
+    try {
+      const result = await testGeminiConnection(key, model);
+      if (result.ok && result.status === 200) {
+        setConnectionStatus('ok', 'Conexión válida');
+      } else {
+        setConnectionStatus('error', result.message || 'Clave inválida o error de conexión.');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('gemini-key-input')?.addEventListener('input', () => {
+    setConnectionStatus('', '');
+  });
+}
 
 export function openSettingsModal() {
   const settingsModal = document.getElementById('settings-modal');
   if (!settingsModal) return;
   settingsModal.classList.remove('hidden');
+  setConnectionStatus('', '');
   releaseSettingsA11y?.();
   releaseSettingsA11y = bindModalA11y(settingsModal, {
     onClose: closeSettingsModal,
@@ -51,6 +103,8 @@ export function updateGeminiKeyBanner() {
 }
 
 export function initGeminiKeyBanner() {
+  bindGeminiConnectionTest();
+
   const banner = document.getElementById('gemini-key-banner');
   if (!banner) return;
 

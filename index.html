@@ -1066,7 +1066,11 @@
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem">
               <div>
                 <label for="gemini-key-input" style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem">Gemini API Key:</label>
-                <input type="password" id="gemini-key-input" name="gemini-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); font-size:0.9rem" autocomplete="off" spellcheck="false">
+                <div class="gemini-key-input-row">
+                  <input type="password" id="gemini-key-input" name="gemini-api-key" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+                  <button type="button" class="btn btn-secondary" id="gemini-test-connection-btn">Probar Conexión</button>
+                </div>
+                <div id="gemini-connection-status" class="gemini-connection-status" role="status" aria-live="polite"></div>
                 <p id="gemini-key-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4">
                   <strong>Privacidad BYOK:</strong> la clave <em>no se envía a DropDeep</em>. Solo viaja a Google (<code>generativelanguage.googleapis.com</code>) desde tu navegador, o al proxy Supabase si usas sesión sin BYOK. Se guarda en <code>localStorage</code> de este dispositivo.
                 </p>
