@@ -1831,6 +1831,8 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T45�
 | T62 | País/moneda parametrizable | P3 | ⬜ |
 | T63 | Higiene deps + Dependabot + CI audit | P1 | ✅ | postcss fix; audit no bloqueante |
 | T64 | Bump mayor Vite/Vitest/happy-dom/PW | P2 | ⬜ | Rama aparte; ver ROADMAP |
+| T65 | XSS / sanitize innerHTML + DOMPurify | P0 | ✅ | escapeDeep + DOMPurify en Gemini HTML |
+| T66 | Partir events.js en módulos | P1 | ⬜ | Diferido; preferible `src/events/*` cuando toque T56 |
 
 ---
 

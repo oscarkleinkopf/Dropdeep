@@ -8,6 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Seguridad XSS (T65):** `escapeHtml` / `escapeDeep` / `safeHref` / `data-copy` seguro; **DOMPurify** para HTML de Gemini (Shopify, bloques de conversión); toasts con `textContent`. Tests en `tests/sanitize.test.js`.
 - **Descubrir (MVP AliExpress):** pestaña para pegar URL/ID de producto, pre-filtro Audisio con costo USD y CTA **Investigar** → Copiloto/API (sin App Key Affiliate aún). Chips de sugerencias estáticas reemplazados por acceso a Descubrir.
 - **Dogfooding T51 (cierre):** E2E de 3 productos (Descubrir→informe→feedback); limpia campos al re-parsear; leyenda de colores Audisio.
 
