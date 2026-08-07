@@ -1948,7 +1948,7 @@ export function renderReportContent() {
   `;
 
   // Bind Monte Carlo recalculations
-  const updateMonteCarloUI = () => {
+  const updateMonteCarloUI = ({ focusResults = false } = {}) => {
     const mcContainer = container.querySelector('#mc-results-container');
     const planContainer = container.querySelector('#mc-test-plan-container');
     if (!mcContainer) return;
@@ -2017,11 +2017,16 @@ export function renderReportContent() {
         </div>
       </div>
     `;
+
+    if (focusResults) {
+      const resultContainer = mcContainer;
+      resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   };
 
   ['#mc-budget', '#mc-cpc', '#mc-conv', '#mc-aov', '#mc-cost'].forEach(id => {
     const inputEl = container.querySelector(id);
-    if (inputEl) inputEl.addEventListener('input', updateMonteCarloUI);
+    if (inputEl) inputEl.addEventListener('input', () => updateMonteCarloUI());
   });
 
   container.querySelectorAll('.mc-budget-preset').forEach((btn) => {
@@ -2030,7 +2035,7 @@ export function renderReportContent() {
       const val = btn.getAttribute('data-mc-budget');
       if (budgetInput && val) {
         budgetInput.value = val;
-        updateMonteCarloUI();
+        updateMonteCarloUI({ focusResults: true });
       }
     });
   });
@@ -2285,6 +2290,8 @@ export function renderReportContent() {
         container.querySelector('#ab-verdict-text').innerHTML = verdict;
         lucide.createIcons();
         showToast('Comparación heurística finalizada', 'success');
+        const resultContainer = resultsPanel;
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 300);
     });
   }

@@ -14,6 +14,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Focus tras calcular:** auditoría Meta Ads y escaneo Spy en `events.js` hacen `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` al contenedor de resultados; también presets Monte Carlo y comparador de titulares en el informe.
 - **Deps (T63):** `npm audit fix` sube `postcss` (8.5.15→8.5.26); Dependabot semanal; `npm audit --audit-level=high` no bloqueante en CI. Remanentes (happy-dom/Playwright/Vite) → T64.
 - **Deploy Pages desde `main`:** el workflow ya no dispara solo en `master` (estaba ~55 commits atrás); dogfooding debe usar el sitio tras el redeploy.
 - **Ops T20 en prod:** migración `005` + redeploy `gemini-proxy` aplicados ([Actions](https://github.com/oscarkleinkopf/Dropdeep/actions/runs/31020853319)); PLAN actualizado — siguiente ciclo = dogfooding.
