@@ -1,6 +1,7 @@
-# Exclude OAuth client credentials from Cursor indexing / sync
+# Secrets / credentials — never index or sync by default
 client_secret_*.json
 **/client_secret_*.json
+*.pem
 .env
 .env.*
 !.env.example

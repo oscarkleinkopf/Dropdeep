@@ -9,6 +9,7 @@ Thumbs.db
 .vite/
 *.local
 
-# Google OAuth client credentials — never commit or sync by default
+# Secrets / credentials — never commit or sync by default
 client_secret_*.json
 **/client_secret_*.json
+*.pem
