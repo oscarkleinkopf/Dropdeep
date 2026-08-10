@@ -1,0 +1,8 @@
+# Exclude OAuth client credentials from Cursor indexing / sync
+client_secret_*.json
+**/client_secret_*.json
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
