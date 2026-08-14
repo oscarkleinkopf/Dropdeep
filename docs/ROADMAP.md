@@ -226,6 +226,10 @@ Solo diseño/ADR primero; no hardcodear MX/AR sin señales.
 
 Spy Opción B, Stripe, TikTok scrapers, FX en vivo, CRDT, i18n UI, mockup in-app, CapCut/ElevenLabs automatizados.
 
+### Referencia de ranking (no dependencia)
+
+[x-algorithm](https://github.com/xai-org/x-algorithm) (feed For You de X, Apache-2.0): patrón *fuentes → filtros → score ponderado → top-K*. Útil como analogía para rankear candidatos Affiliate **después de T45/T48** (oferta AE + prefiltro Audisio; más adelante Trends CL). **No** clonar, no integrar, no sustituye Affiliate API ni Audisio.
+
 ---
 
 ## Índice T51+
