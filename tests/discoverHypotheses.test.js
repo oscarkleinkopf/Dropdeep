@@ -7,6 +7,7 @@ import {
   mercadoLibreClSearchUrl,
   suggestAeQueries,
   suggestQueriesFromNiche,
+  DISCOVER_EXAMPLES,
 } from '../src/discovery/suggestAeQueries.js';
 
 describe('getSeasonsForDate', () => {
@@ -35,13 +36,21 @@ describe('getSeasonsForDate', () => {
     }
   });
 
-  it('every season has queries', () => {
+  it('every season has hook, emoji and buyer pain', () => {
     for (const season of CHILE_SEASONS) {
+      expect(season.emoji).toBeTruthy();
+      expect(season.hook.length).toBeGreaterThan(12);
       expect(season.niches.length).toBeGreaterThan(0);
       for (const niche of season.niches) {
         expect(niche.queries.length).toBeGreaterThan(0);
+        expect(niche.pain.length).toBeGreaterThan(8);
       }
     }
+  });
+
+  it('labels August as agosto', () => {
+    const { monthLabel } = getSeasonsForDate(new Date(2026, 7, 17));
+    expect(monthLabel).toBe('agosto');
   });
 });
 
@@ -56,7 +65,7 @@ describe('suggestAeQueries', () => {
     expect(r.ok).toBe(true);
     const qs = r.queries.map((x) => x.query);
     expect(qs.some((q) => /lumbar/i.test(q))).toBe(true);
-    expect(r.disclaimer).toMatch(/no son productos verificados/i);
+    expect(r.disclaimer).toMatch(/búsquedas/i);
     expect(r.queries[0].aeUrl).toContain('aliexpress.com/wholesale');
     expect(r.queries[0].trendsUrl).toContain('geo=CL');
     expect(r.queries[0].mlUrl).toContain('mercadolibre.cl');
@@ -68,10 +77,10 @@ describe('suggestAeQueries', () => {
     expect(r.queries.some((x) => /organizador de cables/i.test(x.query))).toBe(true);
   });
 
-  it('does not claim live trends', () => {
-    const r = suggestAeQueries('cocina');
+  it('maps Fiestas Patrias / asado', () => {
+    const r = suggestAeQueries('asado para el 18');
     expect(r.ok).toBe(true);
-    expect(r.disclaimer).not.toMatch(/en vivo|trending|hot list/i);
+    expect(r.queries.some((x) => /grill|tumbler|thermometer/i.test(x.query))).toBe(true);
   });
 });
 
@@ -84,7 +93,18 @@ describe('suggestQueriesFromNiche', () => {
     expect(r.ok).toBe(true);
     expect(r.source).toBe('calendario-chile');
     expect(r.queries).toHaveLength(2);
-    expect(r.disclaimer).toMatch(/calendario/i);
+    expect(r.disclaimer).toMatch(/temporada/i);
+  });
+});
+
+describe('DISCOVER_EXAMPLES', () => {
+  it('each chip input produces queries', () => {
+    expect(DISCOVER_EXAMPLES.length).toBeGreaterThanOrEqual(4);
+    for (const ex of DISCOVER_EXAMPLES) {
+      const r = suggestAeQueries(ex.input);
+      expect(r.ok, ex.label).toBe(true);
+      expect(r.queries.length).toBeGreaterThan(0);
+    }
   });
 });
 

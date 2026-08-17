@@ -85,7 +85,7 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 | T48 | Pre-filtro Audisio hot-list | 🟡 parcial en paste |
 | T49 | Caché / cuota discovery | ⬜ tras T45 |
 | T50 | Retirar discovery falso de UI | ✅ home CTA Descubrir; Meta = checklist ads; feed = historial |
-| T67 | Hipótesis Chile + queries AE (gratis) | ✅ calendario + Sugerir búsquedas; T45 sigue bloqueado |
+| T67 | Hipótesis Chile + queries AE (gratis) | ✅ embudo 3 pasos + temporada; T45 sigue bloqueado |
 
 ### T53 — Enriquecer Descubrir sin Affiliate
 

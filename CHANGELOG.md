@@ -8,7 +8,7 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
-- **Descubrir — hipótesis Chile:** temporada del mes (y “Se viene”) con **Ver búsquedas**, o un problema → **Sugerir búsquedas**. Cada consulta abre AliExpress, Google Trends CL y Mercado Libre. No es ranking en vivo ni catálogo Affiliate. El pegado de URL/ID sigue igual.
+- **Descubrir — hipótesis Chile (T67):** temporada del mes, problema o chips de ejemplo → búsquedas AliExpress / Trends CL / Mercado Libre. No es ranking en vivo ni Affiliate. El pegado de URL/ID sigue igual.
 
 - **Enriquecer Descubrir (T53):** tras pegar URL/ID, sugiere título/costo/imagen con badge **No verificado** (slug URL → Edge `discover-enrich` meta pública → Gemini BYOK). No usa cuota proxy ni Affiliate. Flujo manual intacto si falla.
 - **Code splitting (T52):** entry JS ~17 KB (gzip ~5); chunks `view-report`, portfolio/spy/prompt-hub/export/copilot/discover; vendors separados (supabase/lucide/dompurify/gemini); Chart.js sigue lazy.
@@ -21,6 +21,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Descubrir (T67, pulido):** embudo en 3 pasos (Hipótesis → Buscar en AE → Pegar listing). Nichos con dolor del comprador, **Armar búsquedas**, CTA **Buscar en AliExpress**, checklist Audisio (caja de zapatos / costo) y “Se viene” plegado. Home: **¿Qué vender este mes?**
 - **UI discovery falso retirada (T50):** home sin chips de producto (CTA Descubrir); Spy Meta Interests como checklist de ads (no product-cards ni “tendencias”); feed = historial propio + CTA Descubrir en empty state.
 - **Focus tras calcular:** auditoría Meta Ads y escaneo Spy en `events.js` hacen `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` al contenedor de resultados; también presets Monte Carlo y comparador de titulares en el informe.
 - **Deps (T63):** `npm audit fix` sube `postcss` (8.5.15→8.5.26); Dependabot semanal; `npm audit --audit-level=high` no bloqueante en CI. Remanentes (happy-dom/Playwright/Vite) → T64.

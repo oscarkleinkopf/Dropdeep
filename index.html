@@ -285,7 +285,7 @@
               </div>
             </form>
             <div class="discover-home-cta">
-              <span class="discover-home-cta-label">¿Sin nombre aún?</span>
+              <span class="discover-home-cta-label">¿Qué vender este mes?</span>
               <button type="button" class="btn btn-secondary btn-sm" id="open-discover-from-home" title="Temporada Chile o pegar URL de AliExpress">
                 <i data-lucide="compass"></i> Abrir Descubrir
               </button>
@@ -743,52 +743,58 @@
           <header class="discover-header">
             <div class="hub-title-badge" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35); color: var(--accent-cyan)">
               <i data-lucide="compass"></i>
-              <span>DESCUBRIR · HIPÓTESIS + ALIEXPRESS</span>
+              <span>DESCUBRIR</span>
             </div>
-            <h2>Encuentra una <span class="gradient-text">búsqueda</span>, luego pega el listing</h2>
+            <h2>¿Qué podría vender <span class="gradient-text">este mes</span> en Chile?</h2>
             <p>
-              Primero una <strong>hipótesis</strong> (temporada Chile o un problema). DropDeep te da
-              <strong>consultas para AliExpress</strong> — no un ranking en vivo ni productos inventados.
-              Abres AE, eliges un listing y pegas la <strong>URL o el ID</strong> abajo. Título/costo/imagen
-              llevan badge <strong>No verificado</strong>.
+              Elige una hipótesis, abre AliExpress con una búsqueda lista y pega el listing.
+              DropDeep no inventa productos “hot”: te arma el camino para elegir tú.
             </p>
+            <p class="discover-honesty-badge">Calendario comercial e hipótesis — no es ranking en vivo ni Affiliate.</p>
           </header>
+
+          <ol class="discover-stepper" id="discover-stepper" aria-label="Pasos para descubrir">
+            <li data-step="1" class="is-current"><span>1</span> Hipótesis</li>
+            <li data-step="2"><span>2</span> Buscar en AE</li>
+            <li data-step="3"><span>3</span> Pegar listing</li>
+          </ol>
 
           <section class="discover-hypotheses" id="discover-hypotheses" aria-labelledby="discover-hypotheses-title">
             <div class="discover-hypotheses-head">
-              <h3 id="discover-hypotheses-title">Temporada Chile</h3>
-              <p class="discover-hypotheses-disclaimer">
-                Calendario comercial — <strong>no es ranking en vivo</strong> ni Google Trends. Sirve para armar búsquedas.
-              </p>
+              <h3 id="discover-hypotheses-title">1. Elige una hipótesis</h3>
+              <p class="discover-now-kicker" id="discover-now-kicker">Temporada Chile</p>
             </div>
             <div id="discover-season-active" class="discover-season-grid" aria-live="polite"></div>
-            <div id="discover-season-upcoming-wrap" class="discover-season-upcoming hidden">
-              <h4 class="discover-season-subhead">Se viene</h4>
+            <details id="discover-season-upcoming-wrap" class="discover-upcoming hidden">
+              <summary class="discover-season-subhead">Se viene — prepara con 4–6 semanas</summary>
               <div id="discover-season-upcoming" class="discover-season-grid"></div>
-            </div>
+            </details>
 
             <form id="discover-query-form" class="discover-query-form" novalidate>
-              <label class="discover-label" for="discover-problem-input">O escribe un problema / nicho</label>
+              <label class="discover-label" for="discover-problem-input">O parte de un problema real</label>
               <div class="discover-url-row">
                 <input
                   type="text"
                   id="discover-problem-input"
                   class="discover-url-input"
-                  placeholder="Ej: dolor lumbar en la oficina, organizar cocina, pelo de gato"
+                  placeholder="Ej: dolor lumbar en la oficina"
                   autocomplete="off"
                   maxlength="120"
                 >
                 <button type="submit" class="btn btn-primary" id="discover-query-btn">
-                  <i data-lucide="search"></i> Sugerir búsquedas
+                  <i data-lucide="search"></i> Armar búsquedas
                 </button>
               </div>
+              <div id="discover-example-chips" class="discover-example-chips" role="group" aria-label="Ejemplos de problema"></div>
               <p id="discover-query-error" class="discover-parse-error hidden" role="alert"></p>
             </form>
 
             <div id="discover-query-results" class="discover-query-results hidden" aria-live="polite"></div>
           </section>
 
-          <h3 class="discover-paste-heading" id="discover-paste-heading">Ya tienes un listing</h3>
+          <section class="discover-paste-panel" id="discover-paste-panel" aria-labelledby="discover-paste-heading">
+          <h3 class="discover-paste-heading" id="discover-paste-heading">3. Pega el listing de AliExpress</h3>
+          <p class="discover-paste-lead">Copia el enlace del <strong>producto</strong> (no de la categoría). Luego pre-filtro Audisio e Investigar.</p>
           <form id="discover-form" class="discover-form" novalidate>
             <label class="discover-label" for="discover-url-input">URL o ID de producto AliExpress</label>
             <div class="discover-url-row">
@@ -859,18 +865,10 @@
             </div>
           </div>
 
-          <aside class="discover-aside" aria-label="Notas">
-            <h3>Cómo usarlo</h3>
-            <ol>
-              <li>Elige una temporada o escribe un problema → <strong>Sugerir búsquedas</strong>.</li>
-              <li>Abre <strong>AliExpress</strong> (opcional: Trends CL o Mercado Libre para contrastar demanda/saturación).</li>
-              <li>Copia el enlace o el ID del listing y pégalo abajo → DropDeep sugiere campos si puede.</li>
-              <li>Revisa costo/título (<strong>no verificados</strong>) → <strong>Investigar</strong>.</li>
-            </ol>
-            <p class="discover-aside-note">
-              No hay catálogo Affiliate todavía (T45, App Key). Las búsquedas son hipótesis. Trends y Mercado Libre se abren en su sitio oficial — DropDeep no scrapea ni cachea esos rankings.
-            </p>
-          </aside>
+          <p class="discover-aside-note">
+            Trends CL y Mercado Libre se abren en su sitio oficial (no scrapeamos). El catálogo Affiliate automático llega con App Key (T45). Título/costo sugeridos: <strong>No verificado</strong>.
+          </p>
+          </section>
         </div>
       </section>
 

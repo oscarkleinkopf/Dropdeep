@@ -5997,7 +5997,74 @@ body.auth-locked {
   color: var(--text-secondary);
   font-size: 0.95rem;
   line-height: 1.5;
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.discover-honesty-badge {
+  display: inline-block;
+  margin: 0 0 1.25rem !important;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem !important;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--accent-amber) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.discover-stepper {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.35rem;
+  padding: 0;
+}
+
+.discover-stepper li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-height: 36px;
+}
+
+.discover-stepper li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.discover-stepper li.is-current {
+  border-color: rgba(6, 182, 212, 0.55);
+  color: var(--text-light);
+  box-shadow: var(--shadow-neon-cyan);
+}
+
+.discover-stepper li.is-current span {
+  background: var(--accent-cyan);
+  color: #041016;
+}
+
+.discover-stepper li.is-done {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: var(--accent-emerald);
+}
+
+.discover-stepper li.is-done span {
+  background: rgba(16, 185, 129, 0.25);
+  color: var(--accent-emerald);
 }
 
 .discover-form {
@@ -6241,40 +6308,71 @@ body.auth-locked {
   font-size: 0.8rem;
   color: var(--text-muted);
   line-height: 1.4;
+  margin-top: 0.85rem;
 }
 
 .discover-hypotheses {
-  margin: 0 0 1.75rem;
-  padding: 1.1rem 1rem 1.15rem;
-  border: 1px solid var(--border-color);
+  margin: 0 0 1.5rem;
+  padding: 1.2rem 1.05rem 1.2rem;
+  border: 1px solid rgba(6, 182, 212, 0.22);
   border-radius: var(--border-radius-md);
-  background: rgba(6, 182, 212, 0.04);
+  background: linear-gradient(180deg, rgba(6, 182, 212, 0.08), rgba(15, 19, 34, 0.35));
+  box-shadow: var(--shadow-panel);
+}
+
+.discover-hypotheses-head {
+  margin-bottom: 0.85rem;
 }
 
 .discover-hypotheses-head h3,
-.discover-paste-heading {
+.discover-paste-heading,
+.discover-results-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+  margin: 0 0 0.3rem;
   color: var(--text-light);
 }
 
-.discover-hypotheses-disclaimer,
+.discover-now-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+}
+
 .discover-season-why,
 .discover-query-disclaimer,
-.discover-query-next {
-  margin: 0 0 0.85rem;
-  font-size: 0.82rem;
+.discover-paste-lead,
+.discover-query-heading {
+  margin: 0 0 0.7rem;
+  font-size: 0.85rem;
   line-height: 1.45;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+}
+
+.discover-upcoming {
+  margin: 0.85rem 0 0;
+}
+
+.discover-upcoming .discover-season-grid {
+  margin-top: 0.65rem;
 }
 
 .discover-season-subhead {
   font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--text-secondary);
-  margin: 1rem 0 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.discover-season-subhead::-webkit-details-marker {
+  display: none;
 }
 
 .discover-season-grid {
@@ -6283,21 +6381,21 @@ body.auth-locked {
   gap: 0.75rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 720px) {
   .discover-season-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 .discover-season-card {
-  padding: 0.85rem 0.9rem;
+  padding: 0.95rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  background: rgba(0, 0, 0, 0.18);
+  border-radius: var(--border-radius-md);
+  background: rgba(7, 10, 19, 0.55);
 }
 
 .discover-season-card--upcoming {
-  opacity: 0.92;
+  opacity: 0.88;
 }
 
 .discover-season-card-head {
@@ -6306,12 +6404,12 @@ body.auth-locked {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.35rem 0.75rem;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
 }
 
 .discover-season-card-head h4 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   color: var(--text-light);
 }
 
@@ -6322,61 +6420,138 @@ body.auth-locked {
 }
 
 .discover-niche-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
-.discover-niche {
+.discover-niche-chip {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  transition: var(--transition-smooth);
+}
+
+.discover-niche-chip:hover {
+  border-color: rgba(6, 182, 212, 0.45);
+  background: rgba(6, 182, 212, 0.08);
+}
+
+.discover-niche-chip.is-selected {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--shadow-neon-cyan);
+  background: rgba(6, 182, 212, 0.12);
 }
 
 .discover-niche-name {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-light);
 }
 
-.discover-niche-btn {
-  min-height: 44px;
+.discover-niche-pain {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
 }
 
 .discover-query-form {
-  margin-top: 1.1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.discover-example-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.discover-chip {
+  min-height: 36px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.discover-chip:hover {
+  color: var(--accent-cyan);
+  border-color: rgba(6, 182, 212, 0.4);
 }
 
 .discover-query-results {
-  margin-top: 1rem;
+  margin-top: 1.15rem;
+  padding: 1rem 0.95rem 1.1rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.07);
+}
+
+.discover-results-head {
+  margin-bottom: 0.65rem;
+}
+
+.discover-ae-tips {
+  margin: 0 0 0.9rem;
+  padding-left: 1.15rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
 }
 
 .discover-query-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.65rem;
-}
-
-@media (min-width: 640px) {
-  .discover-query-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  margin-bottom: 0.85rem;
 }
 
 .discover-query-card {
-  padding: 0.75rem 0.85rem;
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.8rem 0.85rem;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(7, 10, 19, 0.55);
+}
+
+.discover-query-num {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  margin-top: 0.15rem;
+}
+
+.discover-query-body {
+  min-width: 0;
+  flex: 1;
 }
 
 .discover-query-q {
-  margin: 0 0 0.55rem;
-  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-primary);
   word-break: break-word;
@@ -6385,15 +6560,47 @@ body.auth-locked {
 .discover-query-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
 }
 
 .discover-query-links .btn {
   min-height: 44px;
 }
 
+.discover-query-ghost {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.discover-query-ghost:hover {
+  color: var(--accent-cyan);
+}
+
+.discover-query-results .btn-secondary {
+  min-height: 44px;
+}
+
+.discover-paste-panel {
+  padding: 1.15rem 1.05rem 1.2rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.discover-paste-panel.is-target {
+  border-color: rgba(6, 182, 212, 0.55);
+  box-shadow: var(--shadow-neon-cyan);
+}
+
 .discover-paste-heading {
-  margin: 0 0 0.65rem;
+  margin: 0 0 0.35rem;
 }
 
 .discover-season-empty {

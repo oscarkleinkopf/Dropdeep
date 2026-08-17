@@ -75,6 +75,22 @@ const PHRASE_MAP = [
     keys: ['belleza', 'maquillaje'],
     queries: ['led makeup mirror', 'hair dryer diffuser', 'makeup organizer rotating'],
   },
+  {
+    keys: ['asado', '18 de septiembre', 'fiestas patrias', 'picnic'],
+    queries: ['portable charcoal grill mini', 'meat thermometer wireless', 'insulated tumbler 30oz'],
+  },
+  {
+    keys: ['luz azul', 'pantallas', 'ojos cansados'],
+    queries: ['blue light glasses', 'monitor light bar', 'eye massager'],
+  },
+  {
+    keys: ['unas', 'manicure', 'esmalte'],
+    queries: ['nail drill kit', 'uv nail lamp mini', 'nail art kit'],
+  },
+  {
+    keys: ['once', 'termo', 'mate'],
+    queries: ['insulated tumbler 30oz', 'electric kettle mini', 'tea infuser bottle'],
+  },
 ];
 
 const WORD_MAP = {
@@ -97,7 +113,19 @@ const WORD_MAP = {
   masaje: ['massage gun mini'],
   luz: ['led strip lights'],
   auto: ['car phone holder magnetic'],
+  asado: ['portable charcoal grill mini'],
+  unas: ['nail drill kit'],
+  termo: ['insulated tumbler 30oz'],
 };
+
+/** Chips de ejemplo en Descubrir (input → suggestAeQueries). */
+export const DISCOVER_EXAMPLES = [
+  { label: 'Dolor lumbar', input: 'dolor lumbar en la oficina' },
+  { label: 'Pelo de gato', input: 'pelo de gato en el sofá' },
+  { label: 'Cocina chica', input: 'organizar cocina pequeña' },
+  { label: 'Humedad', input: 'humedad en el closet' },
+  { label: 'Cuello tenso', input: 'dolor de cuello' },
+];
 
 export function stripAccents(text) {
   return String(text || '')
@@ -196,7 +224,7 @@ export function suggestAeQueries(rawInput) {
     source,
     queries,
     disclaimer:
-      'Consultas sugeridas — no son productos verificados ni tendencias de mercado. Abre AliExpress, elige un listing y pégalo abajo.',
+      'Son búsquedas, no productos “hot”. El listing lo eliges tú en AliExpress.',
   };
 }
 
@@ -213,6 +241,6 @@ export function suggestQueriesFromNiche(niche) {
     source: 'calendario-chile',
     queries: uniqueQueries(list).map(buildSearchLinks),
     disclaimer:
-      'Hipótesis de calendario Chile — no es ranking en vivo. Abre AliExpress, elige un listing y pégalo abajo.',
+      'Hipótesis de temporada Chile — no es ranking en vivo. El listing lo eliges tú.',
   };
 }

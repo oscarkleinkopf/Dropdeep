@@ -72,7 +72,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Pestaña | Qué hace |
 |---------|----------|
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
-| **Descubrir** | Temporada Chile o un problema → **consultas AliExpress** (links a AE, Trends CL y Mercado Libre) → pegas URL/ID → sugiere título/costo/imagen (**No verificado**) → pre-filtro Audisio → Copiloto/API. |
+| **Descubrir** | Temporada Chile o un problema → **Armar búsquedas** → **Buscar en AliExpress** (Trends CL / Mercado Libre al lado) → pegas URL/ID → pre-filtro Audisio → Copiloto/API. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
 | **Spy** | Herramientas de ads/competencia (no discovery de productos): análisis de URL con Gemini (**inferido por IA**), **checklist** de intereses Meta para targeting, y **Auditoría Meta Ads Chile** (offline / Audisio). Para encontrar qué vender → **Descubrir**. |
@@ -89,30 +89,31 @@ Botones secundarios:
 
 - **Evaluación manual (sin IA)** — checklist offline.
 - **Generar prompts sin API** — abre Prompt Hub.
-- **Abrir Descubrir** — si aún no tienes nombre: temporada Chile o pega URL/ID del proveedor.
+- **Abrir Descubrir** — si aún no tienes nombre: **¿Qué vender este mes?**
 
 ### Descubrir (hipótesis + AliExpress)
 
-**Paso A — armar búsquedas (gratis, sin API)**
+Flujo en 3 pasos (barra arriba de la vista): **Hipótesis → Buscar en AE → Pegar listing**.
 
-1. En **Descubrir** mira **Temporada Chile** (mes actual y “Se viene”). Cada tarjeta es un **calendario comercial**, no un ranking en vivo.
-2. Pulsa **Ver búsquedas** en un nicho, o escribe un problema (ej. “dolor lumbar en la oficina”) → **Sugerir búsquedas**.
-3. Se listan **consultas** (no productos). Por cada una: **AliExpress**, **Trends CL** (sitio oficial de Google, `geo=CL`) y **Mercado Libre**. DropDeep **no** scrapea ni cachea esos rankings.
-4. En AliExpress elige un listing y copia la URL o el ID.
+**Paso 1 — hipótesis (gratis, sin API)**
 
-**Paso B — pegar el listing (igual que antes)**
+1. En **Descubrir** mira **Temporada Chile · ahora en [mes]**. Cada tarjeta (Invierno, Fiestas Patrias, etc.) es un **calendario comercial**, no un ranking en vivo. El badge **Calendario comercial e hipótesis — no es ranking en vivo ni Affiliate** lo deja explícito.
+2. Toca un nicho (ej. **Asado / picnic**) o escribe un problema (ej. “dolor lumbar en la oficina”) → **Armar búsquedas**. También hay chips de ejemplo (Dolor lumbar, Pelo de gato, Cocina chica…).
+3. **Se viene** (desplegable) muestra temporadas a 4–6 semanas para preparar envíos.
 
-1. En **Ya tienes un listing** → **Analizar enlace** (valida host e ID).
-2. DropDeep **sugiere** título / costo / imagen si puede:
-   - slug de la URL (siempre, offline);
-   - meta pública vía Edge `discover-enrich` (sesión iniciada);
-   - Gemini **BYOK** (no usa cuota proxy) si faltan campos.
-   Cada sugerencia lleva badge **No verificado** — **nunca** se presenta como Affiliate oficial. Si falla, el flujo manual sigue igual.
-3. Revisa el **costo en USD** (y PVP opcional) para el **pre-filtro Audisio**.
-4. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API.
-5. **Evaluación rápida** abre la rúbrica manual con ese nombre.
+**Paso 2 — buscar un listing**
 
-La API Affiliate (hot list / `product.query`) sigue pendiente de App Key (plan T45). Hasta entonces: hipótesis + pegado honesto. Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
+1. Se listan **consultas** (no productos). El botón principal es **Buscar en AliExpress**. **Trends CL** y **Mercado Libre** son links secundarios al sitio oficial; DropDeep **no** scrapea ni cachea esos rankings.
+2. En AliExpress mira: costo USD, que quepa en **caja de zapatos**, pedidos/reseñas y envío a Chile si aparece.
+3. Copia el enlace del **producto** (no de la categoría). **Ya copié el enlace → pegar listing** te lleva al paso 3.
+
+**Paso 3 — pegar e investigar**
+
+1. En **3. Pega el listing de AliExpress** → **Analizar enlace**.
+2. DropDeep **sugiere** título / costo / imagen si puede (slug, meta pública con sesión, o Gemini BYOK). Badge **No verificado**.
+3. Revisa costo/PVP → **pre-filtro Audisio** → **Investigar** o **Evaluación rápida**.
+
+La API Affiliate sigue pendiente de App Key (T45). Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
 
 ### Ajustes (icono engranaje)
 
@@ -434,7 +435,7 @@ Flujo recomendado para principiantes:
 | 12–14 | Revisa el informe. Ajusta costo/precio en la barra de snapshot si tienes datos reales del proveedor. |
 | 14–15 | **Guardar en Portafolio** → **Descargar kit de campaña**. |
 
-**Si aún no tienes producto:** **Descubrir** → **Temporada Chile** o un problema → abre AliExpress → pega el listing → **Investigar**.
+**Si aún no tienes producto:** **Descubrir** → hipótesis de temporada o un problema → **Armar búsquedas** → AliExpress → pega el listing → **Investigar**.
 
 **Complemento opcional (5 min):** **Evaluación manual (sin IA)** con tus criterios reales de margen y proveedores.
 
@@ -707,7 +708,7 @@ Mensajes **reales** de la app y qué hacer:
 
 | Mensaje | Causa | Qué hacer |
 |---------|-------|-----------|
-| *Escribe un problema o nicho (mínimo 3 caracteres).* | El recuadro de hipótesis está vacío o muy corto | Escribe al menos 3 letras o usa **Ver búsquedas** en una temporada |
+| *Escribe un problema o nicho (mínimo 3 caracteres).* | El recuadro de hipótesis está vacío o muy corto | Escribe al menos 3 letras, usa un chip de ejemplo o toca un nicho de temporada |
 | *Pega una URL de AliExpress o un ID de producto.* | Campo de listing vacío | Pega el enlace `/item/….html` o el ID numérico largo |
 | *La URL debe ser de AliExpress…* | Host que no es AliExpress | Copia el enlace desde aliexpress.com (o .us / regional) |
 | Las consultas no son “productos hot” | Así está diseñado | Son **búsquedas**. El listing lo eliges tú en AliExpress |

@@ -8,6 +8,7 @@ import { CHILE_SEASONS, getSeasonsForDate } from '../data/chileSeasonCalendar.js
 import {
   suggestAeQueries,
   suggestQueriesFromNiche,
+  DISCOVER_EXAMPLES,
 } from '../discovery/suggestAeQueries.js';
 import { runResearchDirect } from '../research/flow.js';
 import { switchView } from './navigation.js';
@@ -24,6 +25,8 @@ let lastCandidate = null;
 let enrichAbort = null;
 /** Tracks which inputs were auto-filled so we don't overwrite user edits. */
 let autofillState = { title: false, cost: false, image: false };
+/** @type {string} */
+let selectedNicheKey = '';
 
 export function initDiscover() {
   const form = document.getElementById('discover-form');
@@ -31,6 +34,7 @@ export function initDiscover() {
   form.dataset.bound = '1';
 
   renderSeasonPanels();
+  renderExampleChips();
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -43,14 +47,32 @@ export function initDiscover() {
   });
 
   document.getElementById('discover-hypotheses')?.addEventListener('click', (e) => {
+    const exampleBtn = e.target.closest('[data-example]');
+    if (exampleBtn) {
+      const input = document.getElementById('discover-problem-input');
+      if (input) input.value = exampleBtn.dataset.example || '';
+      selectedNicheKey = '';
+      renderSeasonPanels();
+      handleQuerySuggest();
+      return;
+    }
+    const jump = e.target.closest('#discover-jump-paste');
+    if (jump) {
+      jumpToPaste();
+      return;
+    }
     const btn = e.target.closest('[data-season-id][data-niche-index]');
     if (!btn) return;
     const season = CHILE_SEASONS.find((s) => s.id === btn.dataset.seasonId);
     const niche = season?.niches?.[Number(btn.dataset.nicheIndex)];
     if (!niche) return;
+    selectedNicheKey = `${season.id}:${btn.dataset.nicheIndex}`;
     const problemInput = document.getElementById('discover-problem-input');
-    if (problemInput) problemInput.value = niche.name;
-    showQueryResult(suggestQueriesFromNiche(niche));
+    if (problemInput) problemInput.value = niche.pain || niche.name;
+    renderSeasonPanels();
+    showQueryResult(suggestQueriesFromNiche(niche), {
+      heading: `${season.emoji || ''} ${season.name} · ${niche.name}`.trim(),
+    });
   });
 
   document.getElementById('discover-cost-input')?.addEventListener('input', () => {
@@ -262,6 +284,7 @@ function handleParse() {
     fetchedAt: new Date().toISOString(),
   };
 
+  setDiscoverStep(3);
   renderCandidateCard(lastCandidate);
   card?.classList.remove('hidden');
   refreshIcons();
@@ -363,42 +386,75 @@ async function openManualFromCandidate() {
   openManualEvaluation(title || `AliExpress #${lastCandidate.externalId}`);
 }
 
+function setDiscoverStep(step) {
+  document.querySelectorAll('#discover-stepper li').forEach((el) => {
+    const n = Number(el.dataset.step);
+    el.classList.toggle('is-current', n === step);
+    el.classList.toggle('is-done', n < step);
+  });
+}
+
+function jumpToPaste() {
+  setDiscoverStep(3);
+  const panel = document.getElementById('discover-paste-panel');
+  const input = document.getElementById('discover-url-input');
+  panel?.classList.add('is-target');
+  panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  input?.focus();
+  window.setTimeout(() => panel?.classList.remove('is-target'), 1600);
+}
+
+function renderExampleChips() {
+  const el = document.getElementById('discover-example-chips');
+  if (!el) return;
+  el.innerHTML = DISCOVER_EXAMPLES.map(
+    (ex) =>
+      `<button type="button" class="discover-chip" data-example="${escapeHtml(ex.input)}">${escapeHtml(ex.label)}</button>`,
+  ).join('');
+}
+
 function seasonCardHtml(season, { upcoming = false } = {}) {
   const niches = (season.niches || [])
-    .map(
-      (niche, idx) => `
-        <li class="discover-niche">
+    .map((niche, idx) => {
+      const key = `${season.id}:${idx}`;
+      const selected = key === selectedNicheKey ? ' is-selected' : '';
+      return `
+        <button
+          type="button"
+          class="discover-niche-chip${selected}"
+          data-season-id="${escapeHtml(season.id)}"
+          data-niche-index="${idx}"
+        >
           <span class="discover-niche-name">${escapeHtml(niche.name)}</span>
-          <button
-            type="button"
-            class="btn btn-secondary btn-sm discover-niche-btn"
-            data-season-id="${escapeHtml(season.id)}"
-            data-niche-index="${idx}"
-          >
-            Ver búsquedas
-          </button>
-        </li>`,
-    )
+          ${niche.pain ? `<span class="discover-niche-pain">${escapeHtml(niche.pain)}</span>` : ''}
+        </button>`;
+    })
     .join('');
   return `
     <article class="discover-season-card${upcoming ? ' discover-season-card--upcoming' : ''}">
       <header class="discover-season-card-head">
-        <h4>${escapeHtml(season.name)}</h4>
+        <h4>${escapeHtml(season.emoji || '')} ${escapeHtml(season.name)}</h4>
         <span class="discover-season-window">${escapeHtml(season.windowLabel)}</span>
       </header>
-      <p class="discover-season-why">${escapeHtml(season.why)}</p>
-      <ul class="discover-niche-list">${niches}</ul>
+      <p class="discover-season-why">${escapeHtml(season.hook || season.why || '')}</p>
+      <div class="discover-niche-list">${niches}</div>
     </article>`;
 }
 
 function renderSeasonPanels() {
-  const { active, upcoming } = getSeasonsForDate();
+  const { active, upcoming, monthLabel } = getSeasonsForDate();
+  const kicker = document.getElementById('discover-now-kicker');
+  if (kicker) {
+    kicker.textContent = monthLabel
+      ? `Temporada Chile · ahora en ${monthLabel}`
+      : 'Temporada Chile';
+  }
   const activeEl = document.getElementById('discover-season-active');
   const upcomingEl = document.getElementById('discover-season-upcoming');
   const upcomingWrap = document.getElementById('discover-season-upcoming-wrap');
   if (activeEl) {
     activeEl.innerHTML = active.map((s) => seasonCardHtml(s)).join('')
-      || '<p class="discover-season-empty">No hay temporada marcada este mes — usa el recuadro de problema.</p>';
+      || '<p class="discover-season-empty">No hay temporada marcada este mes — escribe un problema abajo.</p>';
   }
   if (upcomingEl && upcomingWrap) {
     upcomingWrap.classList.toggle('hidden', upcoming.length === 0);
@@ -407,11 +463,13 @@ function renderSeasonPanels() {
 }
 
 function handleQuerySuggest() {
+  selectedNicheKey = '';
+  renderSeasonPanels();
   const raw = document.getElementById('discover-problem-input')?.value || '';
-  showQueryResult(suggestAeQueries(raw));
+  showQueryResult(suggestAeQueries(raw), { heading: raw.trim() || 'Tus búsquedas' });
 }
 
-function showQueryResult(result) {
+function showQueryResult(result, { heading } = {}) {
   const errEl = document.getElementById('discover-query-error');
   const box = document.getElementById('discover-query-results');
   if (!result?.ok) {
@@ -420,6 +478,7 @@ function showQueryResult(result) {
       errEl.classList.remove('hidden');
     }
     box?.classList.add('hidden');
+    setDiscoverStep(1);
     return;
   }
   if (errEl) {
@@ -428,27 +487,44 @@ function showQueryResult(result) {
   }
   if (!box) return;
 
+  setDiscoverStep(2);
+
   const cards = result.queries
-    .map((item) => {
+    .map((item, i) => {
       const ae = safeHref(item.aeUrl);
       const trends = safeHref(item.trendsUrl);
       const ml = safeHref(item.mlUrl);
       return `
         <article class="discover-query-card">
-          <p class="discover-query-q">${escapeHtml(item.query)}</p>
-          <div class="discover-query-links">
-            ${ae ? `<a class="btn btn-primary btn-sm" href="${ae}" target="_blank" rel="noopener noreferrer">AliExpress</a>` : ''}
-            ${trends ? `<a class="btn btn-secondary btn-sm" href="${trends}" target="_blank" rel="noopener noreferrer">Trends CL</a>` : ''}
-            ${ml ? `<a class="btn btn-secondary btn-sm" href="${ml}" target="_blank" rel="noopener noreferrer">Mercado Libre</a>` : ''}
+          <span class="discover-query-num">${i + 1}</span>
+          <div class="discover-query-body">
+            <p class="discover-query-q">${escapeHtml(item.query)}</p>
+            <div class="discover-query-links">
+              ${ae ? `<a class="btn btn-primary btn-sm" href="${ae}" target="_blank" rel="noopener noreferrer">Buscar en AliExpress</a>` : ''}
+              ${trends ? `<a class="discover-query-ghost" href="${trends}" target="_blank" rel="noopener noreferrer">Trends CL</a>` : ''}
+              ${ml ? `<a class="discover-query-ghost" href="${ml}" target="_blank" rel="noopener noreferrer">Mercado Libre</a>` : ''}
+            </div>
           </div>
         </article>`;
     })
     .join('');
 
   box.innerHTML = `
-    <p class="discover-query-disclaimer">${escapeHtml(result.disclaimer)}</p>
+    <div class="discover-results-head">
+      <h3 class="discover-results-title">2. Busca un listing</h3>
+      <p class="discover-query-heading">${escapeHtml(heading || '')}</p>
+      <p class="discover-query-disclaimer">${escapeHtml(result.disclaimer)}</p>
+    </div>
+    <ul class="discover-ae-tips">
+      <li>Costo en USD (banda Audisio: que después del ×2.5 no quede regalado).</li>
+      <li>Que quepa en <strong>caja de zapatos</strong>.</li>
+      <li>Pedidos y reseñas visibles; envío hacia Chile si aparece.</li>
+      <li>Copia el enlace del <strong>producto</strong>, no de la categoría.</li>
+    </ul>
     <div class="discover-query-grid">${cards}</div>
-    <p class="discover-query-next">Elige un listing en AliExpress y pégalo en <strong>Ya tienes un listing</strong>.</p>
+    <button type="button" class="btn btn-secondary" id="discover-jump-paste">
+      Ya copié el enlace → pegar listing
+    </button>
   `;
   box.classList.remove('hidden');
   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -458,7 +534,12 @@ function showQueryResult(result) {
 /** Used when switching to discover-view */
 export function renderDiscover() {
   renderSeasonPanels();
+  renderExampleChips();
   refreshIcons();
-  if (lastCandidate) renderCandidateCard(lastCandidate);
+  if (lastCandidate) {
+    setDiscoverStep(3);
+    renderCandidateCard(lastCandidate);
+  }
 }
+
 
