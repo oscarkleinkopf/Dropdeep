@@ -119,7 +119,7 @@
             <i data-lucide="layout-dashboard" class="nav-icon"></i>
             <span class="nav-link-text">Inicio</span>
           </button>
-          <button class="nav-link" data-target="discover-view" id="nav-discover" title="Descubrir — pegar producto AliExpress" aria-label="Descubrir">
+          <button class="nav-link" data-target="discover-view" id="nav-discover" title="Descubrir — temporada Chile o pegar AliExpress" aria-label="Descubrir">
             <i data-lucide="compass" class="nav-icon"></i>
             <span class="nav-link-text">Descubrir</span>
           </button>
@@ -286,8 +286,8 @@
             </form>
             <div class="discover-home-cta">
               <span class="discover-home-cta-label">¿Sin nombre aún?</span>
-              <button type="button" class="btn btn-secondary btn-sm" id="open-discover-from-home" title="Pegar URL o ID de AliExpress">
-                <i data-lucide="compass"></i> Abrir Descubrir (AliExpress)
+              <button type="button" class="btn btn-secondary btn-sm" id="open-discover-from-home" title="Temporada Chile o pegar URL de AliExpress">
+                <i data-lucide="compass"></i> Abrir Descubrir
               </button>
             </div>
           </div>
@@ -737,22 +737,58 @@
         </div>
       </section>
 
-      <!-- VIEW: DESCUBRIR (paste AliExpress — sin Affiliate API aún) -->
+      <!-- VIEW: DESCUBRIR (hipótesis Chile + paste AliExpress — sin Affiliate API) -->
       <section id="discover-view" class="view-section">
         <div class="discover-container">
           <header class="discover-header">
             <div class="hub-title-badge" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35); color: var(--accent-cyan)">
               <i data-lucide="compass"></i>
-              <span>DESCUBRIR · ALIEXPRESS</span>
+              <span>DESCUBRIR · HIPÓTESIS + ALIEXPRESS</span>
             </div>
-            <h2>Pega un producto de <span class="gradient-text">AliExpress</span></h2>
+            <h2>Encuentra una <span class="gradient-text">búsqueda</span>, luego pega el listing</h2>
             <p>
-              Mientras esperamos la API Affiliate oficial, pegas la <strong>URL o el ID</strong> del producto.
-              DropDeep intentará <strong>sugerir</strong> título / costo / imagen (meta pública o Gemini BYOK) con badge
-              <strong>No verificado</strong> — nunca como dato Affiliate. Confirmas, aplicas el <strong>pre-filtro Audisio</strong> y lanzas la investigación.
+              Primero una <strong>hipótesis</strong> (temporada Chile o un problema). DropDeep te da
+              <strong>consultas para AliExpress</strong> — no un ranking en vivo ni productos inventados.
+              Abres AE, eliges un listing y pegas la <strong>URL o el ID</strong> abajo. Título/costo/imagen
+              llevan badge <strong>No verificado</strong>.
             </p>
           </header>
 
+          <section class="discover-hypotheses" id="discover-hypotheses" aria-labelledby="discover-hypotheses-title">
+            <div class="discover-hypotheses-head">
+              <h3 id="discover-hypotheses-title">Temporada Chile</h3>
+              <p class="discover-hypotheses-disclaimer">
+                Calendario comercial — <strong>no es ranking en vivo</strong> ni Google Trends. Sirve para armar búsquedas.
+              </p>
+            </div>
+            <div id="discover-season-active" class="discover-season-grid" aria-live="polite"></div>
+            <div id="discover-season-upcoming-wrap" class="discover-season-upcoming hidden">
+              <h4 class="discover-season-subhead">Se viene</h4>
+              <div id="discover-season-upcoming" class="discover-season-grid"></div>
+            </div>
+
+            <form id="discover-query-form" class="discover-query-form" novalidate>
+              <label class="discover-label" for="discover-problem-input">O escribe un problema / nicho</label>
+              <div class="discover-url-row">
+                <input
+                  type="text"
+                  id="discover-problem-input"
+                  class="discover-url-input"
+                  placeholder="Ej: dolor lumbar en la oficina, organizar cocina, pelo de gato"
+                  autocomplete="off"
+                  maxlength="120"
+                >
+                <button type="submit" class="btn btn-primary" id="discover-query-btn">
+                  <i data-lucide="search"></i> Sugerir búsquedas
+                </button>
+              </div>
+              <p id="discover-query-error" class="discover-parse-error hidden" role="alert"></p>
+            </form>
+
+            <div id="discover-query-results" class="discover-query-results hidden" aria-live="polite"></div>
+          </section>
+
+          <h3 class="discover-paste-heading" id="discover-paste-heading">Ya tienes un listing</h3>
           <form id="discover-form" class="discover-form" novalidate>
             <label class="discover-label" for="discover-url-input">URL o ID de producto AliExpress</label>
             <div class="discover-url-row">
@@ -826,12 +862,13 @@
           <aside class="discover-aside" aria-label="Notas">
             <h3>Cómo usarlo</h3>
             <ol>
-              <li>En AliExpress copia el enlace del producto (o el número largo del ID).</li>
-              <li>Pégalo aquí → DropDeep sugiere campos si puede (sesión para meta pública, o BYOK Gemini).</li>
-              <li>Revisa costo/título (son <strong>no verificados</strong>) → <strong>Investigar</strong>.</li>
+              <li>Elige una temporada o escribe un problema → <strong>Sugerir búsquedas</strong>.</li>
+              <li>Abre <strong>AliExpress</strong> (opcional: Trends CL o Mercado Libre para contrastar demanda/saturación).</li>
+              <li>Copia el enlace o el ID del listing y pégalo abajo → DropDeep sugiere campos si puede.</li>
+              <li>Revisa costo/título (<strong>no verificados</strong>) → <strong>Investigar</strong>.</li>
             </ol>
             <p class="discover-aside-note">
-              Cuando Portals / Open Platform aprueben la App Key, esta vista podrá listar hot products automáticamente (T45). Hasta entonces: pegado + enriquecimiento honesto, sin fingir Affiliate.
+              No hay catálogo Affiliate todavía (T45, App Key). Las búsquedas son hipótesis. Trends y Mercado Libre se abren en su sitio oficial — DropDeep no scrapea ni cachea esos rankings.
             </p>
           </aside>
         </div>

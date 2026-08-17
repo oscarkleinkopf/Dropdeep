@@ -8,6 +8,8 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Descubrir — hipótesis Chile:** temporada del mes (y “Se viene”) con **Ver búsquedas**, o un problema → **Sugerir búsquedas**. Cada consulta abre AliExpress, Google Trends CL y Mercado Libre. No es ranking en vivo ni catálogo Affiliate. El pegado de URL/ID sigue igual.
+
 - **Enriquecer Descubrir (T53):** tras pegar URL/ID, sugiere título/costo/imagen con badge **No verificado** (slug URL → Edge `discover-enrich` meta pública → Gemini BYOK). No usa cuota proxy ni Affiliate. Flujo manual intacto si falla.
 - **Code splitting (T52):** entry JS ~17 KB (gzip ~5); chunks `view-report`, portfolio/spy/prompt-hub/export/copilot/discover; vendors separados (supabase/lucide/dompurify/gemini); Chart.js sigue lazy.
 - **Seguridad XSS (T65):** `escapeHtml` / `escapeDeep` / `safeHref` / `data-copy` seguro; **DOMPurify** para HTML de Gemini (Shopify, bloques de conversión); toasts con `textContent`. Tests en `tests/sanitize.test.js`.

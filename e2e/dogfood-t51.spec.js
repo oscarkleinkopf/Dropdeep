@@ -63,6 +63,7 @@ test.describe('T51 dogfood 3 productos', () => {
 
       await page.locator('#nav-discover').click();
       await expect(page.locator('#discover-view')).toBeVisible();
+      await expect(page.locator('#discover-hypotheses-title')).toHaveText(/Temporada Chile/i);
 
       await page.locator('#discover-url-input').fill(product.input);
       await page.locator('#discover-parse-btn').click();

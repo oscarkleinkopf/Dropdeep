@@ -4,6 +4,11 @@ import {
   enrichAliExpressCandidate,
   enrichSourceLabel,
 } from '../discovery/enrichAliExpress.js';
+import { CHILE_SEASONS, getSeasonsForDate } from '../data/chileSeasonCalendar.js';
+import {
+  suggestAeQueries,
+  suggestQueriesFromNiche,
+} from '../discovery/suggestAeQueries.js';
 import { runResearchDirect } from '../research/flow.js';
 import { switchView } from './navigation.js';
 import { refreshIcons } from '../utils/icons.js';
@@ -12,6 +17,7 @@ import { showToast } from '../utils/toast.js';
 import { getGeminiRoute } from '../config/geminiRoute.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { isAuthConfigured } from '../auth/supabaseClient.js';
+import { escapeHtml, safeHref } from '../utils/sanitize.js';
 
 let lastCandidate = null;
 /** @type {AbortController | null} */
@@ -24,9 +30,27 @@ export function initDiscover() {
   if (!form || form.dataset.bound === '1') return;
   form.dataset.bound = '1';
 
+  renderSeasonPanels();
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     handleParse();
+  });
+
+  document.getElementById('discover-query-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleQuerySuggest();
+  });
+
+  document.getElementById('discover-hypotheses')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-season-id][data-niche-index]');
+    if (!btn) return;
+    const season = CHILE_SEASONS.find((s) => s.id === btn.dataset.seasonId);
+    const niche = season?.niches?.[Number(btn.dataset.nicheIndex)];
+    if (!niche) return;
+    const problemInput = document.getElementById('discover-problem-input');
+    if (problemInput) problemInput.value = niche.name;
+    showQueryResult(suggestQueriesFromNiche(niche));
   });
 
   document.getElementById('discover-cost-input')?.addEventListener('input', () => {
@@ -339,16 +363,102 @@ async function openManualFromCandidate() {
   openManualEvaluation(title || `AliExpress #${lastCandidate.externalId}`);
 }
 
-function escapeHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+function seasonCardHtml(season, { upcoming = false } = {}) {
+  const niches = (season.niches || [])
+    .map(
+      (niche, idx) => `
+        <li class="discover-niche">
+          <span class="discover-niche-name">${escapeHtml(niche.name)}</span>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm discover-niche-btn"
+            data-season-id="${escapeHtml(season.id)}"
+            data-niche-index="${idx}"
+          >
+            Ver búsquedas
+          </button>
+        </li>`,
+    )
+    .join('');
+  return `
+    <article class="discover-season-card${upcoming ? ' discover-season-card--upcoming' : ''}">
+      <header class="discover-season-card-head">
+        <h4>${escapeHtml(season.name)}</h4>
+        <span class="discover-season-window">${escapeHtml(season.windowLabel)}</span>
+      </header>
+      <p class="discover-season-why">${escapeHtml(season.why)}</p>
+      <ul class="discover-niche-list">${niches}</ul>
+    </article>`;
+}
+
+function renderSeasonPanels() {
+  const { active, upcoming } = getSeasonsForDate();
+  const activeEl = document.getElementById('discover-season-active');
+  const upcomingEl = document.getElementById('discover-season-upcoming');
+  const upcomingWrap = document.getElementById('discover-season-upcoming-wrap');
+  if (activeEl) {
+    activeEl.innerHTML = active.map((s) => seasonCardHtml(s)).join('')
+      || '<p class="discover-season-empty">No hay temporada marcada este mes — usa el recuadro de problema.</p>';
+  }
+  if (upcomingEl && upcomingWrap) {
+    upcomingWrap.classList.toggle('hidden', upcoming.length === 0);
+    upcomingEl.innerHTML = upcoming.map((s) => seasonCardHtml(s, { upcoming: true })).join('');
+  }
+}
+
+function handleQuerySuggest() {
+  const raw = document.getElementById('discover-problem-input')?.value || '';
+  showQueryResult(suggestAeQueries(raw));
+}
+
+function showQueryResult(result) {
+  const errEl = document.getElementById('discover-query-error');
+  const box = document.getElementById('discover-query-results');
+  if (!result?.ok) {
+    if (errEl) {
+      errEl.textContent = result?.error || 'No se pudieron armar búsquedas.';
+      errEl.classList.remove('hidden');
+    }
+    box?.classList.add('hidden');
+    return;
+  }
+  if (errEl) {
+    errEl.textContent = '';
+    errEl.classList.add('hidden');
+  }
+  if (!box) return;
+
+  const cards = result.queries
+    .map((item) => {
+      const ae = safeHref(item.aeUrl);
+      const trends = safeHref(item.trendsUrl);
+      const ml = safeHref(item.mlUrl);
+      return `
+        <article class="discover-query-card">
+          <p class="discover-query-q">${escapeHtml(item.query)}</p>
+          <div class="discover-query-links">
+            ${ae ? `<a class="btn btn-primary btn-sm" href="${ae}" target="_blank" rel="noopener noreferrer">AliExpress</a>` : ''}
+            ${trends ? `<a class="btn btn-secondary btn-sm" href="${trends}" target="_blank" rel="noopener noreferrer">Trends CL</a>` : ''}
+            ${ml ? `<a class="btn btn-secondary btn-sm" href="${ml}" target="_blank" rel="noopener noreferrer">Mercado Libre</a>` : ''}
+          </div>
+        </article>`;
+    })
+    .join('');
+
+  box.innerHTML = `
+    <p class="discover-query-disclaimer">${escapeHtml(result.disclaimer)}</p>
+    <div class="discover-query-grid">${cards}</div>
+    <p class="discover-query-next">Elige un listing en AliExpress y pégalo en <strong>Ya tienes un listing</strong>.</p>
+  `;
+  box.classList.remove('hidden');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  refreshIcons();
 }
 
 /** Used when switching to discover-view */
 export function renderDiscover() {
+  renderSeasonPanels();
   refreshIcons();
   if (lastCandidate) renderCandidateCard(lastCandidate);
 }
+

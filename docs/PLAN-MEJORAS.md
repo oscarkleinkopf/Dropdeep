@@ -4,7 +4,7 @@
 >
 > **Estado del plan (2026-08-05):** **T01–T44 cerrados** (✅). **Ops T20 en prod** ✅. Deploy Pages alineado a **`main`**.
 >
-> **Siguiente ciclo (abierto por fricción founder):** **Descubrimiento real de productos** — [§10](#10-descubrimiento-real-de-productos-t45t50) (T45–T49; **T50 ✅** UI falsa retirada). Listas estáticas / Meta Interests **no** son el camino de discovery.
+> **Siguiente ciclo (abierto por fricción founder):** **Descubrimiento real de productos** — [§10](#10-descubrimiento-real-de-productos-t45t50) (T45–T49; **T50 ✅** UI falsa retirada; **T67 ✅** hipótesis Chile + queries AE sin App Key). Listas estáticas / Meta Interests **no** son el camino de discovery.
 >
 > **Última higiene plan ↔ repo:** 2026-08-05 — cierre T01–T44 + mobile #33; plan T45+ discovery.
 >
@@ -1758,7 +1758,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 ## 8. Índice rápido de tareas
 
-Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 ✅; T45–T49 abiertos (§10)**
+Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 ✅; T67 ✅; T45–T49 abiertos (§10)**
 
 | ID | Título | P | Estado | Nota auditoría 2026-08-05 |
 |----|--------|---|--------|---------------------------|
@@ -1808,11 +1808,12 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 �
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
 | — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
 | T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | ⬜ | §10 |
-| T46 | UI Descubrir + handoff research | P0 | 🟡 | MVP paste URL/ID + Audisio + Investigar (sin Affiliate hot list; espera App Key) |
+| T46 | UI Descubrir + handoff research | P0 | 🟡 | Paste + T67 hipótesis; grid Affiliate espera App Key |
 | T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
 | T48 | Pre-filtro Audisio en candidatos | P1 | 🟡 | Incluido en MVP Descubrir (costo pegado); ranking hot-list queda para T45 |
 | T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
 | T50 | Retirar discovery falso de UI | P2 | ✅ | Home CTA Descubrir; Meta = checklist ads; feed = historial |
+| T67 | Hipótesis Descubrir (calendario CL + queries AE) | P0 | ✅ | Offline; no Affiliate; links Trends/ML oficiales |
 
 ### T51–T62 (roadmap post-evaluación — ver [ROADMAP.md](ROADMAP.md))
 
@@ -1833,6 +1834,7 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 �
 | T64 | Bump mayor Vite/Vitest/happy-dom/PW | P2 | ⬜ | Rama aparte; ver ROADMAP |
 | T65 | XSS / sanitize innerHTML + DOMPurify | P0 | ✅ | escapeDeep + DOMPurify en Gemini HTML |
 | T66 | Partir events.js → `src/events/*` | P2 | ⬜ | Diferido; no `controllers/`; ver ROADMAP |
+| T67 | Hipótesis Descubrir (calendario CL + queries) | P0 | ✅ | Offline; links AE / Trends CL / ML |
 
 ---
 
@@ -2131,7 +2133,7 @@ Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app 
 ### 10.6 Orden de ejecución
 
 ```
-T45 (AE proxy) → T46 (UI + handoff) → T48 (Audisio rank) → T47 (Trends CL) → T49 (cache/cuota) · T50 ✅ (UI falsa retirada)
+T67 ✅ (hipótesis Chile + queries) → T45 (AE proxy, App Key) → T46 (UI Affiliate) → T48 (Audisio rank) → T47 (Trends CL SerpAPI) → T49 (cache/cuota) · T50 ✅
 ```
 
 T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupuesto SerpAPI.
@@ -2146,8 +2148,25 @@ T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupu
 
 ### 10.8 Criterio de éxito del ciclo
 
-Un usuario logueado con secrets configurados puede: **abrir Descubrir → ver productos AliExpress reales con precio/pedidos → ver señal Trends CL en shortlist → Investigar → obtener informe Copiloto/API** sin escribir el nombre a ciegas. Sin secrets, el resto de DropDeep sigue igual de útil.
+Un usuario **sin App Key** puede: **abrir Descubrir → temporada o problema → consultas AE → pegar listing → Investigar**. Con secrets Affiliate: además **buscar esa query en `product.query`** (no dump hot global en Inicio). Sin secrets, Copiloto/eval siguen iguales.
 
 ---
 
-*Higiene 2026-08-05: T01–T44 ✅; ops T20 prod ✅; ciclo abierto = discovery T45–T50 (§10). Fichas T01–T44 en §5 = historial.*
+### 10.9 Camino gratis mientras no hay App Key (T67)
+
+> **Estado:** ✅ Hipótesis + queries (2026-08-17). No sustituye T45.
+
+**Problema:** esperar `hotproduct.query` bloquea “¿qué vender?” y además el hot list global ≠ demanda Chile.
+
+**Hecho (offline, $0):**
+
+1. Calendario Chile en `src/data/chileSeasonCalendar.js` (mes actual + “Se viene”). Copy: hipótesis, no ranking en vivo.
+2. `suggestAeQueries` / `suggestQueriesFromNiche` → consultas (no SKUs) con links a AliExpress wholesale, Trends `geo=CL` (UI oficial) y Mercado Libre. Sin scrape ni SerpAPI.
+3. El usuario pega el listing; T53 + prefiltro Audisio no cambian.
+4. T45, cuando exista App Key, debe **buscar la query del usuario**, no reemplazar el calendario por un dump “hot de hoy”.
+
+**Fuera:** RSS diario de Google Trends (es farándula/noticias, no productos); Gemini “10 winners”; scrapers.
+
+---
+
+*Higiene 2026-08-17: T67 hipótesis Descubrir. T45 sigue bloqueado por App Key.*

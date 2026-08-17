@@ -59,7 +59,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Tiene paywall ni Stripe | No hay planes de pago integrados en la app. |
 | Simula investigaciones | No hay datos falsos ni “modo demo” de reportes. Todo viene de tu chatbot, de Gemini en vivo, de tu portafolio o de caché local reciente. |
 | Gestiona tu tienda | No conecta con Shopify, Meta Ads ni proveedores de forma automática. |
-| Lista “trending” AliExpress en vivo | **Descubrir** usa un enlace/ID que **tú pegas**; la API Affiliate oficial llega cuando Portals/Open Platform aprueben la App Key. |
+| Lista “trending” AliExpress en vivo | **Descubrir** arma **consultas de búsqueda** (temporada Chile o un problema) y tú pegas el listing. No hay hot list Affiliate ni Trends scrapeados. |
 | Espía competidores sin IA | El análisis de **URL de tienda** en Spy requiere Gemini BYOK o proxy; sin API verás un mensaje claro y un **checklist manual gratis**. La salida con IA lleva badge **Inferido por IA**; Pixel/GA se muestran como **No verificado** (no escaneamos el HTML). La **Auditoría Meta Ads (Chile)** es offline: pegas tus métricas (no hay API Meta ni datos inventados). |
 | Sincroniza en la nube sin cuenta | El portafolio local funciona sin login; la nube (Supabase) es opcional. |
 
@@ -72,7 +72,7 @@ Sé honesto contigo mismo sobre estos límites:
 | Pestaña | Qué hace |
 |---------|----------|
 | **Inicio** | Buscador, métricas de tu actividad e investigaciones recientes. |
-| **Descubrir** | Pegas URL o ID de AliExpress → sugiere título/costo/imagen (**No verificado**; meta pública o Gemini BYOK) → pre-filtro Audisio → Copiloto/API. Sin catálogo Affiliate en vivo aún. |
+| **Descubrir** | Temporada Chile o un problema → **consultas AliExpress** (links a AE, Trends CL y Mercado Libre) → pegas URL/ID → sugiere título/costo/imagen (**No verificado**) → pre-filtro Audisio → Copiloto/API. |
 | **Portafolio** | Productos guardados, notas, comparación y exportación. |
 | **Prompts** | Prompt Hub: secuencia maestra o packs por vertical (sin API). |
 | **Spy** | Herramientas de ads/competencia (no discovery de productos): análisis de URL con Gemini (**inferido por IA**), **checklist** de intereses Meta para targeting, y **Auditoría Meta Ads Chile** (offline / Audisio). Para encontrar qué vender → **Descubrir**. |
@@ -89,22 +89,30 @@ Botones secundarios:
 
 - **Evaluación manual (sin IA)** — checklist offline.
 - **Generar prompts sin API** — abre Prompt Hub.
-- **Abrir Descubrir (AliExpress)** — si aún no tienes nombre: pega URL/ID del proveedor.
+- **Abrir Descubrir** — si aún no tienes nombre: temporada Chile o pega URL/ID del proveedor.
 
-### Descubrir (AliExpress)
+### Descubrir (hipótesis + AliExpress)
 
-1. Copia el enlace del producto en AliExpress (o el ID numérico largo).
-2. En **Descubrir** → **Analizar enlace** (valida host e ID).
-3. DropDeep **sugiere** título / costo / imagen si puede:
+**Paso A — armar búsquedas (gratis, sin API)**
+
+1. En **Descubrir** mira **Temporada Chile** (mes actual y “Se viene”). Cada tarjeta es un **calendario comercial**, no un ranking en vivo.
+2. Pulsa **Ver búsquedas** en un nicho, o escribe un problema (ej. “dolor lumbar en la oficina”) → **Sugerir búsquedas**.
+3. Se listan **consultas** (no productos). Por cada una: **AliExpress**, **Trends CL** (sitio oficial de Google, `geo=CL`) y **Mercado Libre**. DropDeep **no** scrapea ni cachea esos rankings.
+4. En AliExpress elige un listing y copia la URL o el ID.
+
+**Paso B — pegar el listing (igual que antes)**
+
+1. En **Ya tienes un listing** → **Analizar enlace** (valida host e ID).
+2. DropDeep **sugiere** título / costo / imagen si puede:
    - slug de la URL (siempre, offline);
    - meta pública vía Edge `discover-enrich` (sesión iniciada);
    - Gemini **BYOK** (no usa cuota proxy) si faltan campos.
    Cada sugerencia lleva badge **No verificado** — **nunca** se presenta como Affiliate oficial. Si falla, el flujo manual sigue igual.
-4. Revisa el **costo en USD** (y PVP opcional) para el **pre-filtro Audisio**.
-5. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API.
-6. **Evaluación rápida** abre la rúbrica manual con ese nombre.
+3. Revisa el **costo en USD** (y PVP opcional) para el **pre-filtro Audisio**.
+4. **Investigar** rellena Inicio con el nombre + URL y arranca Copiloto/API.
+5. **Evaluación rápida** abre la rúbrica manual con ese nombre.
 
-Esto **no** descarga hot lists ni Trends; es el MVP mientras llega la App Key Affiliate (plan T45). Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
+La API Affiliate (hot list / `product.query`) sigue pendiente de App Key (plan T45). Hasta entonces: hipótesis + pegado honesto. Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
 
 ### Ajustes (icono engranaje)
 
@@ -426,6 +434,8 @@ Flujo recomendado para principiantes:
 | 12–14 | Revisa el informe. Ajusta costo/precio en la barra de snapshot si tienes datos reales del proveedor. |
 | 14–15 | **Guardar en Portafolio** → **Descargar kit de campaña**. |
 
+**Si aún no tienes producto:** **Descubrir** → **Temporada Chile** o un problema → abre AliExpress → pega el listing → **Investigar**.
+
 **Complemento opcional (5 min):** **Evaluación manual (sin IA)** con tus criterios reales de margen y proveedores.
 
 **Acelerador opcional:** configura BYOK en **Ajustes** y cambia a **Con API (Automático)** para la próxima investigación.
@@ -693,6 +703,15 @@ Mensajes **reales** de la app y qué hacer:
 | **Respuesta de Gemini ilegible** — *El modelo devolvió un formato que no pudimos interpretar...* | Modelo devolvió texto no JSON | Cambia modelo en **Ajustes** → **Reintentar** |
 | **Error en Deep Research** | Error genérico | **Abrir Ajustes** / **Reintentar**; revisa consola si persiste |
 
+### Descubrir
+
+| Mensaje | Causa | Qué hacer |
+|---------|-------|-----------|
+| *Escribe un problema o nicho (mínimo 3 caracteres).* | El recuadro de hipótesis está vacío o muy corto | Escribe al menos 3 letras o usa **Ver búsquedas** en una temporada |
+| *Pega una URL de AliExpress o un ID de producto.* | Campo de listing vacío | Pega el enlace `/item/….html` o el ID numérico largo |
+| *La URL debe ser de AliExpress…* | Host que no es AliExpress | Copia el enlace desde aliexpress.com (o .us / regional) |
+| Las consultas no son “productos hot” | Así está diseñado | Son **búsquedas**. El listing lo eliges tú en AliExpress |
+
 ### Portafolio
 
 | Mensaje | Causa | Qué hacer |
@@ -730,7 +749,8 @@ Mensajes **reales** de la app y qué hacer:
 | **Investigación (cuota proxy)** | Una ejecución Completo o Rápido vía proxy = 1 unidad diaria (varios pasos Gemini internos). |
 | **Kit de campaña** | Export `.md` con resumen listo para lanzar ads, emails y kit VSL/checklist Audisio. |
 | **Verbatim** | Frase textual de un comprador real (foros, reseñas). |
-| **Dropshipping** | Vender sin stock propio; el proveedor envía al cliente final. |
+| **Temporada Chile** | Calendario comercial en Descubrir (hipótesis, no ranking en vivo). |
+| **Consulta AliExpress** | Texto de búsqueda para abrir wholesale AE; no es un SKU verificado. |
 | **Método Audisio & Domingo** | Reglas de negocio DropDeep para Chile (×2.5, banda CLP, margen, test \$300, Winner, auditoría Meta, VSL). Offline — ver [§12](#12-metodología-audisio-y-domingo-chile). |
 | **VSL** | *Video Sales Letter* corto (20–60 s) con Hook → Body → CTA; plantillas en sección 24 del informe. |
 | **PVP** | Precio de venta al público (retail en el snapshot). |

@@ -5981,7 +5981,7 @@ body.auth-locked {
 
 /* —— Descubrir (AliExpress paste MVP) —— */
 .discover-container {
-  max-width: 720px;
+  max-width: 860px;
   margin: 0 auto;
   padding: 1.25rem 1rem 2.5rem;
 }
@@ -6241,4 +6241,163 @@ body.auth-locked {
   font-size: 0.8rem;
   color: var(--text-muted);
   line-height: 1.4;
+}
+
+.discover-hypotheses {
+  margin: 0 0 1.75rem;
+  padding: 1.1rem 1rem 1.15rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: rgba(6, 182, 212, 0.04);
+}
+
+.discover-hypotheses-head h3,
+.discover-paste-heading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0 0 0.35rem;
+  color: var(--text-light);
+}
+
+.discover-hypotheses-disclaimer,
+.discover-season-why,
+.discover-query-disclaimer,
+.discover-query-next {
+  margin: 0 0 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.discover-season-subhead {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin: 1rem 0 0.5rem;
+}
+
+.discover-season-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .discover-season-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.discover-season-card {
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.discover-season-card--upcoming {
+  opacity: 0.92;
+}
+
+.discover-season-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.discover-season-card-head h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+.discover-season-window {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.discover-niche-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.discover-niche {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.discover-niche-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.discover-niche-btn {
+  min-height: 44px;
+}
+
+.discover-query-form {
+  margin-top: 1.1rem;
+}
+
+.discover-query-results {
+  margin-top: 1rem;
+}
+
+.discover-query-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .discover-query-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.discover-query-card {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.discover-query-q {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.discover-query-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.discover-query-links .btn {
+  min-height: 44px;
+}
+
+.discover-paste-heading {
+  margin: 0 0 0.65rem;
+}
+
+.discover-season-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }

@@ -46,7 +46,7 @@ export function setupEventListeners() {
 
   document.getElementById('open-discover-from-home')?.addEventListener('click', () => {
     switchView('discover-view');
-    document.getElementById('discover-url-input')?.focus();
+    document.getElementById('discover-problem-input')?.focus();
   });
 
   // Spy empty state → dashboard

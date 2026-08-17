@@ -147,7 +147,7 @@ export function renderResearchFeed() {
     document.getElementById('research-feed-discover-cta')?.addEventListener('click', async () => {
       const { switchView } = await import('./navigation.js');
       switchView('discover-view');
-      document.getElementById('discover-url-input')?.focus();
+      document.getElementById('discover-problem-input')?.focus();
     });
     if (typeof lucide !== 'undefined') lucide.createIcons();
     updateWizardVisibility();
