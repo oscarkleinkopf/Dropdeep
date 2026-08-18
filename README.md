@@ -112,7 +112,7 @@ Without Supabase env vars, the site runs in **demo mode** (open access, accounts
 4. Run SQL in `supabase/migrations/` (`001`–`005`, including `005_proxy_abuse.sql` for rate limits).
 5. Redeploy.
 
-See also `supabase/README.md` for Edge Function proxy deploy steps.
+See also `supabase/README.md` for Edge Function proxy deploy steps (`gemini-proxy`, `discover-enrich`, `discover-proxy`).
 
 Google OAuth: enable **Google** under Authentication → Providers, then use the Google button in the login modal. Redirect URLs must include `https://oscarkleinkopf.github.io/Dropdeep/**` and `http://localhost:3000/**`.
 
@@ -159,6 +159,7 @@ DropDeep is primarily a **static SPA** (GitHub Pages). Optional Supabase Auth + 
 |-------|----------|
 | **Gemini API (BYOK)** | Keys stay in browser `localStorage`, scoped per user when auth is on. Never commit keys or put them in `VITE_*` env vars. |
 | **Gemini API (proxy)** | `GEMINI_API_KEY` lives in Supabase secrets; only logged-in users can invoke `gemini-proxy`. |
+| **AliExpress Affiliate (T45)** | `ALIEXPRESS_APP_KEY` / `APP_SECRET` / `TRACKING_ID` live in Supabase secrets; `discover-proxy` signs server-side. Never `VITE_*`. |
 | **Exports** | Portfolio JSON exports strip fields matching `apiKey`, `geminiKey`, `secret`, etc. |
 | **XSS** | API/user content inserted via `innerHTML` is escaped in high-risk views (e.g. competitor spy results). |
 | **Service worker** | Does not cache `googleapis.com` requests; only app shell and CDN assets. |
@@ -177,7 +178,9 @@ DropDeep is primarily a **static SPA** (GitHub Pages). Optional Supabase Auth + 
 | `src/research/` | Gemini integration, caching, history sync, research flow |
 | `src/ui/` | Views: feed, report, portfolio, prompt hub, spy, auth |
 | `src/data/` | Product categories, Meta interests, vertical prompt packs |
-| `supabase/migrations/` | SQL for `profiles`, `research_reports`, and `gemini_usage` |
+| `src/discovery/` | AliExpress parse/enrich, hipótesis T67, Affiliate client T45 |
+| `supabase/migrations/` | SQL for `profiles`, `research_reports`, `gemini_usage`, `discover_usage` |
+| `supabase/functions/` | Edge: `gemini-proxy`, `discover-enrich`, `discover-proxy` |
 | `public/` | PWA manifest, service worker, icons |
 
 ## PWA icons

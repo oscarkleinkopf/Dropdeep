@@ -117,6 +117,8 @@ export function enrichSourceLabel(source) {
       return 'Meta pública (no verificado)';
     case 'gemini-inferred':
       return 'Inferido por IA (no verificado)';
+    case 'affiliate':
+      return 'AliExpress Affiliate · vivo';
     default:
       return 'No verificado';
   }

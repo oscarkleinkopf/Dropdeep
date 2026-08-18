@@ -77,6 +77,44 @@ supabase functions deploy discover-enrich --project-ref texzlizelxavrybkdjdj
 
 En la UI: tras **Analizar enlace**, el cliente intenta meta pública (logueado) y, si faltan campos y hay BYOK, Gemini inferido. Los campos llevan badge **No verificado**.
 
+## 2c. Discover proxy Edge Function (T45 — AliExpress Affiliate)
+
+`discover-proxy` firma peticiones Affiliate **en el servidor** (HMAC/MD5). El App Secret **nunca** va al cliente, a `VITE_*` ni al git.
+
+Requiere sesión (JWT). Sin secretos responde **501** con: *Catálogo Affiliate no configurado todavía…* El flujo T67 (hipótesis + Buscar en AliExpress + pegar) sigue funcionando.
+
+### Founder: crear la app (después del mail “profile approved”)
+
+1. Entra a [AliExpress Open Platform](https://openservice.aliexpress.com/) (o el enlace del mail).
+2. **Create Application** — tipo Affiliate / Open Platform según el asistente. Acepta las APIs:
+   - `aliexpress.affiliate.product.query`
+   - `aliexpress.affiliate.hotproduct.query` (el Edge la expone; la UI de Descubrir **no** la usa como ranking de inicio).
+3. Copia **App Key**. **App Secret** solo se muestra al crear: guárdalo en un gestor de contraseñas, no en chat ni issues.
+4. En [Portals](https://portals.aliexpress.com) (Affiliate ya aprobado): **Tracking ID** (PID).
+5. En Supabase (Dashboard → Edge Functions → Secrets **o** CLI):
+
+```bash
+# NUNCA pongas estos valores en .env del frontend ni en GitHub Actions VITE_*
+export SUPABASE_ACCESS_TOKEN=sbp_...
+supabase secrets set ALIEXPRESS_APP_KEY=... --project-ref texzlizelxavrybkdjdj
+supabase secrets set ALIEXPRESS_APP_SECRET=... --project-ref texzlizelxavrybkdjdj
+supabase secrets set ALIEXPRESS_TRACKING_ID=... --project-ref texzlizelxavrybkdjdj
+# opcional:
+# supabase secrets set ALIEXPRESS_SIGN_METHOD=md5
+# supabase secrets set DISCOVER_PROXY_DAILY_LIMIT=40
+```
+
+6. SQL Editor: pega `supabase/migrations/008_discover_usage.sql`.
+7. Deploy:
+
+```bash
+export SUPABASE_ACCESS_TOKEN=sbp_...
+bash scripts/deploy-discover-proxy.sh
+# o GitHub Actions → "Deploy discover-proxy (T45)" → Run workflow
+```
+
+La UI: Descubrir → hipótesis → **Buscar catálogo (sesión)** con la consulta armada. Sin login: CTA **Iniciar sesión**. Copiloto/eval/pegar **nunca** se bloquean si Affiliate falla.
+
 ## 3. Auth redirect URLs
 
 Authentication → URL Configuration:

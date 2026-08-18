@@ -19,6 +19,8 @@ import { getGeminiRoute } from '../config/geminiRoute.js';
 import { isAuthenticated } from '../auth/auth.js';
 import { isAuthConfigured } from '../auth/supabaseClient.js';
 import { escapeHtml, safeHref } from '../utils/sanitize.js';
+import { searchDiscoverProxy } from '../discovery/discoverProxyClient.js';
+import { openAuthModal } from './authModal.js';
 
 let lastCandidate = null;
 /** @type {AbortController | null} */
@@ -27,6 +29,10 @@ let enrichAbort = null;
 let autofillState = { title: false, cost: false, image: false };
 /** @type {string} */
 let selectedNicheKey = '';
+/** @type {import('../discovery/normalizeAffiliate.js').CandidateDTO[]} */
+let lastAffiliateCandidates = [];
+/** @type {AbortController | null} */
+let affiliateAbort = null;
 
 export function initDiscover() {
   const form = document.getElementById('discover-form');
@@ -100,6 +106,26 @@ export function initDiscover() {
   });
   document.getElementById('discover-enrich-retry-btn')?.addEventListener('click', () => {
     if (lastCandidate) startEnrichment(lastCandidate);
+  });
+
+  document.getElementById('discover-query-results')?.addEventListener('click', (e) => {
+    const loginBtn = e.target.closest('[data-affiliate-login]');
+    if (loginBtn) {
+      e.preventDefault();
+      openAuthModal('login');
+      return;
+    }
+    const searchBtn = e.target.closest('[data-affiliate-q]');
+    if (searchBtn) {
+      e.preventDefault();
+      searchAffiliateCatalog(searchBtn.dataset.affiliateQ || '');
+      return;
+    }
+    const pickBtn = e.target.closest('[data-affiliate-pick]');
+    if (pickBtn) {
+      e.preventDefault();
+      applyAffiliateCandidate(Number(pickBtn.dataset.affiliatePick));
+    }
   });
 }
 
@@ -321,10 +347,14 @@ function renderCandidateCard(candidate) {
     urlEl.textContent = candidate.productUrl;
   }
   if (badge) {
-    badge.textContent =
-      candidate.inputKind === 'id'
-        ? 'Pegado: ID AliExpress (sin API Affiliate)'
-        : 'Pegado: URL AliExpress (sin API Affiliate)';
+    if (candidate.source === 'aliexpress-affiliate' || candidate.inputKind === 'affiliate') {
+      badge.textContent = 'AliExpress Affiliate · vivo';
+    } else {
+      badge.textContent =
+        candidate.inputKind === 'id'
+          ? 'Pegado: ID AliExpress (sin API Affiliate)'
+          : 'Pegado: URL AliExpress (sin API Affiliate)';
+    }
   }
 
   const costUsd = currentCostUsd();
@@ -501,6 +531,7 @@ function showQueryResult(result, { heading } = {}) {
             <p class="discover-query-q">${escapeHtml(item.query)}</p>
             <div class="discover-query-links">
               ${ae ? `<a class="btn btn-primary btn-sm" href="${ae}" target="_blank" rel="noopener noreferrer">Buscar en AliExpress</a>` : ''}
+              <button type="button" class="btn btn-secondary btn-sm" data-affiliate-q="${escapeHtml(item.query)}">Buscar catálogo (sesión)</button>
               ${trends ? `<a class="discover-query-ghost" href="${trends}" target="_blank" rel="noopener noreferrer">Trends CL</a>` : ''}
               ${ml ? `<a class="discover-query-ghost" href="${ml}" target="_blank" rel="noopener noreferrer">Mercado Libre</a>` : ''}
             </div>
@@ -522,12 +553,225 @@ function showQueryResult(result, { heading } = {}) {
       <li>Copia el enlace del <strong>producto</strong>, no de la categoría.</li>
     </ul>
     <div class="discover-query-grid">${cards}</div>
+    <div class="discover-affiliate-block" id="discover-affiliate-block">
+      <p class="discover-affiliate-lead">
+        Opcional: con sesión, DropDeep busca <strong>tu consulta</strong> en el catálogo Affiliate
+        (oferta real). No sustituye el calendario ni es demanda Chile.
+      </p>
+      <p id="discover-affiliate-status" class="discover-affiliate-status" role="status"></p>
+      <div id="discover-affiliate-grid" class="discover-affiliate-grid" hidden></div>
+    </div>
     <button type="button" class="btn btn-secondary" id="discover-jump-paste">
       Ya copié el enlace → pegar listing
     </button>
   `;
   box.classList.remove('hidden');
+  lastAffiliateCandidates = [];
+  if (isAuthConfigured && !isAuthenticated()) {
+    setAffiliateStatus(affiliateIdleMessage(), 'need-login');
+  } else {
+    setAffiliateStatus(affiliateIdleMessage());
+  }
   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  refreshIcons();
+}
+
+function affiliateIdleMessage() {
+  if (!isAuthConfigured) {
+    return 'Catálogo Affiliate no está habilitado en este sitio. Usa «Buscar en AliExpress» y pega el listing.';
+  }
+  if (!isAuthenticated()) {
+    return 'Inicia sesión para buscar el catálogo Affiliate. El botón AliExpress sigue funcionando sin cuenta.';
+  }
+  return 'Pulsa «Buscar catálogo (sesión)» en una consulta. No cargamos un ranking global “hot”.';
+}
+
+function setAffiliateStatus(message, kind = 'idle') {
+  const el = document.getElementById('discover-affiliate-status');
+  if (!el) return;
+  el.dataset.kind = kind;
+  el.innerHTML = '';
+  if (!message) {
+    el.textContent = '';
+    return;
+  }
+  if (kind === 'need-login') {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-secondary btn-sm';
+    btn.dataset.affiliateLogin = '1';
+    btn.textContent = 'Iniciar sesión';
+    el.appendChild(document.createTextNode(`${message} `));
+    el.appendChild(btn);
+    return;
+  }
+  el.textContent = message;
+}
+
+function formatAffiliateOrders(n) {
+  if (n == null) return '';
+  return `${Number(n).toLocaleString('es-CL')} pedidos (30d API)`;
+}
+
+function affiliateShipLabel(candidate) {
+  if (candidate?.shipDays != null) return `~${candidate.shipDays} días (API)`;
+  return 'Envío no verificado por API';
+}
+
+function affiliateSocialLabel(candidate) {
+  if (candidate?.rating != null) return `★ ${candidate.rating}`;
+  if (candidate?.reviewPositivePct != null) return `${candidate.reviewPositivePct}% positivos`;
+  return '';
+}
+
+function renderAffiliateGrid(candidates) {
+  const grid = document.getElementById('discover-affiliate-grid');
+  if (!grid) return;
+  lastAffiliateCandidates = candidates || [];
+  if (!lastAffiliateCandidates.length) {
+    grid.hidden = true;
+    grid.innerHTML = '';
+    return;
+  }
+  grid.hidden = false;
+  grid.innerHTML = lastAffiliateCandidates
+    .map((c, i) => {
+      const href = safeHref(c.productUrl);
+      const img = c.imageUrl ? safeHref(c.imageUrl) : '';
+      const price = c.priceUsd != null ? `USD ${c.priceUsd.toFixed(2)}` : 'Precio no informado';
+      const orig =
+        c.originalPriceUsd != null && c.priceUsd != null && c.originalPriceUsd > c.priceUsd
+          ? `<span class="discover-aff-orig">USD ${c.originalPriceUsd.toFixed(2)}</span>`
+          : '';
+      return `
+        <article class="discover-aff-card">
+          <div class="discover-aff-media">
+            ${img ? `<img src="${img}" alt="" loading="lazy">` : '<div class="discover-aff-ph" aria-hidden="true"></div>'}
+          </div>
+          <div class="discover-aff-body">
+            <p class="discover-aff-title">${escapeHtml(c.title)}</p>
+            <p class="discover-aff-price">${escapeHtml(price)} ${orig}</p>
+            <p class="discover-aff-meta">
+              ${escapeHtml(formatAffiliateOrders(c.orders))}
+              ${c.orders != null && affiliateSocialLabel(c) ? ' · ' : ''}
+              ${escapeHtml(affiliateSocialLabel(c))}
+            </p>
+            <p class="discover-aff-ship">${escapeHtml(affiliateShipLabel(c))}</p>
+            <p class="discover-aff-trend">Tendencia no consultada</p>
+            <div class="discover-aff-actions">
+              ${href ? `<a class="btn btn-secondary btn-sm" href="${href}" target="_blank" rel="noopener noreferrer">Abrir en AliExpress</a>` : ''}
+              <button type="button" class="btn btn-primary btn-sm" data-affiliate-pick="${i}">Usar este listing</button>
+            </div>
+          </div>
+        </article>`;
+    })
+    .join('');
+  refreshIcons();
+}
+
+async function searchAffiliateCatalog(query) {
+  const q = String(query || '').trim();
+  if (q.length < 2) return;
+
+  if (!isAuthenticated()) {
+    setAffiliateStatus(
+      'Inicia sesión para buscar el catálogo Affiliate. El flujo gratis (AliExpress + pegar) sigue igual.',
+      'need-login',
+    );
+    return;
+  }
+
+  affiliateAbort?.abort();
+  affiliateAbort = new AbortController();
+  const { signal } = affiliateAbort;
+
+  setAffiliateStatus(`Buscando «${q}» en AliExpress Affiliate…`, 'loading');
+  renderAffiliateGrid([]);
+
+  const result = await searchDiscoverProxy({ mode: 'search', q, pageSize: 10 });
+  if (signal.aborted) return;
+
+  if (!result.ok) {
+    const kind = result.code === 'unauthorized' ? 'need-login' : 'error';
+    setAffiliateStatus(result.message, kind);
+    return;
+  }
+
+  if (!result.candidates.length) {
+    setAffiliateStatus(
+      `Sin resultados Affiliate para «${q}». Prueba otra consulta o abre AliExpress.`,
+      'empty',
+    );
+    return;
+  }
+
+  renderAffiliateGrid(result.candidates);
+  setAffiliateStatus(
+    result.disclaimer ||
+      `AliExpress Affiliate · vivo — ${result.candidates.length} de ${result.total} (oferta, no demanda Chile).`,
+    'ok',
+  );
+}
+
+function applyAffiliateCandidate(index) {
+  const dto = lastAffiliateCandidates[index];
+  if (!dto) return;
+
+  enrichAbort?.abort();
+  autofillState = {
+    title: Boolean(dto.title),
+    cost: dto.priceUsd != null,
+    image: Boolean(dto.imageUrl),
+  };
+
+  const urlInput = document.getElementById('discover-url-input');
+  const titleInput = document.getElementById('discover-title-input');
+  const costInput = document.getElementById('discover-cost-input');
+  const retailInput = document.getElementById('discover-retail-input');
+  const imgWrap = document.getElementById('discover-candidate-media');
+  const imgEl = document.getElementById('discover-candidate-image');
+  const errEl = document.getElementById('discover-parse-error');
+  const card = document.getElementById('discover-candidate');
+
+  if (urlInput) urlInput.value = dto.productUrl;
+  if (titleInput) titleInput.value = dto.title || '';
+  if (costInput) costInput.value = dto.priceUsd != null ? String(dto.priceUsd) : '';
+  if (retailInput) retailInput.value = '';
+  if (errEl) {
+    errEl.textContent = '';
+    errEl.classList.add('hidden');
+  }
+
+  if (dto.imageUrl && imgEl && imgWrap) {
+    imgEl.src = dto.imageUrl;
+    imgEl.alt = dto.title || 'Producto AliExpress';
+    imgWrap.classList.remove('hidden');
+  } else if (imgWrap && imgEl) {
+    imgWrap.classList.add('hidden');
+    imgEl.removeAttribute('src');
+    imgEl.alt = '';
+  }
+
+  setFieldProvenance('title', dto.title ? 'affiliate' : null);
+  setFieldProvenance('cost', dto.priceUsd != null ? 'affiliate' : null);
+  setFieldProvenance('image', dto.imageUrl ? 'affiliate' : null);
+
+  lastCandidate = {
+    source: 'aliexpress-affiliate',
+    inputKind: 'affiliate',
+    externalId: dto.externalId,
+    productUrl: dto.productUrl,
+    titleHint: dto.title,
+    imageUrl: dto.imageUrl || null,
+    fetchedAt: dto.fetchedAt || new Date().toISOString(),
+  };
+
+  setDiscoverStep(3);
+  renderCandidateCard(lastCandidate);
+  card?.classList.remove('hidden');
+  setEnrichStatus('ok', 'Campos desde AliExpress Affiliate · vivo. Confirma envío a Chile en la ficha.');
+  jumpToPaste();
+  showToast('Listing Affiliate listo. Revisa costo y envío antes de investigar.', 'info');
   refreshIcons();
 }
 

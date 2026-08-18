@@ -1758,7 +1758,7 @@ Todas las fases P0–P2 del índice **T01–T44** están ✅ en `main`. No hay o
 
 ## 8. Índice rápido de tareas
 
-Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 ✅; T67 ✅; T45–T49 abiertos (§10)**
+Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 ✅; T67 ✅; T45 🟡 código (ops secrets); T46/T48/T49 🟡**
 
 | ID | Título | P | Estado | Nota auditoría 2026-08-05 |
 |----|--------|---|--------|---------------------------|
@@ -1807,11 +1807,11 @@ Leyenda: ✅ Hecho · 🟡 Parcial · ⬜ No iniciado — **T01–T44 ✅; T50 �
 | T43 | MANUAL metodología Audisio | P1 | ✅ | Merge #12 |
 | T44 | Tests fórmulas Audisio | P1 | ✅ | Merge #12 |
 | — | Bundles ops §21 wire-up | — | ✅ | PR #5 |
-| T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | ⬜ | §10 |
-| T46 | UI Descubrir + handoff research | P0 | 🟡 | Paste + T67 hipótesis; grid Affiliate espera App Key |
+| T45 | Edge `discover-proxy` + AliExpress Affiliate | P0 | 🟡 | Código + UI search-by-query; ops: secrets + deploy |
+| T46 | UI Descubrir + handoff research | P0 | 🟡 | Paste + T67 + grid Affiliate (sesión); hot dump no |
 | T47 | Google Trends CL (SerpAPI) | P1 | ⬜ | §10 |
 | T48 | Pre-filtro Audisio en candidatos | P1 | 🟡 | Incluido en MVP Descubrir (costo pegado); ranking hot-list queda para T45 |
-| T49 | Caché / cuota discovery | P1 | ⬜ | §10 |
+| T49 | Caché / cuota discovery | P1 | 🟡 | Cuota diaria `008_discover_usage`; caché de resultados ⬜ |
 | T50 | Retirar discovery falso de UI | P2 | ✅ | Home CTA Descubrir; Meta = checklist ads; feed = historial |
 | T67 | Hipótesis Descubrir (calendario CL + queries AE) | P0 | ✅ | Offline; no Affiliate; links Trends/ML oficiales |
 
@@ -1908,7 +1908,7 @@ Regla: el CPA de campaña **nunca** debe superar este CPA máximo.
 
 ## 10. Descubrimiento real de productos (T45–T50)
 
-> **Estado:** ⬜ Plan aprobado por fricción founder (2026-08-05). **No implementar** hasta que una tarea concreta (T45…) se abra en un PR.
+> **Estado:** 🟡 T45 código en repo (2026-08-18). Hipótesis T67 intacta. Ops: App Key/Secret en Supabase + deploy `discover-proxy` + SQL `008`.
 >
 > **Problema:** DropDeep investiga un producto que el usuario **ya conoce**. No hay motor de descubrimiento. Listas estáticas (chips, Meta Interests) no resuelven “¿qué vender?”.
 >
@@ -1998,29 +1998,30 @@ Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app 
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | 🟡 código listo; secrets/deploy pendientes |
 | **Prioridad** | P0 |
 | **Impacto / Esfuerzo** | Alto / Medio-Alto |
 | **Paralelizable** | No con T46 (mismo function) |
 
 **Objetivo:** Primera fuente real de candidatos dropshipping sin scrapers.
 
-**Archivos (previstos):**
-- `supabase/functions/discover-proxy/index.ts` (nuevo)
-- `supabase/migrations/006_discover_usage.sql` (cuota/rate opcional)
-- `src/discovery/types.js`, `src/discovery/client.js`
-- Secrets + doc en `supabase/README.md`
+**Archivos:**
+- `supabase/functions/discover-proxy/index.ts`
+- `supabase/migrations/008_discover_usage.sql` (cuota diaria; 006/007 reservados T54/T55)
+- `src/discovery/affiliateSign.js`, `normalizeAffiliate.js`, `discoverProxyClient.js`
+- `src/ui/discover.js` — **Buscar catálogo (sesión)** por query (no dump `hot`)
+- Tests: `tests/affiliateDiscover.test.js` + fixture JSON
 
 **Pasos:**
-1. Registrar app Affiliate; guardar secrets en Supabase (no git).
-2. Implementar firma + `aliexpress.affiliate.hotproduct.query` y `product.query` (`sort=LAST_VOLUME_DESC`, `target_currency=USD`, filtro país/ship hacia CL si la API lo permite).
-3. Auth: mismo modelo que `gemini-proxy` (sesión requerida).
-4. Respuesta: array `CandidateDTO` + `sourceFetchedAt`; errores ES claros (quota, AE down).
+1. Registrar app Affiliate; guardar secrets en Supabase (no git, no chat).
+2. Firma MD5 bookend (IOP `hmac-sha256` opcional) + `aliexpress.affiliate.product.query` (`sort=LAST_VOLUME_DESC`, `target_currency=USD`, `ship_to_country=CL`). `hotproduct.query` existe en el Edge (`mode: 'hot'`) pero **la UI no lo usa** como homepage.
+3. Auth: JWT como `gemini-proxy` / `discover-enrich`. Burst: RPC T20. Cuota: `008` (si falta, se omite).
+4. Respuesta: array `CandidateDTO` + `sourceFetchedAt`; errores ES (`discover_not_configured` 501).
 5. Tests unitarios de firma/normalizer con fixtures JSON (sin red en CI).
 
-**Criterio de hecho:** Con secrets en preview, `POST /discover-proxy` con `{ mode: 'hot' }` o `{ mode: 'search', q: '...' }` devuelve ≥1 producto real con `productUrl` AliExpress. Sin secrets, 503/501 honesto.
+**Criterio de hecho:** Con secrets en preview, `POST /discover-proxy` con `{ mode: 'search', q: '...' }` (o `{ mode: 'hot' }`) devuelve ≥1 producto real con `productUrl` AliExpress. Sin secrets, 501 honesto.
 
-**Prueba:** Curl autenticado + UI mínima o script; CI solo fixtures.
+**Prueba:** Curl autenticado + UI Descubrir paso 2; CI solo fixtures.
 
 ---
 
@@ -2028,7 +2029,7 @@ Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app 
 
 | | |
 |--|--|
-| **Estado** | ⬜ |
+| **Estado** | 🟡 paste + T67 + grid Affiliate por query (T45) |
 | **Prioridad** | P0 |
 | **Depende** | T45 |
 | **Impacto / Esfuerzo** | Alto / Medio |
@@ -2133,7 +2134,7 @@ Registro founder: [portals.aliexpress.com](https://portals.aliexpress.com) (app 
 ### 10.6 Orden de ejecución
 
 ```
-T67 ✅ (hipótesis Chile + queries) → T45 (AE proxy, App Key) → T46 (UI Affiliate) → T48 (Audisio rank) → T47 (Trends CL SerpAPI) → T49 (cache/cuota) · T50 ✅
+T67 ✅ (hipótesis Chile + queries) → T45 🟡 (AE proxy en repo; App Key en ops) → T46 🟡 (grid search-by-query) → T48 (Audisio rank) → T47 (Trends CL SerpAPI) → T49 (cache) · T50 ✅
 ```
 
 T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupuesto SerpAPI.
@@ -2163,10 +2164,10 @@ Un usuario **sin App Key** puede: **abrir Descubrir → temporada o problema →
 1. Calendario Chile en `src/data/chileSeasonCalendar.js` (mes actual + “Se viene”). Copy: hipótesis, no ranking en vivo.
 2. `suggestAeQueries` / `suggestQueriesFromNiche` → consultas (no SKUs) con links a AliExpress wholesale, Trends `geo=CL` (UI oficial) y Mercado Libre. Sin scrape ni SerpAPI.
 3. El usuario pega el listing; T53 + prefiltro Audisio no cambian.
-4. T45, cuando exista App Key, debe **buscar la query del usuario**, no reemplazar el calendario por un dump “hot de hoy”.
+4. T45 busca **la query del usuario** (`product.query`); el calendario T67 no se reemplaza por un dump “hot de hoy”.
 
 **Fuera:** RSS diario de Google Trends (es farándula/noticias, no productos); Gemini “10 winners”; scrapers.
 
 ---
 
-*Higiene 2026-08-17: T67 hipótesis Descubrir. T45 sigue bloqueado por App Key.*
+*Higiene 2026-08-18: T45 código (discover-proxy + UI search-by-query). Ops: secrets Open Platform + deploy + SQL 008.*

@@ -1,0 +1,38 @@
+{
+  "aliexpress_affiliate_product_query_response": {
+    "resp_result": {
+      "resp_code": 200,
+      "resp_msg": "Call succeeds",
+      "result": {
+        "current_page_no": 1,
+        "current_record_count": 2,
+        "total_record_count": 86,
+        "products": {
+          "product": [
+            {
+              "product_id": 1005001234567890,
+              "product_title": "Lumbar Support Cushion Office Chair",
+              "product_main_image_url": "https://ae01.alicdn.com/kf/Sfixture123.jpg",
+              "target_sale_price": "8.50",
+              "target_original_price": "14.99",
+              "evaluate_rate": "95.4%",
+              "lastest_volume": 3200,
+              "product_detail_url": "https://www.aliexpress.com/item/1005001234567890.html",
+              "promotion_link": "https://s.click.aliexpress.com/e/_fixture",
+              "ship_to_days": "7"
+            },
+            {
+              "product_id": "100500999",
+              "product_title": "  Posture corrector  ",
+              "product_main_image_url": "https://evil.example/x.jpg",
+              "sale_price": "US $6.10",
+              "evaluate_rate": "4.8%",
+              "lastest_volume": "12",
+              "product_detail_url": "http://www.aliexpress.com/item/100500999.html"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

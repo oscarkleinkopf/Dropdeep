@@ -8,6 +8,8 @@ Las entradas más recientes van primero.
 
 ### Añadido
 
+- **Descubrir Affiliate (T45):** con sesión, **Buscar catálogo (sesión)** consulta AliExpress Affiliate *por tu búsqueda* (precio, pedidos, imagen). Badge **AliExpress Affiliate · vivo**. Sin App Key: aviso **Catálogo Affiliate no configurado todavía** y el flujo hipótesis + pegar sigue igual. No hay dump “hot global” en Inicio/Descubrir.
+
 - **Descubrir — hipótesis Chile (T67):** temporada del mes, problema o chips de ejemplo → búsquedas AliExpress / Trends CL / Mercado Libre. No es ranking en vivo ni Affiliate. El pegado de URL/ID sigue igual.
 
 - **Enriquecer Descubrir (T53):** tras pegar URL/ID, sugiere título/costo/imagen con badge **No verificado** (slug URL → Edge `discover-enrich` meta pública → Gemini BYOK). No usa cuota proxy ni Affiliate. Flujo manual intacto si falla.
@@ -21,6 +23,7 @@ Las entradas más recientes van primero.
 
 ### Cambiado
 
+- **Descubrir (T45):** badge de honestidad aclara que Affiliate es **oferta**, no demanda Chile. El calendario T67 no se reemplaza por un listado “hot”.
 - **Descubrir (T67, pulido):** embudo en 3 pasos (Hipótesis → Buscar en AE → Pegar listing). Nichos con dolor del comprador, **Armar búsquedas**, CTA **Buscar en AliExpress**, checklist Audisio (caja de zapatos / costo) y “Se viene” plegado. Home: **¿Qué vender este mes?**
 - **UI discovery falso retirada (T50):** home sin chips de producto (CTA Descubrir); Spy Meta Interests como checklist de ads (no product-cards ni “tendencias”); feed = historial propio + CTA Descubrir en empty state.
 - **Focus tras calcular:** auditoría Meta Ads y escaneo Spy en `events.js` hacen `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` al contenedor de resultados; también presets Monte Carlo y comparador de titulares en el informe.

@@ -6586,6 +6586,137 @@ body.auth-locked {
   min-height: 44px;
 }
 
+.discover-affiliate-block {
+  margin: 0.85rem 0 1rem;
+  padding: 0.85rem 0.8rem 0.95rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(6, 182, 212, 0.28);
+  background: rgba(6, 182, 212, 0.06);
+}
+
+.discover-affiliate-lead {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.discover-affiliate-status {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.discover-affiliate-status[data-kind='error'],
+.discover-affiliate-status[data-kind='empty'] {
+  color: var(--text-primary);
+}
+
+.discover-affiliate-status .btn {
+  margin-left: 0.35rem;
+  min-height: 44px;
+}
+
+.discover-affiliate-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+
+@media (min-width: 720px) {
+  .discover-affiliate-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.discover-aff-card {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: rgba(7, 10, 19, 0.55);
+}
+
+.discover-aff-media {
+  flex: 0 0 88px;
+  width: 88px;
+  height: 88px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.discover-aff-media img,
+.discover-aff-ph {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  display: block;
+}
+
+.discover-aff-ph {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.04) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.discover-aff-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.discover-aff-title {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.discover-aff-price {
+  margin: 0 0 0.2rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.discover-aff-orig {
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.discover-aff-meta,
+.discover-aff-ship,
+.discover-aff-trend {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.discover-aff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.discover-aff-actions .btn {
+  min-height: 44px;
+}
+
 .discover-paste-panel {
   padding: 1.15rem 1.05rem 1.2rem;
   border: 1px solid var(--border-color);

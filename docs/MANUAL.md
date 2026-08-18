@@ -97,23 +97,25 @@ Flujo en 3 pasos (barra arriba de la vista): **Hipótesis → Buscar en AE → P
 
 **Paso 1 — hipótesis (gratis, sin API)**
 
-1. En **Descubrir** mira **Temporada Chile · ahora en [mes]**. Cada tarjeta (Invierno, Fiestas Patrias, etc.) es un **calendario comercial**, no un ranking en vivo. El badge **Calendario comercial e hipótesis — no es ranking en vivo ni Affiliate** lo deja explícito.
+1. En **Descubrir** mira **Temporada Chile · ahora en [mes]**. Cada tarjeta (Invierno, Fiestas Patrias, etc.) es un **calendario comercial**, no un ranking en vivo. El badge **Calendario comercial e hipótesis — no es ranking en vivo. Affiliate es oferta, no demanda Chile.** lo deja explícito.
 2. Toca un nicho (ej. **Asado / picnic**) o escribe un problema (ej. “dolor lumbar en la oficina”) → **Armar búsquedas**. También hay chips de ejemplo (Dolor lumbar, Pelo de gato, Cocina chica…).
 3. **Se viene** (desplegable) muestra temporadas a 4–6 semanas para preparar envíos.
 
 **Paso 2 — buscar un listing**
 
 1. Se listan **consultas** (no productos). El botón principal es **Buscar en AliExpress**. **Trends CL** y **Mercado Libre** son links secundarios al sitio oficial; DropDeep **no** scrapea ni cachea esos rankings.
-2. En AliExpress mira: costo USD, que quepa en **caja de zapatos**, pedidos/reseñas y envío a Chile si aparece.
-3. Copia el enlace del **producto** (no de la categoría). **Ya copié el enlace → pegar listing** te lleva al paso 3.
+2. Opcional (sesión): **Buscar catálogo (sesión)** llama a la API Affiliate con **esa misma consulta** (oferta: precio, pedidos, imagen). Badge **AliExpress Affiliate · vivo**. No es ranking de demanda en Chile ni “hot global”. Sin App Key el aviso es **Catálogo Affiliate no configurado todavía…** y el pegado sigue igual.
+3. En AliExpress mira: costo USD, que quepa en **caja de zapatos**, pedidos/reseñas y envío a Chile si aparece.
+4. Copia el enlace del **producto** (no de la categoría) o pulsa **Usar este listing** en un resultado Affiliate. **Ya copié el enlace → pegar listing** te lleva al paso 3.
 
 **Paso 3 — pegar e investigar**
 
-1. En **3. Pega el listing de AliExpress** → **Analizar enlace**.
-2. DropDeep **sugiere** título / costo / imagen si puede (slug, meta pública con sesión, o Gemini BYOK). Badge **No verificado**.
-3. Revisa costo/PVP → **pre-filtro Audisio** → **Investigar** o **Evaluación rápida**.
+1. En **3. Pega el listing de AliExpress** → **Analizar enlace** (o ya viene rellenado desde Affiliate).
+2. Pegado manual: DropDeep **sugiere** título / costo / imagen si puede (slug, meta pública con sesión, o Gemini BYOK). Badge **No verificado**.
+3. Affiliate: los campos vienen de la API (badge **AliExpress Affiliate · vivo**). **Envío no verificado por API** si no hay días. **Tendencia no consultada** (Google Trends SerpAPI es T47).
+4. Revisa costo/PVP → **pre-filtro Audisio** → **Investigar** o **Evaluación rápida**.
 
-La API Affiliate sigue pendiente de App Key (T45). Deploy de `discover-enrich`: ver `supabase/README.md` §2b.
+Deploy de `discover-enrich` y `discover-proxy`: ver `supabase/README.md` §2b y §2c. **Nunca** pegues App Secret en el chat, en `VITE_*` ni en git.
 
 ### Ajustes (icono engranaje)
 
@@ -712,6 +714,13 @@ Mensajes **reales** de la app y qué hacer:
 | *Pega una URL de AliExpress o un ID de producto.* | Campo de listing vacío | Pega el enlace `/item/….html` o el ID numérico largo |
 | *La URL debe ser de AliExpress…* | Host que no es AliExpress | Copia el enlace desde aliexpress.com (o .us / regional) |
 | Las consultas no son “productos hot” | Así está diseñado | Son **búsquedas**. El listing lo eliges tú en AliExpress |
+| **Inicia sesión para buscar el catálogo Affiliate…** | Sin sesión | **Entrar**; o sigue con **Buscar en AliExpress** + pegar (gratis) |
+| **Catálogo Affiliate no configurado todavía…** | Faltan secretos o no se desplegó `discover-proxy` | Usa AliExpress + pegar. El admin pone App Key/Secret **solo** en secretos de Supabase |
+| **Demasiadas búsquedas Affiliate…** | Burst anti-abuso (~10 / 10 s) | Espera unos segundos |
+| **Cuota diaria de búsquedas Affiliate agotada…** | Límite diario del proxy Descubrir | **Buscar en AliExpress** + pegar, o vuelve mañana |
+| **AliExpress no respondió…** / **Firma Affiliate rechazada** | API AE caída o App Secret mal puesto | Reintenta; si persiste, el admin rota secretos en Supabase (nunca en el cliente) |
+| **Envío no verificado por API** | Affiliate no mandó días | Ábrelo en AliExpress y confirma envío a Chile |
+| **Tendencia no consultada** | SerpAPI/Trends no está en este flujo | No es un fallo; T47 es aparte |
 
 ### Portafolio
 

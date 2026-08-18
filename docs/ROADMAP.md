@@ -9,7 +9,7 @@
 ## Norte del ciclo
 
 1. **Validar** el producto con uso real (dogfooding).
-2. **Desbloquear** discovery oficial cuando Portals/App Key estén listos (T45+).
+2. **Desbloquear** discovery oficial: Open Platform aprobado → App Key en secretos Supabase → deploy T45.
 3. **Endurecer** rendimiento, observabilidad y mantenibilidad sin romper la ruta gratis.
 
 No hay fechas de calendario: el orden es de dependencia y riesgo.
@@ -79,13 +79,13 @@ Depende de [§10](PLAN-MEJORAS.md#10-descubrimiento-real-de-productos-t45t50). E
 
 | ID | Título | Estado |
 |----|--------|--------|
-| T45 | Edge `discover-proxy` + Affiliate API | ⏸️ espera App Key / Portals Approved |
-| T46 | UI Descubrir + handoff | 🟡 MVP paste (#35) |
+| T45 | Edge `discover-proxy` + Affiliate API | 🟡 código listo; ops App Key + deploy |
+| T46 | UI Descubrir + handoff | 🟡 MVP paste + T67 + grid Affiliate por query |
 | T47 | Trends CL (SerpAPI) | ⬜ solo si hay presupuesto (ver T55) |
-| T48 | Pre-filtro Audisio hot-list | 🟡 parcial en paste |
-| T49 | Caché / cuota discovery | ⬜ tras T45 |
+| T48 | Pre-filtro Audisio hot-list | 🟡 parcial en paste / listing Affiliate |
+| T49 | Caché / cuota discovery | 🟡 cuota `008`; caché ⬜ |
 | T50 | Retirar discovery falso de UI | ✅ home CTA Descubrir; Meta = checklist ads; feed = historial |
-| T67 | Hipótesis Chile + queries AE (gratis) | ✅ embudo 3 pasos + temporada; T45 sigue bloqueado |
+| T67 | Hipótesis Chile + queries AE (gratis) | ✅ embudo 3 pasos + temporada; T45 no lo sustituye |
 
 ### T53 — Enriquecer Descubrir sin Affiliate
 

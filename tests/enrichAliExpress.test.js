@@ -61,6 +61,7 @@ describe('enrich helpers', () => {
   it('labels sources honestly', () => {
     expect(enrichSourceLabel('og-meta')).toMatch(/no verificado/i);
     expect(enrichSourceLabel('gemini-inferred')).toMatch(/Inferido/i);
+    expect(enrichSourceLabel('affiliate')).toMatch(/Affiliate · vivo/);
   });
 
   it('builds prompt with URL', () => {
