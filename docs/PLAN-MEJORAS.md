@@ -2146,6 +2146,7 @@ T48 puede adelantarse justo después de T46 (solo cliente). T47 requiere presupu
 - Afirmar “producto Winner” solo por hot list.
 - Bloquear Copiloto si discovery falla.
 - Persistencia tipo “marketplace DropDeep” (catálogo propio) — solo candidatos efímeros + opcional historial de búsquedas del usuario.
+- Integrar [x-algorithm](https://github.com/xai-org/x-algorithm) (feed X): solo referencia de ranking (*fuentes → filtros → score → top-K*) post-T45; ver [ROADMAP](ROADMAP.md#referencia-de-ranking-no-dependencia).
 
 ### 10.8 Criterio de éxito del ciclo
 
