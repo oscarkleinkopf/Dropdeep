@@ -8,7 +8,8 @@ Thumbs.db
 !.env.example
 .vite/
 *.local
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
+
+# Secrets / credentials — never commit or sync by default
+client_secret_*.json
+**/client_secret_*.json
+*.pem
